@@ -43,7 +43,6 @@ This section defines the functional and non-functional requirements for BudgetBu
 **Performance**
 * The application should:
     * Have minimal load times
-    * Efficiently handle up to 300 concurrent users
 
 **Usability**
 * The user interface must be:
