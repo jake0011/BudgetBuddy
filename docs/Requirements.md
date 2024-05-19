@@ -8,7 +8,7 @@ This document outlines the deliverables produced during the requirement analysis
 
 This document defines the functional and non-functional requirements for BudgetBuddy.
 
-**Functional Requirements**
+# Functional Requirements
 
 * **User Authentication**
     * Sign Up/Login: Users must securely create accounts and log in to the app.
@@ -27,7 +27,7 @@ This document defines the functional and non-functional requirements for BudgetB
     * Generate Reports: Users can generate reports based on selected dates to analyze their financial activities.
     * Financial Advice: The app should offer general and personalized(maybe later) financial advice based on users' income, expenses, and savings patterns.
 
-## Non-Functional Requirements
+# Non-Functional Requirements
 
 **Security**
 * The application must ensure the secure handling of user data, including:
@@ -72,7 +72,7 @@ This document defines the functional and non-functional requirements for BudgetB
 
 ## 2. Use Case Diagrams
 This diagram visually represent interactions between users and the system.
-![Use Case Diagram](use case.jpg)
+![Use Case Diagram](use_case.jpg)
 
 3. **User Stories and Scenarios**
     - Describe features from the user's perspective, including acceptance criteria (e.g., "Add income sources to track finances").
