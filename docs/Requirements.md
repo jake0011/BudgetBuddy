@@ -6,7 +6,7 @@ This document outlines the deliverables produced during the requirement analysis
 
 # 1. Requirement Specification Document (RSD)
 
-This document defines the functional and non-functional requirements for BudgetBuddy.
+This section defines the functional and non-functional requirements for BudgetBuddy.
 
 ## Functional Requirements
 
@@ -93,8 +93,8 @@ This diagram details the database structure (entities, attributes, relationships
 
 
 # 5. Meeting Notes and Communication Logs
-    * Document meetings, discussions, and communication during requirement gathering for transparency and future reference.  
-       ** To be added later.
+    - Document meetings, discussions, and communication during requirement gathering for transparency and future reference.  
+       - To be added later.
 
 # 6. Project Plan for Requirement Analysis
     - Outlines activities, timelines, resources, risks, and mitigation strategies for the requirement analysis phase. 
