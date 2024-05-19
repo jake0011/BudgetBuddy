@@ -75,21 +75,21 @@ This diagram visually represent interactions between users and the system.
 
 ![Use Case Diagram](use_case.jpg)
 
-3. **User Stories and Scenarios**
+# 3. User Stories and Scenarios
 This(se) diagram(s) is/are to describe features from the user's perspective, including acceptance criteria (e.g., "Add income sources to track finances").
     - To be completed soon.
 
 
-4. **Entity-Relationship Diagrams (ERD)**
+# 4. Entity-Relationship Diagrams (ERD)
 This diagram details the database structure (entities, attributes, relationships) for data storage and management. 
 
 ![ER Diagram](er_diagram.jpg)
 
 
-9. **Meeting Notes and Communication Logs**
+# 5. Meeting Notes and Communication Logs
     - Document meetings, discussions, and communication during requirement gathering for transparency and future reference.  
         -  To be added later.
 
-10. **Project Plan for Requirement Analysis**
+# 6. Project Plan for Requirement Analysis
     - Outlines activities, timelines, resources, risks, and mitigation strategies for the requirement analysis phase. 
         - To be added later.
