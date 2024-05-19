@@ -4,7 +4,7 @@ This document outlines the deliverables produced during the requirement analysis
 
 ### Project Deliverables:
 
-## Requirement Specification Document (RSD)
+## 1. Requirement Specification Document (RSD)
 
 This document defines the functional and non-functional requirements for BudgetBuddy.
 
@@ -58,8 +58,7 @@ This document defines the functional and non-functional requirements for BudgetB
 
 **Compatibility**
 * The application should be compatible with:
-    * Major web browsers
-    * Mobile devices
+    * Mobile devices(Android first, iOS later.)
 
 **Maintainability**
 * The codebase should be:
@@ -68,11 +67,12 @@ This document defines the functional and non-functional requirements for BudgetB
     * Facilitate easy maintenance and updates
 
 **Compliance**
-* The application must comply with relevant financial data protection regulations and standards.
+* The application must comply with relevant financial data protection regulations and standards.(None done yet)
 
 
-2. **Use Case Diagrams**
-    - Visually represent interactions between users and the system (e.g., login, add income, create budget).
+## 2. Use Case Diagrams
+This diagram visually represent interactions between users and the system.
+![Use Case Diagram](use case.jpg)
 
 3. **User Stories and Scenarios**
     - Describe features from the user's perspective, including acceptance criteria (e.g., "Add income sources to track finances").
