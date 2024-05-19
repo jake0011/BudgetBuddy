@@ -1,8 +1,8 @@
 ## BudgetBuddy Requirement Analysis
 
-This document outlines the deliverables produced during the requirement analysis phase of the BudgetBuddy project. Requirement analysis is a critical step in the Software Development Life Cycle (SDLC) that ensures the final product aligns with the stakeholders' needs.
+This document outlines the deliverables produced during the requirement analysis phase of the BudgetBuddy project. Requirement analysis is the first and a critical step in the Software Development Life Cycle (SDLC) that ensures the final product aligns with the stakeholders' needs.
 
-**Project Deliverables:**
+### Project Deliverables:
 
 ## Requirement Specification Document (RSD)
 
@@ -11,10 +11,10 @@ This document defines the functional and non-functional requirements for BudgetB
 **Functional Requirements**
 
 * **User Authentication**
-    * Sign Up/Login: Users must securely create accounts and log in to protect their financial data.
+    * Sign Up/Login: Users must securely create accounts and log in to the app.
 * **Income Management**
-    * Add Income: Users can add income from various sources for comprehensive financial tracking.
-    * Income Sources: Users can specify different income types to account for all financial inflows.
+    * Add Income: Users can add income from various sources.
+    * Income Sources: Users can specify different income types to their account.
 * **Budget Planning**
     * Draw Budget: Users can create budgets based on their total income, allocating funds to designated categories.
 * **Expense Tracking**
@@ -22,10 +22,53 @@ This document defines the functional and non-functional requirements for BudgetB
 * **Expenditure Review**
     * Select Dates for Review: Users can choose specific dates to review their expenditures and compare them against their budget for those periods.
 * **Savings Calculation**
-    * Check Savings: Users can view accumulated savings over different periods to track their financial progress.
+    * Check Savings: Users can view accumulated savings over different periods.
 * **Advice and Reporting**
     * Generate Reports: Users can generate reports based on selected dates to analyze their financial activities.
-    * Financial Advice: The app should offer personalized financial advice based on users' income, expenses, and savings patterns.
+    * Financial Advice: The app should offer general and personalized(maybe later) financial advice based on users' income, expenses, and savings patterns.
+
+## Non-Functional Requirements
+
+**Security**
+* The application must ensure the secure handling of user data, including:
+    * Encryption of sensitive information
+    * Secure authentication mechanisms
+
+**Performance**
+* The application should:
+    * Have minimal load times
+    * Efficiently handle up to 300 concurrent users
+
+**Usability**
+* The user interface must be:
+    * Intuitive
+    * Easy to navigate
+    * Cater to users with varying levels of technical proficiency
+
+**Scalability**
+* The system should be scalable to accommodate:
+    * An increasing number of users
+    * Additional features in the future
+
+**Reliability**
+* The application must be:
+    * Reliable
+    * Have minimal downtime
+    * Have robust data backup mechanisms to prevent data loss
+
+**Compatibility**
+* The application should be compatible with:
+    * Major web browsers
+    * Mobile devices
+
+**Maintainability**
+* The codebase should be:
+    * Well-documented
+    * Modular
+    * Facilitate easy maintenance and updates
+
+**Compliance**
+* The application must comply with relevant financial data protection regulations and standards.
 
 
 2. **Use Case Diagrams**
