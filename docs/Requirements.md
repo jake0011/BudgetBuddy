@@ -12,17 +12,23 @@ This document defines the functional and non-functional requirements for BudgetB
 
 * **User Authentication**
     * Sign Up/Login: Users must securely create accounts and log in to the app.
+
 * **Income Management**
     * Add Income: Users can add income from various sources.
     * Income Sources: Users can specify different income types to their account.
+
 * **Budget Planning**
     * Draw Budget: Users can create budgets based on their total income, allocating funds to designated categories.
+
 * **Expense Tracking**
     * Deduct Expenses: Users can input and categorize expenses, deducting them from their total income. Each entry requires amount and reason for the expense.
+
 * **Expenditure Review**
     * Select Dates for Review: Users can choose specific dates to review their expenditures and compare them against their budget for those periods.
+
 * **Savings Calculation**
     * Check Savings: Users can view accumulated savings over different periods.
+
 * **Advice and Reporting**
     * Generate Reports: Users can generate reports based on selected dates to analyze their financial activities.
     * Financial Advice: The app should offer general and personalized(maybe later) financial advice based on users' income, expenses, and savings patterns.
@@ -87,8 +93,8 @@ This diagram details the database structure (entities, attributes, relationships
 
 
 # 5. Meeting Notes and Communication Logs
-    - Document meetings, discussions, and communication during requirement gathering for transparency and future reference.  
-        -  To be added later.
+    * Document meetings, discussions, and communication during requirement gathering for transparency and future reference.  
+       ** To be added later.
 
 # 6. Project Plan for Requirement Analysis
     - Outlines activities, timelines, resources, risks, and mitigation strategies for the requirement analysis phase. 
