@@ -78,7 +78,8 @@ This section defines the functional and non-functional requirements for BudgetBu
 # 2. Use Case Diagrams
 This diagram visually represent interactions between users and the system.
 
-![Use Case Diagram](use_case.jpg)
+![Use_Case Diagram](https://github.com/jake0011/BudgetBuddy/assets/61389729/84faf938-9bee-4348-9342-0f92c9e8216a)
+
 
 # 3. User Stories and Scenarios
 This(se) diagram(s) is/are to describe features from the user's perspective, including acceptance criteria (e.g., "Add income sources to track finances").
@@ -88,7 +89,7 @@ This(se) diagram(s) is/are to describe features from the user's perspective, inc
 # 4. Entity-Relationship Diagrams (ERD)
 This diagram details the database structure (entities, attributes, relationships) for data storage and management. 
 
-![ER Diagram](er_diagram.jpg)
+![ER Diagram](https://github.com/jake0011/BudgetBuddy/assets/61389729/dc940646-f503-4116-b34e-a19e82a74322)
 
 
 # 5. Meeting Notes and Communication Logs
