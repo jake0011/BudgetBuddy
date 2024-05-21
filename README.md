@@ -89,6 +89,18 @@ This(se) diagram(s) is/are to describe features from the user's perspective, inc
 # 4. Entity-Relationship Diagrams (ERD)
 This diagram details the database structure (entities, attributes, relationships) for data storage and management.
 Click [here](https://dbdiagram.io/d/664cb51af84ecd1d22c3e6c0) to edit 
+These are a list of the categories for expenditure(budget/expenses) with their descriptions :
+- housing: self explanatory
+- transportation: self explanatory
+- food: self explanatory
+- utilitites: gas, water bill, electricity bill, sewage bills, airconditoining, internet expenses and cell phone bills
+- insurance: health insurance, homewowners insurance, auto insurance, life insurance
+- healthcare: self explanatory
+- saving, investing and debt payment
+- personal spending: gym membership, clothes and shoes, home decor and furnishings, gift
+- recreation and entertainment: concert tickets, sporting events, family activities & vacation, streaming services, restaurant, video games, hobbies
+- education: online courses, university(undergrad, grad school)
+- miscellaneous
 
 ![Untitled](https://github.com/jake0011/BudgetBuddy/assets/61389729/c562ecfe-854a-4f5c-a8c2-a1b03abef497)
 
