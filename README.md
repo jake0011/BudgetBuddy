@@ -88,7 +88,7 @@ This(se) diagram(s) is/are to describe features from the user's perspective, inc
 
 # 4. Entity-Relationship Diagrams (ERD)
 This diagram details the database structure (entities, attributes, relationships) for data storage and management.
-Click ![here](https://dbdiagram.io/d/664cb51af84ecd1d22c3e6c0) to edit 
+Click [here](https://dbdiagram.io/d/664cb51af84ecd1d22c3e6c0) to edit 
 
 ![Untitled](https://github.com/jake0011/BudgetBuddy/assets/61389729/c562ecfe-854a-4f5c-a8c2-a1b03abef497)
 
