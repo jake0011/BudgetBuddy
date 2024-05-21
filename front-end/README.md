@@ -18,7 +18,6 @@ This folder contains the front-end code for the BudgetBuddy project.
 front-end/
 ├── assets/
 ├── components/
-├── screens/
 ├── navigation/
 ├── utils/
 ├── App.js

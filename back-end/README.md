@@ -1,28 +1,15 @@
-# Back-end Folder
+# back-end
 
-This folder contains the back-end code for the BudgetBuddy project.
+To install dependencies:
 
-## Installation
+```bash
+bun install
+```
 
-1. Clone the repository:
+To run:
 
-    ```bash
-    git clone https://github.com/your-username/BudgetBuddy.git
-    ```
+```bash
+bun run index.ts
+```
 
-2. Navigate to the back-end folder:
-
-    ```bash
-    cd back-end
-    ```
-
-3. Install the dependencies:
-
-    ```bash
-     ``bun setup to be done by Kwabena``
-    ```
-
-## Usage
-
-To start the back-end server, run the following command:
-``(To be continued by Kwabena.)``
+This project was created using `bun init` in bun v1.1.7. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
