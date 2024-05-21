@@ -1,6 +1,7 @@
 # BudgetBuddy Requirement Analysis
 
 This document outlines the deliverables produced during the requirement analysis phase of the BudgetBuddy project. Requirement analysis is the first and a critical step in the Software Development Life Cycle (SDLC) that ensures the final product aligns with the stakeholders' needs.
+### NB: Edem should check out this [design](https://dribbble.com/shots/24081527-Financial-mobile-app)
 
 ## Project Deliverables:
 
