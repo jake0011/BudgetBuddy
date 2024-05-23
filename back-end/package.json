@@ -1,6 +1,10 @@
 {
   "name": "back-end",
   "module": "index.ts",
+  "scripts":{
+  "db:generate": "drizzle-kit generate",
+  "db:migrate": "bun run ./src/migrate.ts"
+ },
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
