@@ -10,7 +10,7 @@ export default function Page() {
       className="flex-1 px-4"
       style={{ marginTop: top, marginBottom: bottom }}
     >
-      <Text className="text-3xl font-bold">Welcome to Budget Buddy</Text>
+      <Text className="text-3xl font-bold">Budget Buddy</Text>
     </View>
   );
 }
