@@ -1,0 +1,13 @@
+{
+  "version": "6",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1716486124402,
+      "tag": "0000_medical_guardsmen",
+      "breakpoints": true
+    }
+  ]
+}
