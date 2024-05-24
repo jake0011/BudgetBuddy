@@ -85,7 +85,8 @@ This diagram visually represent interactions between users and the system.
 # 3. User Stories and Scenarios
 This(se) diagram(s) is/are to describe features from the user's perspective, including acceptance criteria (e.g., "Add income sources to track finances").
     - To be completed soon.
-
+# 3.1. User Interface 
+    
 
 # 4. Entity-Relationship Diagrams (ERD)
 This diagram details the database structure (entities, attributes, relationships) for data storage and management.
@@ -104,7 +105,6 @@ These are a list of the categories for expenditure(budget/expenses) with their d
 - miscellaneous
 
 ![Untitled](https://github.com/jake0011/BudgetBuddy/assets/61389729/c562ecfe-854a-4f5c-a8c2-a1b03abef497)
-
 
 
 # 5. Meeting Notes and Communication Logs
