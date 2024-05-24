@@ -88,8 +88,8 @@ This(se) diagram(s) is/are to describe features from the user's perspective, inc
 ## 3.1. User Interface 
 | Column 1 | Column 2 | Column 3 |
 |----------|----------|----------|
-| ![photo_4_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/62accced-be07-4820-be41-562766ed1cfe) | ![photo_3_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/a713293f-d5ea-4e91-b542-89735a770bfa) | ![photo_5_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/483a0b4d-66dd-4151-b948-2885777bf8a9) |
-| ![photo_1_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/b47a0c8a-1758-4d69-8a6e-c809992f0ac7) | ![photo_2_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/d66af65a-cdb8-4491-8a7c-13e829bcbcd9) | |
+| ![photo_4_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/62accced-be07-4820-be41-562766ed1cfe) | ![photo_5_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/483a0b4d-66dd-4151-b948-2885777bf8a9)| ![photo_3_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/a713293f-d5ea-4e91-b542-89735a770bfa)  |
+| ![photo_2_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/d66af65a-cdb8-4491-8a7c-13e829bcbcd9) |![photo_1_2024-05-24_08-33-59](https://github.com/jake0011/BudgetBuddy/assets/61389729/b47a0c8a-1758-4d69-8a6e-c809992f0ac7) |  |
 
 # 4. Entity-Relationship Diagrams (ERD)
 This diagram details the database structure (entities, attributes, relationships) for data storage and management.
