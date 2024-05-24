@@ -1,16 +1,19 @@
 import React, { Fragment, useState } from "react";
+import { Link } from "expo-router";
 import {
-  Image,
   View,
   Text,
   TouchableOpacity,
   SafeAreaView,
+  Image,
 } from "react-native";
+
+// import { Image } from "expo-image";
 
 interface OnboardingScreenProps {
   title: string;
   description: string;
-  image: string;
+  image: number;
 }
 
 const handleOnboardingComplete = () => {
@@ -42,41 +45,43 @@ const OnboardingScreen: React.FC = () => {
     }
   };
 
+  const onBack = () => {
+    const nextIndex = activeScreenIndex - 1;
+    if (nextIndex >= 0) {
+      setActiveScreenIndex(nextIndex);
+    }
+  };
+
   const onboardingScreens: OnboardingScreenProps[] = [
     {
       title: "Welcome to BudgetBuddy!",
       description:
         "Track your expenses, manage your budget, and achieve your financial goals. BudgetBuddy provides intuitive features and insightful analytics to help you take control of your finances and make informed decisions.",
-      image:
-        "https://images.pexels.com/photos/2988232/pexels-photo-2988232.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: require("../../../assets/images/welcome.jpg"),
     },
     {
       title: "Expense Tracking",
       description:
         "Easily track your expenses and categorize them to gain a clear understanding of where your money is going. BudgetBuddy helps you stay on top of your spending habits and identify areas where you can save.",
-      image:
-        "https://images.pexels.com/photos/730564/pexels-photo-730564.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: require("../../../assets/images/expenseTracking.jpg"),
     },
     {
       title: "Budget Management",
       description:
         "Create personalized budgets and set spending limits for different categories. BudgetBuddy helps you stay within your budget and provides real-time updates on your progress.",
-      image:
-        "https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: require("../../../assets/images/budgetManagement.png"),
     },
     {
       title: "Financial Goals",
       description:
         "Set financial goals and track your progress towards achieving them. Whether you're saving for a vacation, a new car, or a down payment on a house, BudgetBuddy helps you stay motivated and on track.",
-      image:
-        "https://images.pexels.com/photos/3943723/pexels-photo-3943723.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: require("../../../assets/images/financialGoals.jpg"),
     },
     {
-      title: "Get Started",
+      title: "Let's get going!",
       description:
         "Sign up or log in now to start managing your finances with BudgetBuddy.",
-      image:
-        "https://images.pexels.com/photos/8834493/pexels-photo-8834493.jpeg?auto=compress&cs=tinysrgb&w=600",
+      image: require("../../../assets/images/getStarted.png"),
     },
   ];
 
@@ -85,12 +90,45 @@ const OnboardingScreen: React.FC = () => {
   return (
     <Fragment>
       <SafeAreaView className="flex-1 bg-gray-800">
-        <View className="h-1/2 flex items-center justify-center p-1">
-          <Image
-            source={{ uri: currentScreen.image }}
-            className="h-4/5 w-4/5 rounded-2xl"
-            resizeMode="cover"
-          />
+        <View className="h-1/2 flex  pt-auto ">
+          {/* TODO: Make this logic better. */}
+
+          <View className=" flex flex-row  justify-between mx-4">
+            {activeScreenIndex === onboardingScreens.length - 5 ? (
+              <TouchableOpacity   
+                className=" p-4  rounded-3xl bg-gray-800  justify-start"
+                onPress={onBack}
+              ></TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                className=" p-4  rounded-3xl bg-gray-900 justify-start"
+                onPress={onBack}
+              >
+                <Text className="text-white font-bold">Back</Text>
+              </TouchableOpacity>
+            )}
+
+            <Link
+              className={`p-4 rounded-3xl bg-gray-900 `}
+              href="/signup"
+              asChild
+            >
+              <TouchableOpacity className=" p-4 rounded-2xl bg-gray-900 ">
+                <Text className="text-white font-bold">Skip</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+          <View className="items-center">
+            {/* {console.log(currentScreen.image)} */}
+            <Image
+              // source={{ uri: currentScreen.image }}
+              source={currentScreen.image}
+              // source = {require('../../../assets/images/onboarding-5.jpg')}
+              className="h-4/5 w-4/5 rounded-2xl mt-8 items-center"
+              // contentFit="cover"
+              resizeMode="cover"
+            />
+          </View>
         </View>
         <View className="h-1/2 p-6 color-white">
           <View className="items-center justify-center h-1/2 color-white">
@@ -107,29 +145,34 @@ const OnboardingScreen: React.FC = () => {
               <>
                 <TouchableOpacity
                   activeOpacity={0.5}
-                  className="bg-white text-white py-2 px-4 mb-4 w-64 rounded-2xl"
+                  className={`${
+                    activeScreenIndex === onboardingScreens.length - 5
+                      ? "bg-orange-100"
+                      : activeScreenIndex === onboardingScreens.length - 4
+                      ? "bg-red-200"
+                      : activeScreenIndex === onboardingScreens.length - 3
+                      ? "bg-red-200"
+                      : activeScreenIndex === onboardingScreens.length - 2
+                      ? "bg-gray-200"
+                      : "bg-red-300"
+                  }  py-4 px-4 mb-4 w-64 rounded-2xl`}
                   onPress={onNext}
                 >
                   <Text className="text-center text-2xl text-black">Next</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  className="bg-gray-600 border border-gray-300 py-2 px-4 w-64 rounded-2xl"
-                  onPress={onSkip}
-                >
-                  <Text className="text-center text-2xl text-black-">Skip</Text>
-                </TouchableOpacity>
               </>
             ) : (
-              <TouchableOpacity
-                activeOpacity={0.5}
-                className="bg-white text-white py-2 px-4 w-64 rounded-2xl"
-                onPress={handleOnboardingComplete}
-              >
-                <Text className="text-center text-2xl text-black">
-                  Get Started
-                </Text>
-              </TouchableOpacity>
+              <Link href="/signup" asChild>
+                <TouchableOpacity
+                  activeOpacity={0.5}
+                  className="bg-rose-200 text-white py-4 px-4 w-64 rounded-2xl"
+                  onPress={handleOnboardingComplete}
+                >
+                  <Text className="text-center text-2xl text-black">
+                    Get Started
+                  </Text>
+                </TouchableOpacity>
+              </Link>
             )}
           </View>
 

@@ -13,6 +13,12 @@
         {
           "origin": "https://n"
         }
+      ],
+      [
+        "expo-asset",
+        {
+          "assets": "./assets/*"
+        }
       ]
     ],
     "name": "Budget Buddy",
