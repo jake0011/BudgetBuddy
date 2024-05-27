@@ -16,6 +16,7 @@ interface OnboardingScreenProps {
   image: number;
 }
 
+
 const handleOnboardingComplete = () => {
   // Logic for completing the onboarding process
 };
@@ -89,8 +90,8 @@ const OnboardingScreen: React.FC = () => {
 
   return (
     <Fragment>
-      <SafeAreaView className="flex-1 bg-gray-800">
-        <View className="h-1/2 flex  pt-auto ">
+      <SafeAreaView className="flex-1 bg-gray-800  my-auto">
+        <View className="h-1/2 flex">
           {/* TODO: Make this logic better. */}
 
           <View className=" flex flex-row  justify-between mx-4">
@@ -176,7 +177,7 @@ const OnboardingScreen: React.FC = () => {
             )}
           </View>
 
-          <View className="flex flex-row items-center justify-center mt-2">
+          <View className="flex flex-row items-center justify-center pt-2">
             {onboardingScreens.map((screen, index) => (
               <View
                 key={index}
