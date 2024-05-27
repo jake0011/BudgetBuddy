@@ -50,6 +50,13 @@
       "when": 1716841585847,
       "tag": "0006_flashy_terrax",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1716848936561,
+      "tag": "0007_clear_chameleon",
+      "breakpoints": true
     }
   ]
 }
