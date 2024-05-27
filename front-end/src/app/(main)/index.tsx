@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Image,
 } from "react-native";
+import SafeAreaViewAndroid from "@/components/global/SafeAreaViewAndroid";
 
 // import { Image } from "expo-image";
 
@@ -90,19 +91,19 @@ const OnboardingScreen: React.FC = () => {
 
   return (
     <Fragment>
-      <SafeAreaView className="flex-1 bg-gray-800  my-auto">
-        <View className="h-1/2 flex">
+ <SafeAreaView style={SafeAreaViewAndroid.AndroidSafeArea}>
+       <View className="h-1/2 flex">
           {/* TODO: Make this logic better. */}
 
           <View className=" flex flex-row  justify-between mx-4">
             {activeScreenIndex === onboardingScreens.length - 5 ? (
               <TouchableOpacity   
-                className=" p-4  rounded-3xl bg-gray-800  justify-start"
+                className=" p-2  rounded-2xl bg-gray-800  justify-start"
                 onPress={onBack}
               ></TouchableOpacity>
             ) : (
               <TouchableOpacity
-                className=" p-4  rounded-3xl bg-gray-900 justify-start"
+                className=" p-2 px-4 rounded-2xl my-4 bg-gray-900 justify-start"
                 onPress={onBack}
               >
                 <Text className="text-white font-bold">Back</Text>
@@ -110,11 +111,11 @@ const OnboardingScreen: React.FC = () => {
             )}
 
             <Link
-              className={`p-4 rounded-3xl bg-gray-900 `}
+              className={`p-2 rounded-2xl bg-gray-900 `}
               href="/signup"
               asChild
             >
-              <TouchableOpacity className=" p-4 rounded-2xl bg-gray-900 ">
+              <TouchableOpacity className=" px-4 my-4 rounded-2xl bg-gray-900 ">
                 <Text className="text-white font-bold">Skip</Text>
               </TouchableOpacity>
             </Link>
