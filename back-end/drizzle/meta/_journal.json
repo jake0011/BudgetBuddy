@@ -57,6 +57,13 @@
       "when": 1716848936561,
       "tag": "0007_clear_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1716914021938,
+      "tag": "0008_crazy_christian_walker",
+      "breakpoints": true
     }
   ]
 }
