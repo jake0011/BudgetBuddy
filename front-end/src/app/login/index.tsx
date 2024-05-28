@@ -20,12 +20,7 @@ const LoginScreen: React.FC = () => {
   return (
     <View className="flex-1 p-6 justify-center gap-10 items-center bg-gray-800">
       <View className=" w-full justify-center items-center">
-        <Image
-          source={require("assets/images/expenseTracking.jpg")}
-          className="w-full h-64 rounded-3xl"
-          resizeMode="cover"
-        />
-        <Text className="text-2xl font-bold text-white pt-5">
+        <Text className="text-4xl font-bold text-white pt-5">
           BudgetBuddy Login
         </Text>
       </View>

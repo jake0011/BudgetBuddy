@@ -14,16 +14,10 @@ const SignupScreen: React.FC = () => {
 
   return (
     <View className="flex-1 p-6 justify-center gap-10 items-center bg-gray-800">
-      <View className="w-full justify-center items-center">
-        <Image
-          source={require("assets/images/expenseTracking.jpg")}
-          className="w-full h-64 rounded-3xl"
-          resizeMode="cover"
-        />
-        <Text className="text-2xl font-bold text-white pt-2">
-          BudgetBuddy Sign Up
-        </Text>
-      </View>
+      <Text className="text-4xl font-bold text-white pt-2">
+        BudgetBuddy Sign Up
+      </Text>
+
       <View className="w-full flex gap-3 justify-center items-center">
         <View className="w-full flex-row gap-4 justify-between">
           <View className="w-full flex-1 flex-col gap-2 justify-start">
