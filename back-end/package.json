@@ -5,6 +5,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run ./src/migrate.ts",
     "db:seed": "bun run ./src/seed.ts",
+    "dev": "bun run --hot src/index.ts"
   },
   "type": "module",
   "devDependencies": {
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.3",
-    "drizzle-orm": "^0.30.10"
+    "drizzle-orm": "^0.30.10",
+    "hono": "^4.4.0"
   }
 }
