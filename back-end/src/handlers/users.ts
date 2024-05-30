@@ -14,7 +14,7 @@ user.get(
       return err;
     }
   },
-  201,
+  201
 );
 
 export default user;
