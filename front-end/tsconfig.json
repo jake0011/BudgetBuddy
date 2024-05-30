@@ -7,5 +7,10 @@
     }
   },
   "extends": "expo/tsconfig.base",
-  "include": ["global.d.ts", "**/*.ts", "**/*.tsx"]
+  "include": [
+    "global.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/app/(auth)/onboarding/index.tss"
+  ]
 }
