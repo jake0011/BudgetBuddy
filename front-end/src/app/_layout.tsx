@@ -15,24 +15,9 @@ const StackLayout = () => {
   const segments = useSegments();
   const router = useRouter();
 
-  useEffect(() => {
-    setTimeout(SplashScreen.hideAsync, 2000);
-  }, []);
-
-  // const [loaded] = useFonts({
-  //   Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
-  //   InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
-  // });
-
   // useEffect(() => {
-  //   if (loaded) {
-  //     SplashScreen.hideAsync();
-  //   }
-  // }, [loaded]);
-
-  // if (!loaded) {
-  //   return null;
-  // }
+  //   setTimeout(SplashScreen.hideAsync, 2000);
+  // }, []);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === "(root)";
@@ -42,6 +27,17 @@ const StackLayout = () => {
       router.replace("/(root)");
     }
   }, [user, segments, router]);
+
+  const [loaded] = useFonts({
+    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
+    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
+  });
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

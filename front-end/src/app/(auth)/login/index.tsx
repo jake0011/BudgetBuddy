@@ -50,7 +50,7 @@ const LoginScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </Link>
-      {/* <Button >Login</Button> */}
+      <Button>Login</Button>
     </View>
   );
 };
