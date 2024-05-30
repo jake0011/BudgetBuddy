@@ -1,8 +1,12 @@
 import "../global.css";
+import "@tamagui/core/reset.css";
 import React, { useEffect } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useAuthStore } from "@/stores/auth";
 import * as SplashScreen from "expo-splash-screen";
+import { TamaguiProvider } from "tamagui";
+import tamaguiConfig from "tamagui.config";
+import { useFonts } from "expo-font";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -14,6 +18,21 @@ const StackLayout = () => {
   useEffect(() => {
     setTimeout(SplashScreen.hideAsync, 2000);
   }, []);
+
+  // const [loaded] = useFonts({
+  //   Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
+  //   InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
+  // });
+
+  // useEffect(() => {
+  //   if (loaded) {
+  //     SplashScreen.hideAsync();
+  //   }
+  // }, [loaded]);
+
+  // if (!loaded) {
+  //   return null;
+  // }
 
   useEffect(() => {
     const inAuthGroup = segments[0] === "(root)";
@@ -33,5 +52,9 @@ const StackLayout = () => {
 };
 
 export default function RootLayout() {
-  return <StackLayout />;
+  return (
+    <TamaguiProvider config={tamaguiConfig}>
+      <StackLayout />
+    </TamaguiProvider>
+  );
 }

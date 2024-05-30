@@ -25,7 +25,8 @@
         {
           "assets": "./assets/*"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "name": "Budget Buddy",
     "slug": "budget-buddy"

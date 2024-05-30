@@ -1,13 +1,7 @@
 import { Link } from "expo-router";
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, TextInput, Image, TouchableOpacity } from "react-native";
+import { Button } from "tamagui";
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -56,6 +50,7 @@ const LoginScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </Link>
+      {/* <Button >Login</Button> */}
     </View>
   );
 };
