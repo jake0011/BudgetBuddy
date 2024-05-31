@@ -1,6 +1,6 @@
 import "../global.css";
 import "@tamagui/core/reset.css";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useAuthStore } from "@/stores/auth";
 import * as SplashScreen from "expo-splash-screen";
@@ -15,9 +15,9 @@ const StackLayout = () => {
   const segments = useSegments();
   const router = useRouter();
 
-  // useEffect(() => {
-  //   setTimeout(SplashScreen.hideAsync, 2000);
-  // }, []);
+  useEffect(() => {
+    setTimeout(SplashScreen.hideAsync, 2000);
+  }, []);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === "(root)";
@@ -28,17 +28,6 @@ const StackLayout = () => {
     }
   }, [user, segments, router]);
 
-  const [loaded] = useFonts({
-    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
-    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
@@ -48,6 +37,25 @@ const StackLayout = () => {
 };
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
+    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
+  });
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    const prepareApp = async () => {
+      if (fontsLoaded) {
+        setAppIsReady(true);
+      }
+    };
+
+    prepareApp();
+  }, [fontsLoaded]);
+
+  if (!appIsReady) {
+    return null;
+  }
   return (
     <TamaguiProvider config={tamaguiConfig}>
       <StackLayout />
