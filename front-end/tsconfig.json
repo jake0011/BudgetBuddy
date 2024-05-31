@@ -11,6 +11,6 @@
     "global.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/app/(auth)/onboarding/index.tss"
+    "src/app/(auth)/onboarding/index.tsx"
   ]
 }
