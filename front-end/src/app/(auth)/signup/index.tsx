@@ -63,7 +63,7 @@ const SignupScreen: React.FC = () => {
           />
         </View>
         <View className="w-full flex-col gap-2 justify-start">
-          <Text className="text-white">Password</Text>
+          <Text className="text-white">Confirm Password</Text>
           <TextInput
             id="password"
             className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
@@ -74,7 +74,7 @@ const SignupScreen: React.FC = () => {
           />
         </View>
       </View>
-      <Link href="/login" asChild className="justify-center ">
+      <Link href="/home" asChild className="justify-center ">
         <TouchableOpacity
           className="w-full p-2 bg-slate-600 border border-gray-300 rounded-2xl px-2 "
           onPress={handleSignup}
@@ -85,7 +85,8 @@ const SignupScreen: React.FC = () => {
         </TouchableOpacity>
       </Link>
     </View>
-  );
+  )
+  
 };
 
 export default SignupScreen;
