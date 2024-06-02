@@ -6,6 +6,11 @@ import { zValidator } from "@hono/zod-validator";
 import { users } from "../db/schema/users.ts";
 import { db } from "../db/db";
 
+//TODO: login
+//      delete user
+//      send email verification after sign up 
+//      get user by id 
+
 const signUpSchema = z.object({
   username: z.string(),
   firstname: z.string(),
@@ -26,7 +31,6 @@ user.get("/all", async (c) => {
   }
 });
 
-//TODO: also do some JWT for authentication as a middleware
 user.post(
   "/signup",
   zValidator("json", signUpSchema, (result, c) => {
@@ -71,4 +75,35 @@ user.post(
   },
 );
 
+
+
+
 export default user;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
