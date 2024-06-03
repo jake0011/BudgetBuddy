@@ -1,5 +1,6 @@
 import { Hono } from "hono";
-import { eq, or } from "drizzle-orm";
+import { sign } from "hono/jwt";
+import { eq, or, and } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
@@ -8,8 +9,8 @@ import { db } from "../db/db";
 
 //TODO: login
 //      delete user
-//      send email verification after sign up 
-//      get user by id 
+//      send email verification after sign up
+//      get user by id
 
 const signUpSchema = z.object({
   username: z.string(),
@@ -18,6 +19,12 @@ const signUpSchema = z.object({
   lastname: z.string(),
   password: z.string().min(8),
   email: z.string(),
+});
+
+const signInSchema = z.object({
+  username: z.string().optional(),
+  email: z.string().optional(),
+  password: z.string(),
 });
 
 const user = new Hono().basePath("v1/user");
@@ -69,41 +76,62 @@ user.post(
         email: body.email,
       });
       return c.json("Sign Up successful", 201);
-    } catch (err) {
-      return err;
+    } catch (error) {
+      return error;
     }
   },
 );
 
+user.post(
+  "/signin",
+  zValidator("json", signInSchema, (result, c) => {
+    if (!result.success) {
+      return c.json("Invalid Input", 415);
+    }
+  }),
+  async (c) => {
+    try {
+      const body = await c.req.json();
+      //TODO: Flavio should migrate this to the find first api instead
+      //https://orm.drizzle.team/docs/rqb#find-first
+      const userDetails = await db
+        .select()
+        .from(users)
+        .where(
+          or(eq(users.username, body.username), eq(users.email, body.email)),
+        )
+        .limit(1);
 
+      const isPasswordMatch = await Bun.password.verify(
+        body.password,
+        userDetails[0].password,
+      );
 
-
+      if (isPasswordMatch) {
+        const payload = {
+          exp: Math.floor(Date.now() / 1000) + 60 * process.env.JWT_EXPIRY_TIME,
+        };
+        const secret = process.env.JWT_SECRET_KEY;
+        const token = await sign(payload, secret);
+        return c.json(
+          {
+            token: token,
+            data: {
+              username: userDetails[0].username,
+              firstname: userDetails[0].firstname,
+              middlename: userDetails[0].middlename,
+              lastname: userDetails[0].lastname,
+              email: userDetails[0].email,
+            }
+          },
+          201,
+        );
+      } else {
+        return c.json("Username or Password Wrong", 401);
+      }
+    } catch (error) {
+      return error;
+    }
+  },
+);
 export default user;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
