@@ -5,9 +5,9 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql", // 'postgresql' | 'mysql' | 'sqlite'
   dbCredentials: {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.DB_HOST || "owner",
+    user: process.env.DB_USER || "user",
+    password: process.env.DB_PASSWORD || "somePassword",
+    database: process.env.DB_NAME || "db",
   },
 });
