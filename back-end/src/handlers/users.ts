@@ -1,14 +1,13 @@
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
-import { eq, or, and } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
 import { users } from "../db/schema/users.ts";
 import { db } from "../db/db";
 
-//TODO: login
-//      delete user
+//TODO: 
 //      send email verification after sign up
 //      get user by id
 
@@ -117,6 +116,7 @@ user.post(
             {
               token: token,
               data: {
+                userId: userDetails.userId,
                 username: userDetails.username,
                 firstname: userDetails.firstname,
                 middlename: userDetails.middlename,
@@ -135,4 +135,25 @@ user.post(
     }
   },
 );
+
+interface deletedUser {
+  username: string;
+}
+user.delete("/delete/:userId", async (c) => {
+  const userId = Number(c.req.param("userId"));
+  try {
+    const deletedUsername: deletedUser[] = await db
+      .delete(users)
+      .where(eq(users.userId, userId))
+      .returning({ username: users.username });
+
+    return c.json(
+      `User ${deletedUsername[0].username} deleted successfully`,
+      404,
+    );
+  } catch (err) {
+    return c.json({ err }, 404);
+  }
+});
+
 export default user;
