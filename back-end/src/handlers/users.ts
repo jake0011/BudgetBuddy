@@ -15,9 +15,9 @@ import { db } from "../db/db";
 const signUpSchema = z.object({
   username: z.string(),
   firstname: z.string(),
-  middlename: z.string(),
+  middlename: z.string().optional(),
   lastname: z.string(),
-  password: z.string().min(8),
+  password: z.string().min(8).max(20),
   email: z.string(),
 });
 
@@ -34,7 +34,7 @@ user.get("/all", async (c) => {
     const userRows = await db.select().from(users);
     return c.json({ userRows }, 201);
   } catch (err) {
-    return err;
+    return c.json({err}, 500);
   }
 });
 
@@ -77,7 +77,7 @@ user.post(
       });
       return c.json("Sign Up successful", 201);
     } catch (error) {
-      return error;
+      c.json({error}, 500);
     }
   },
 );
@@ -109,11 +109,11 @@ user.post(
 
       if (isPasswordMatch) {
         const payload = {
-          exp: Math.floor(Date.now() / 1000) + 60 * process.env.JWT_EXPIRY_TIME,
+          exp: Math.floor(Date.now() / 1000) + 60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
         };
-        const secret = process.env.JWT_SECRET_KEY;
+        const secret = process.env.JWT_SECRET_KEY || "mySecretKey";
         const token = await sign(payload, secret);
-        return c.json(
+        c.json(
           {
             token: token,
             data: {
@@ -130,7 +130,7 @@ user.post(
         return c.json("Username or Password Wrong", 401);
       }
     } catch (error) {
-      return error;
+      c.json({error}, 500);
     }
   },
 );
