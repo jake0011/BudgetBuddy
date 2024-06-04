@@ -34,7 +34,7 @@ user.get("/all", async (c) => {
     const userRows = await db.select().from(users);
     return c.json({ userRows }, 201);
   } catch (err) {
-    return c.json({err}, 500);
+    return c.json({ err }, 500);
   }
 });
 
@@ -77,7 +77,7 @@ user.post(
       });
       return c.json("Sign Up successful", 201);
     } catch (error) {
-      c.json({error}, 500);
+      c.json({ error }, 500);
     }
   },
 );
@@ -102,36 +102,40 @@ user.post(
         )
         .limit(1);
 
-      const isPasswordMatch = await Bun.password.verify(
-        body.password,
-        userDetails[0].password,
-      );
+    //   const userDetails = await db.query.users.findFirst({
+    //     where: eq(users.username, body.username), eq(users.email, body.email)
+    // });
 
-      if (isPasswordMatch) {
-        const payload = {
-          exp: Math.floor(Date.now() / 1000) + 60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
-        };
-        const secret = process.env.JWT_SECRET_KEY || "mySecretKey";
-        const token = await sign(payload, secret);
-        c.json(
-          {
-            token: token,
-            data: {
-              username: userDetails[0].username,
-              firstname: userDetails[0].firstname,
-              middlename: userDetails[0].middlename,
-              lastname: userDetails[0].lastname,
-              email: userDetails[0].email,
-            }
-          },
-          201,
-        );
-      } else {
-        return c.json("Username or Password Wrong", 401);
+const isPasswordMatch = await Bun.password.verify(
+  body.password,
+  userDetails[0].password,
+);
+
+if (isPasswordMatch) {
+  const payload = {
+    exp: Math.floor(Date.now() / 1000) + 60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
+  };
+  const secret = process.env.JWT_SECRET_KEY || "mySecretKey";
+  const token = await sign(payload, secret);
+  c.json(
+    {
+      token: token,
+      data: {
+        username: userDetails[0].username,
+        firstname: userDetails[0].firstname,
+        middlename: userDetails[0].middlename,
+        lastname: userDetails[0].lastname,
+        email: userDetails[0].email,
       }
+    },
+    201,
+  );
+} else {
+  return c.json("Username or Password Wrong", 401);
+}
     } catch (error) {
-      c.json({error}, 500);
-    }
+  c.json({ error }, 500);
+}
   },
 );
 export default user;
