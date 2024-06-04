@@ -94,48 +94,56 @@ user.post(
       const body = await c.req.json();
       //TODO: Flavio should migrate this to the find first api instead
       //https://orm.drizzle.team/docs/rqb#find-first
-      const userDetails = await db
-        .select()
-        .from(users)
-        .where(
-          or(eq(users.username, body.username), eq(users.email, body.email)),
-        )
-        .limit(1);
+      // const userDetails = await db
+      //   .select()
+      //   .from(users)
+      //   .where(
+      //     or(eq(users.username, body.username), eq(users.email, body.email)),
+      //   )
+      //   .limit(1);
 
-    //   const userDetails = await db.query.users.findFirst({
-    //     where: eq(users.username, body.username), eq(users.email, body.email)
-    // });
+      const userDetails = await db.query.users.findFirst({
+        where: or(
+          eq(users.username, body.username),
+          eq(users.email, body.email),
+        ),
+      });
+      console.log(userDetails);
+      if (userDetails) {
+        const isPasswordMatch = await Bun.password.verify(
+          body.password,
+          userDetails.password,
+        );
 
-const isPasswordMatch = await Bun.password.verify(
-  body.password,
-  userDetails[0].password,
-);
+        if (isPasswordMatch) {
+          const payload = {
+            exp:
+              Math.floor(Date.now() / 1000) +
+              60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
+          };
+          const secret = process.env.JWT_SECRET_KEY || "mySecretKey";
+          const token = await sign(payload, secret);
+          return c.json(
+            {
+              token: token,
+              data: {
+                username: userDetails.username,
+                firstname: userDetails.firstname,
+                middlename: userDetails.middlename,
+                lastname: userDetails.lastname,
+                email: userDetails.email,
+              },
+            },
+            201,
+          );
+        } else {
+          return c.json("Username or Password Wrong", 401);
+        }
 
-if (isPasswordMatch) {
-  const payload = {
-    exp: Math.floor(Date.now() / 1000) + 60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
-  };
-  const secret = process.env.JWT_SECRET_KEY || "mySecretKey";
-  const token = await sign(payload, secret);
-  c.json(
-    {
-      token: token,
-      data: {
-        username: userDetails[0].username,
-        firstname: userDetails[0].firstname,
-        middlename: userDetails[0].middlename,
-        lastname: userDetails[0].lastname,
-        email: userDetails[0].email,
       }
-    },
-    201,
-  );
-} else {
-  return c.json("Username or Password Wrong", 401);
-}
     } catch (error) {
-  c.json({ error }, 500);
-}
+      return c.json({ error }, 500);
+    }
   },
 );
 export default user;

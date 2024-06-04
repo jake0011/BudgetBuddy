@@ -6,14 +6,17 @@ import { categories } from "./db/schema/expenditures.ts";
 
 async function seed() {
   //TODO: Don't forget to catch these types of errors when it comes to the actual
-  //implementation 
+  //implementation
   await db.insert(users).values([
     {
       username: "kwabenadarkwa",
       firstname: "Kwabena",
       middlename: "Darkwa",
       lastname: "Obeng-Yeboah",
-      password: "catchoneboyandslapam",
+      password: await Bun.password.hash("catchoneboyandslapam", {
+        algorithm: "bcrypt",
+        cost: 4,
+      }),
       email: "darkwak@live.com",
     },
     {
@@ -21,21 +24,30 @@ async function seed() {
       firstname: "Jonathan",
       middlename: "Edem",
       lastname: "Akuaku",
-      password: "catchoneboyandslapam",
+      password: await Bun.password.hash("catchboyoneandslapam", {
+        algorithm: "bcrypt",
+        cost: 4,
+      }),
       email: "edem@live.com",
     },
     {
       username: "mrryt",
       firstname: "Flavio",
       lastname: "Sobbin",
-      password: "jsisthegoat",
+      password: await Bun.password.hash("jsisthegoat", {
+        algorithm: "bcrypt",
+        cost: 4,
+      }),
       email: "flavio@live.com",
     },
     {
       username: "owulo_onions",
       firstname: "Alan",
       lastname: "Perry",
-      password: "lifeofacomrade",
+      password: await Bun.password.hash("lifeofacomrade", {
+        algorithm: "bcrypt",
+        cost: 4,
+      }),
       email: "onions@live.com",
     },
   ]);
@@ -83,7 +95,8 @@ async function seed() {
     },
     {
       name: "Food",
-      description: "Expenses related to purchasing and consuming food and beverages, including groceries, dining out, and takeout.",
+      description:
+        "Expenses related to purchasing and consuming food and beverages, including groceries, dining out, and takeout.",
     },
     {
       name: "Utilities",
