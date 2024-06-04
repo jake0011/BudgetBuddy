@@ -92,15 +92,6 @@ user.post(
   async (c) => {
     try {
       const body = await c.req.json();
-      //TODO: Flavio should migrate this to the find first api instead
-      //https://orm.drizzle.team/docs/rqb#find-first
-      // const userDetails = await db
-      //   .select()
-      //   .from(users)
-      //   .where(
-      //     or(eq(users.username, body.username), eq(users.email, body.email)),
-      //   )
-      //   .limit(1);
 
       const userDetails = await db.query.users.findFirst({
         where: or(
@@ -108,7 +99,6 @@ user.post(
           eq(users.email, body.email),
         ),
       });
-      console.log(userDetails);
       if (userDetails) {
         const isPasswordMatch = await Bun.password.verify(
           body.password,
@@ -139,7 +129,6 @@ user.post(
         } else {
           return c.json("Username or Password Wrong", 401);
         }
-
       }
     } catch (error) {
       return c.json({ error }, 500);
