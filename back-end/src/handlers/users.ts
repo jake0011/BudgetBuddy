@@ -40,8 +40,15 @@ user.get("/all", async (c) => {
 user.post(
   "/signup",
   zValidator("json", signUpSchema, (result, c) => {
-    if (!result.success) {
-      return c.json("Invalid Input", 415);
+    //Decide if you like a general respone or more specific ones. I prefer more specific but you are the boss here.
+
+    // if (!result.success) {
+    //   return c.json("Password should be from 8 to 20 characters long", 415);
+    // }
+    if (result.data.password.length < 8) {
+      return c.json("Password should be 8 or more characters", 415);
+    } else if (result.data.password.length > 20) {
+      return c.json("Password should be 20 or less characters", 415);
     }
   }),
   async (c) => {
@@ -74,7 +81,7 @@ user.post(
         password: bcryptHash,
         email: body.email,
       });
-      return c.json("Sign Up successful", 201);
+      return c.json(`${body.username} signed up successfully`, 201);
     } catch (error) {
       c.json({ error }, 500);
     }
@@ -139,6 +146,7 @@ user.post(
 interface deletedUser {
   username: string;
 }
+
 user.delete("/delete/:userId", async (c) => {
   const userId = Number(c.req.param("userId"));
   try {
