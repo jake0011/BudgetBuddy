@@ -1,23 +1,22 @@
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
-import { eq, or, and } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
 import { users } from "../db/schema/users.ts";
 import { db } from "../db/db";
 
-//TODO: login
-//      delete user
+//TODO: 
 //      send email verification after sign up
 //      get user by id
 
 const signUpSchema = z.object({
   username: z.string(),
   firstname: z.string(),
-  middlename: z.string(),
+  middlename: z.string().optional(),
   lastname: z.string(),
-  password: z.string().min(8),
+  password: z.string().min(8).max(20),
   email: z.string(),
 });
 
@@ -34,15 +33,22 @@ user.get("/all", async (c) => {
     const userRows = await db.select().from(users);
     return c.json({ userRows }, 201);
   } catch (err) {
-    return err;
+    return c.json({ err }, 500);
   }
 });
 
 user.post(
   "/signup",
   zValidator("json", signUpSchema, (result, c) => {
-    if (!result.success) {
-      return c.json("Invalid Input", 415);
+    //Decide if you like a general respone or more specific ones. I prefer more specific but you are the boss here.
+
+    // if (!result.success) {
+    //   return c.json("Password should be from 8 to 20 characters long", 415);
+    // }
+    if (result.data.password.length < 8) {
+      return c.json("Password should be 8 or more characters", 415);
+    } else if (result.data.password.length > 20) {
+      return c.json("Password should be 20 or less characters", 415);
     }
   }),
   async (c) => {
@@ -75,9 +81,9 @@ user.post(
         password: bcryptHash,
         email: body.email,
       });
-      return c.json("Sign Up successful", 201);
+      return c.json(`${body.username} signed up successfully`, 201);
     } catch (error) {
-      return error;
+      c.json({ error }, 500);
     }
   },
 );
@@ -92,46 +98,70 @@ user.post(
   async (c) => {
     try {
       const body = await c.req.json();
-      //TODO: Flavio should migrate this to the find first api instead
-      //https://orm.drizzle.team/docs/rqb#find-first
-      const userDetails = await db
-        .select()
-        .from(users)
-        .where(
-          or(eq(users.username, body.username), eq(users.email, body.email)),
-        )
-        .limit(1);
 
-      const isPasswordMatch = await Bun.password.verify(
-        body.password,
-        userDetails[0].password,
-      );
-
-      if (isPasswordMatch) {
-        const payload = {
-          exp: Math.floor(Date.now() / 1000) + 60 * process.env.JWT_EXPIRY_TIME,
-        };
-        const secret = process.env.JWT_SECRET_KEY;
-        const token = await sign(payload, secret);
-        return c.json(
-          {
-            token: token,
-            data: {
-              username: userDetails[0].username,
-              firstname: userDetails[0].firstname,
-              middlename: userDetails[0].middlename,
-              lastname: userDetails[0].lastname,
-              email: userDetails[0].email,
-            }
-          },
-          201,
+      const userDetails = await db.query.users.findFirst({
+        where: or(
+          eq(users.username, body.username),
+          eq(users.email, body.email),
+        ),
+      });
+      if (userDetails) {
+        const isPasswordMatch = await Bun.password.verify(
+          body.password,
+          userDetails.password,
         );
-      } else {
-        return c.json("Username or Password Wrong", 401);
+
+        if (isPasswordMatch) {
+          const payload = {
+            exp:
+              Math.floor(Date.now() / 1000) +
+              60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
+          };
+          const secret = process.env.JWT_SECRET_KEY || "mySecretKey";
+          const token = await sign(payload, secret);
+          return c.json(
+            {
+              token: token,
+              data: {
+                userId: userDetails.userId,
+                username: userDetails.username,
+                firstname: userDetails.firstname,
+                middlename: userDetails.middlename,
+                lastname: userDetails.lastname,
+                email: userDetails.email,
+              },
+            },
+            201,
+          );
+        } else {
+          return c.json("Username or Password Wrong", 401);
+        }
       }
     } catch (error) {
-      return error;
+      return c.json({ error }, 500);
     }
   },
 );
+
+interface deletedUser {
+  username: string;
+}
+
+user.delete("/delete/:userId", async (c) => {
+  const userId = Number(c.req.param("userId"));
+  try {
+    const deletedUsername: deletedUser[] = await db
+      .delete(users)
+      .where(eq(users.userId, userId))
+      .returning({ username: users.username });
+
+    return c.json(
+      `User ${deletedUsername[0].username} deleted successfully`,
+      404,
+    );
+  } catch (err) {
+    return c.json({ err }, 404);
+  }
+});
+
 export default user;
