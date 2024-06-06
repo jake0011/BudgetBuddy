@@ -1,10 +1,12 @@
 import { Link } from "expo-router";
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { TextInput } from "react-native-paper";
 
 const SignupScreen: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
@@ -24,9 +26,12 @@ const SignupScreen: React.FC = () => {
             <Text className="text-white">First Name</Text>
             <TextInput
               id="firstName"
-              className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+              label={"First Name"}
+              theme={{ colors: { placeholder: "white", text: "white" } }}
+              className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-800 rounded-md px-2"
               placeholder="First Name"
               value={firstName}
+              autoComplete="name"
               onChangeText={(text) => setFirstName(text)}
             />
           </View>
@@ -34,8 +39,11 @@ const SignupScreen: React.FC = () => {
             <Text className="text-white">Last Name</Text>
             <TextInput
               id="lastName"
-              className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+              label={"Last Name"}
+              theme={{ colors: { placeholder: "white", text: "white" } }}
+              className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-800 rounded-md px-2"
               placeholder="Last Name"
+              autoComplete="name"
               value={lastName}
               onChangeText={(text) => setLastName(text)}
             />
@@ -45,8 +53,10 @@ const SignupScreen: React.FC = () => {
           <Text className="text-white">Email</Text>
           <TextInput
             id="email"
-            className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+            theme={{ colors: { placeholder: "white", text: "white" } }}
+            className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-800 rounded-md px-2"
             placeholder="Email"
+            autoComplete="email"
             value={email}
             onChangeText={(text) => setEmail(text)}
           />
@@ -55,9 +65,11 @@ const SignupScreen: React.FC = () => {
           <Text className="text-white">Password</Text>
           <TextInput
             id="password"
-            className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+            theme={{ colors: { placeholder: "white", text: "white" } }}
+            className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-800 rounded-md px-2"
             placeholder="Password"
             value={password}
+            autoComplete="password"
             onChangeText={(text) => setPassword(text)}
             secureTextEntry
           />
@@ -66,15 +78,16 @@ const SignupScreen: React.FC = () => {
           <Text className="text-white">Confirm Password</Text>
           <TextInput
             id="password"
-            className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+            theme={{ colors: { placeholder: "white", text: "white" } }}
+            className="w-full text-white p-3 border-2 border-gray-300 placeholder:text-gray-800 rounded-md px-2"
             placeholder="Password"
-            value={password}
-            onChangeText={(text) => setPassword(text)}
+            value={confirmPassword}
+            onChangeText={(text) => setConfirmPassword(text)}
             secureTextEntry
           />
         </View>
       </View>
-      <Link href="/home" asChild className="justify-center ">
+      <Link href="/dashboard" asChild className="justify-center ">
         <TouchableOpacity
           className="w-full p-2 bg-slate-600 border border-gray-300 rounded-2xl px-2 "
           onPress={handleSignup}
@@ -86,7 +99,7 @@ const SignupScreen: React.FC = () => {
       </Link>
     </View>
   )
-  
+
 };
 
 export default SignupScreen;

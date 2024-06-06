@@ -34,7 +34,7 @@ const LoginScreen: React.FC = () => {
           name="email"
           render={({ field: { onChange, value } }) => (
             <View className="w-full flex-col gap-2 justify-start">
-              <Label className="text-white">Email</Label>
+              <Text className="text-white">Email</Text>
               <Input
                 id="email"
                 className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
@@ -53,7 +53,7 @@ const LoginScreen: React.FC = () => {
           name="password"
           render={({ field: { onChange, value } }) => (
             <View className="w-full flex-col gap-2 justify-start">
-              <Label className="text-white">Password</Label>
+              <Text className="text-white">Password</Text>
               <Input
                 id="password"
                 className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
@@ -69,14 +69,14 @@ const LoginScreen: React.FC = () => {
           )}
         />
       </View>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         className="w-full p-2 bg-slate-600 border border-gray-300 rounded-2xl px-2 mb-2"
         // onPress={handleSubmit(onSubmit)}
       >
         <Text className="text-white text-center rounded-xl text-xl py-3 justify-center">
           Login
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <View className="w-full">
         <Button
           size="$5"
@@ -90,9 +90,9 @@ const LoginScreen: React.FC = () => {
           Login
         </Button>
       </View>
-      {/* <Link href="/signup" asChild className="justify-center">
+      <Link href="/signup" asChild className="justify-center">
         <Button>Sign Up</Button>
-      </Link> */}
+      </Link>
     </View>
   );
 };
