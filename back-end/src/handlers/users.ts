@@ -9,7 +9,6 @@ import { db } from "../db/db";
 
 //TODO: 
 //      send email verification after sign up
-//      get user by id
 
 const signUpSchema = z.object({
   username: z.string(),
