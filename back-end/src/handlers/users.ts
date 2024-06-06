@@ -37,14 +37,26 @@ user.get("/all", async (c) => {
   }
 });
 
+user.get("/get/:userId", async (c) => {
+  const userId = Number(c.req.param("userId"));
+  try {
+    const userRow = await db.query.users.findFirst({
+      where: eq(users.userId, userId),
+    });
+    if (userRow) {
+      return c.json({ userRow }, 201);
+    } else {
+      return c.json("User does not exist", 404);
+    }
+  } catch (err) {
+    return c.json({ err }, 400);
+  }
+});
+
 user.post(
   "/signup",
   zValidator("json", signUpSchema, (result, c) => {
-    //Decide if you like a general respone or more specific ones. I prefer more specific but you are the boss here.
 
-    // if (!result.success) {
-    //   return c.json("Password should be from 8 to 20 characters long", 415);
-    // }
     if (result.data.password.length < 8) {
       return c.json("Password should be 8 or more characters", 415);
     } else if (result.data.password.length > 20) {
