@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sign } from "hono/jwt";
+import { sign, verify } from "hono/jwt";
 import { eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
@@ -7,7 +7,7 @@ import { zValidator } from "@hono/zod-validator";
 import { users } from "../db/schema/users.ts";
 import { db } from "../db/db";
 
-//TODO: 
+//TODO:
 //      send email verification after sign up
 //      get user by id
 
@@ -113,6 +113,7 @@ user.post(
 
         if (isPasswordMatch) {
           const payload = {
+            username: body.username,
             exp:
               Math.floor(Date.now() / 1000) +
               60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
@@ -136,6 +137,8 @@ user.post(
         } else {
           return c.json("Username or Password Wrong", 401);
         }
+      } else {
+        return c.json("User doesn't exist", 404);
       }
     } catch (error) {
       return c.json({ error }, 500);
@@ -147,7 +150,7 @@ interface deletedUser {
   username: string;
 }
 
-user.delete("/delete/:userId", async (c) => {
+user.delete("/auth/delete/:userId", async (c) => {
   const userId = Number(c.req.param("userId"));
   try {
     const deletedUsername: deletedUser[] = await db
