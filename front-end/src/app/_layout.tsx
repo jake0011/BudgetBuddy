@@ -29,7 +29,11 @@ const StackLayout = () => {
   }, [user, segments, router]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(root)" />
     </Stack>

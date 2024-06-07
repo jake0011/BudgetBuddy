@@ -15,7 +15,12 @@ export default function AuthLayout() {
   }, [onBoarded, currentRouteName]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: "#161E2B" },
+      }}
+    >
       <Stack.Screen name="onboarding/index" />
       <Stack.Screen name="login/index" />
       <Stack.Screen name="signup/index" />
