@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sign, verify } from "hono/jwt";
+import { sign } from "hono/jwt";
 import { eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
@@ -26,29 +26,25 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
-const user = new Hono().basePath("v1/user");
+export const user = new Hono().basePath("v1/user");
+export const userAuth = new Hono().basePath("auth/v1/user");
 
 user.get("/all", async (c) => {
   try {
     const userRows = await db.select().from(users);
-    return c.json({ userRows }, 201);
+    return c.json({ data: userRows }, 201);
   } catch (err) {
-    return c.json({ err }, 500);
+    return c.json({ message: "An error occured, try again", error: err });
   }
 });
 
 user.post(
   "/signup",
   zValidator("json", signUpSchema, (result, c) => {
-    //Decide if you like a general respone or more specific ones. I prefer more specific but you are the boss here.
-
-    // if (!result.success) {
-    //   return c.json("Password should be from 8 to 20 characters long", 415);
-    // }
     if (result.data.password.length < 8) {
-      return c.json("Password should be 8 or more characters", 415);
+      return c.json({ error: "Password should be 8 or more characters" }, 415);
     } else if (result.data.password.length > 20) {
-      return c.json("Password should be 20 or less characters", 415);
+      return c.json({ error: "Password should be 20 or less characters" }, 415);
     }
   }),
   async (c) => {
@@ -64,7 +60,7 @@ user.post(
         );
 
       if (userExists.length != 0) {
-        return c.json("User Already Exists", 409);
+        return c.json({ error: "User Already Exists" }, 409);
       }
 
       //INFO: for some reason, when you use Argon2id it doesn't work
@@ -81,9 +77,12 @@ user.post(
         password: bcryptHash,
         email: body.email,
       });
-      return c.json(`${body.username} signed up successfully`, 201);
-    } catch (error) {
-      c.json({ error }, 500);
+      return c.json(
+        { message: `${body.username} signed up successfully` },
+        201,
+      );
+    } catch (err) {
+      return c.json({ error: "An error occured, try again", message: err });
     }
   },
 );
@@ -92,7 +91,7 @@ user.post(
   "/signin",
   zValidator("json", signInSchema, (result, c) => {
     if (!result.success) {
-      return c.json("Invalid Input", 415);
+      return c.json({ error: "Invalid Input" }, 415);
     }
   }),
   async (c) => {
@@ -113,7 +112,7 @@ user.post(
 
         if (isPasswordMatch) {
           const payload = {
-            username: body.username,
+            userId:userDetails.userId,
             exp:
               Math.floor(Date.now() / 1000) +
               60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
@@ -122,6 +121,7 @@ user.post(
           const token = await sign(payload, secret);
           return c.json(
             {
+              message: "Sign in succesful",
               token: token,
               data: {
                 userId: userDetails.userId,
@@ -135,13 +135,16 @@ user.post(
             201,
           );
         } else {
-          return c.json("Username or Password Wrong", 401);
+          return c.json({ error: "Username or Password Wrong" }, 401);
         }
       } else {
-        return c.json("User doesn't exist", 404);
+        return c.json({ error: "User doesn't exist" }, 404);
       }
-    } catch (error) {
-      return c.json({ error }, 500);
+    } catch (err: any) {
+      return c.json(
+        { error: "An error occured, try again", message: err },
+        500,
+      );
     }
   },
 );
@@ -150,21 +153,26 @@ interface deletedUser {
   username: string;
 }
 
-user.delete("/auth/delete/:userId", async (c) => {
-  const userId = Number(c.req.param("userId"));
-  try {
-    const deletedUsername: deletedUser[] = await db
-      .delete(users)
-      .where(eq(users.userId, userId))
-      .returning({ username: users.username });
+userAuth.delete("/deleteAccount", async (c) => {
+  //INFO: id is gotten from headers beccause of the jwt authentication 
+  const userId = Number(c.req.header("userId"));
+  if (!userId) {
+    return c.json({ error: "No user specified" });
+  } else {
+    try {
+      const deletedUsername: deletedUser[] = await db
+        .delete(users)
+        .where(eq(users.userId, userId))
+        .returning({ username: users.username });
 
-    return c.json(
-      `User ${deletedUsername[0].username} deleted successfully`,
-      404,
-    );
-  } catch (err) {
-    return c.json({ err }, 404);
+      return c.json(
+        {
+          message: `User ${deletedUsername[0].username} deleted successfully`,
+        },
+        404,
+      );
+    } catch (err: any) {
+      return c.json({ error: "User does not exist", message: err }, 404);
+    }
   }
 });
-
-export default user;
