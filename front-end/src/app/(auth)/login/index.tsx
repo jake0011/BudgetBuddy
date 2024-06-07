@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { Activity, Airplay } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image, Keyboard } from "react-native";
+import { Button as B } from "react-native-paper";
 import { Button, Input, Label } from "tamagui";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,7 +46,7 @@ const LoginScreen = () => {
           <Image
             source={require("../../../../assets/logo.png")}
             resizeMode="cover"
-            className="rounded-full w-60 h-60 object-contain object-center"
+            className="rounded-full w-60 h-52 object-contain object-center"
           />
         )}
         <Text className="text-4xl font-bold text-white">Login</Text>
@@ -110,8 +111,6 @@ const LoginScreen = () => {
         <Button
           size="$5"
           theme="active"
-          variant="outlined"
-          color="white"
           fontWeight="$16"
           textAlign="center"
           radiused
@@ -120,12 +119,10 @@ const LoginScreen = () => {
           Login
         </Button>
       </View>
-      <Text className="text-white text-xl font-bold">
+
+      <Text className="text-gray-400 text-xl font-normal">
         Don't have an account?{" "}
-        <Link
-          href="/signup"
-          className="text-blue-500 underline underline-offset-4"
-        >
+        <Link href="/signup" className="text-white font-bold cursor-pointer">
           Sign Up
         </Link>
       </Text>

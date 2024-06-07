@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, Keyboard, ScrollView } from "react-native";
 import { Button, Input } from "tamagui";
@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, SignUpFormData } from "../../../helpers/validations";
 
 const SignupScreen = () => {
+  const router = useRouter();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -33,19 +34,23 @@ const SignupScreen = () => {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = (data: SignUpFormData) => {
-    // Handle signup logic here
-    console.log(data);
+  const onSubmit = async (data: SignUpFormData) => {
+    try {
+      // router.push('/otp', { formData: data });
+      router.push("/otp");
+    } catch (error) {
+      console.error("Error requesting OTP:", error);
+    }
   };
 
   return (
-    <View className="flex-1 p-6 justify-center gap-10 items-center ">
-      <View className="w-full justify-center items-center">
+    <View className="flex-1 p-4 justify-center gap-10 items-center ">
+      <View className="w-full justify-center items-center pt-4">
         {!keyboardVisible && (
           <Image
             source={require("../../../../assets/logo.png")}
             resizeMode="cover"
-            className="rounded-full w-60 h-60 object-contain object-center"
+            className="rounded-full w-60 h-52 object-contain object-center"
           />
         )}
         <Text className="text-4xl font-bold text-white ">Sign Up</Text>
@@ -53,48 +58,48 @@ const SignupScreen = () => {
 
       <ScrollView keyboardShouldPersistTaps="handled" style={{ width: "100%" }}>
         <View className="w-full flex gap-4 justify-center items-center">
-          {/* <View className="w-full flex-row gap-4 pr-4"> */}
-          <Controller
-            control={control}
-            name="firstName"
-            render={({ field: { onChange, value } }) => (
-              <View className="flex-col gap-2 w-full">
-                <Text className="text-white">First Name</Text>
-                <Input
-                  className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
-                  placeholder="First Name"
-                  value={value}
-                  onChangeText={onChange}
-                />
-                {errors.firstName && (
-                  <Text className="text-red-500">
-                    {errors.firstName.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
-          <Controller
-            control={control}
-            name="lastName"
-            render={({ field: { onChange, value } }) => (
-              <View className="flex-col gap-2 w-full">
-                <Text className="text-white">Last Name</Text>
-                <Input
-                  className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
-                  placeholder="Last Name"
-                  value={value}
-                  onChangeText={onChange}
-                />
-                {errors.lastName && (
-                  <Text className="text-red-500">
-                    {errors.lastName.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
-          {/* </View> */}
+          <View className="w-full flex-row gap-3 pr-4 ">
+            <Controller
+              control={control}
+              name="firstName"
+              render={({ field: { onChange, value } }) => (
+                <View className="flex-col gap-2 w-1/2">
+                  <Text className="text-white">First Name</Text>
+                  <Input
+                    className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+                    placeholder="First Name"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                  {errors.firstName && (
+                    <Text className="text-red-500">
+                      {errors.firstName.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+            <Controller
+              control={control}
+              name="lastName"
+              render={({ field: { onChange, value } }) => (
+                <View className="flex-col gap-2 w-1/2">
+                  <Text className="text-white">Last Name</Text>
+                  <Input
+                    className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+                    placeholder="Last Name"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                  {errors.lastName && (
+                    <Text className="text-red-500">
+                      {errors.lastName.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
 
           <Controller
             control={control}
@@ -121,7 +126,6 @@ const SignupScreen = () => {
               <View className="w-full flex-col gap-2 justify-start">
                 <Text className="text-white">Password</Text>
                 <Input
-                  id="password"
                   className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
                   placeholder="Password"
                   value={value}
@@ -163,8 +167,6 @@ const SignupScreen = () => {
         <Button
           size="$5"
           theme="active"
-          variant="outlined"
-          color="white"
           fontWeight="$16"
           textAlign="center"
           radiused
@@ -174,14 +176,12 @@ const SignupScreen = () => {
         </Button>
       </View>
 
-      <Text className="text-white text-xl font-bold">
+      <Text className="text-gray-400 text-xl font-normal">
         Already have an account?{" "}
-        <Link
-          href="/login"
-          className="text-blue-500 underline underline-offset-4"
-        >
+        <Link href="/login" className="text-white font-bold cursor-pointer">
           Login
         </Link>
+        <Link href="/otp">OTP</Link>
       </Text>
     </View>
   );
