@@ -21,9 +21,9 @@ const StackLayout = () => {
 
   useEffect(() => {
     const inAuthGroup = segments[0] === "(root)";
-    if (user && inAuthGroup) {
+    if (!user && inAuthGroup) {
       router.replace("/onboarding");
-    } else if (!user && !inAuthGroup) {
+    } else if (user && !inAuthGroup) {
       router.replace("/(root)");
     }
   }, [user, segments, router]);

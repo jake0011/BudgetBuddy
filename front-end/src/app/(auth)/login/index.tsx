@@ -7,7 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormData, loginSchema } from "../../../helpers/validations";
 
-const LoginScreen: React.FC = () => {
+const LoginScreen = () => {
   const {
     control,
     handleSubmit,
@@ -24,10 +24,9 @@ const LoginScreen: React.FC = () => {
   return (
     <View className="flex-1 p-6 justify-center gap-10 items-center bg-gray-800">
       <View className="w-full justify-center items-center">
-        <Text className="text-4xl font-bold text-white pt-5">
-          BudgetBuddy Login
-        </Text>
+        <Text className="text-4xl font-bold text-white pt-5">Login</Text>
       </View>
+
       <View className="w-full flex gap-4 justify-center items-center">
         <Controller
           control={control}
