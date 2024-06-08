@@ -5,6 +5,7 @@ import { prettyJSON } from "hono/pretty-json";
 import { logger } from "hono/logger";
 
 import { userAuth, user } from "./handlers/users";
+import { incomeAuth, income } from "./handlers/income";
 const app = new Hono();
 
 app.use(cors());
@@ -18,8 +19,12 @@ app.use("/auth/*", async (c, next) => {
       process.env?.JWT_SECRET_KEY || "mySecretKey",
     );
     //INFO: I used the headers because there is no known way for me to access
-    //the request parameters over here 
+    //the request parameters over here
 
+    //consider remomving this when in production and application is actually working 
+    if (!Number(c.req.header("userId"))) {
+      return c.json({ error: "No userId specified in request headers" }, 403);
+    }
     if (decodedPayload.userId === Number(c.req.header("userId"))) {
       await next();
     } else {
@@ -36,4 +41,6 @@ app.get("/", (c) => {
 
 app.route("/", user);
 app.route("/", userAuth);
+app.route("/", income);
+app.route("/", incomeAuth);
 export default app;

@@ -59,6 +59,8 @@ user.post(
       return c.json({ error: "Password should be 8 or more characters" }, 415);
     } else if (result.data.password.length > 20) {
       return c.json({ error: "Password should be 20 or less characters" }, 415);
+    } else if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
     }
   }),
   async (c) => {
@@ -126,7 +128,7 @@ user.post(
 
         if (isPasswordMatch) {
           const payload = {
-            userId:userDetails.userId,
+            userId: userDetails.userId,
             exp:
               Math.floor(Date.now() / 1000) +
               60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
@@ -168,7 +170,7 @@ interface deletedUser {
 }
 
 userAuth.delete("/deleteAccount", async (c) => {
-  //INFO: id is gotten from headers beccause of the jwt authentication 
+  //INFO: id is gotten from headers beccause of the jwt authentication
   const userId = Number(c.req.header("userId"));
   if (!userId) {
     return c.json({ error: "No user specified" });
