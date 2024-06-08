@@ -8,7 +8,7 @@ import { db } from "../db/db";
 export const income = new Hono().basePath("v1/income");
 export const incomeAuth = new Hono().basePath("auth/v1/income");
 
-const VALUES = [
+export const DATEVALUES = [
   "January",
   "February",
   "March",
@@ -25,7 +25,7 @@ const VALUES = [
 
 const incomeSchema = z.object({
   amount: z.number(),
-  monthOfTheYear: z.enum(VALUES),
+  monthOfTheYear: z.enum(DATEVALUES),
   year: z.number(),
 });
 
