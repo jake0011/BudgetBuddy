@@ -6,6 +6,7 @@ import { logger } from "hono/logger";
 
 import { userAuth, user } from "./handlers/users";
 const app = new Hono();
+
 app.use(cors());
 app.use(prettyJSON());
 app.use(logger());
@@ -22,12 +23,13 @@ app.use("/auth/*", async (c, next) => {
     if (decodedPayload.userId === Number(c.req.header("userId"))) {
       await next();
     } else {
-      return c.json({ error: "You're not authorized" }, 500);
+      return c.json({ error: "You're not authorized" }, 403);
     }
   } catch (error: any) {
-    return c.json({ error: "You're not authorized", message: error.name }, 500);
+    return c.json({ error: "You're not authorized", message: error.name }, 403);
   }
 });
+
 app.get("/", (c) => {
   return c.json("Welcome to Budget Buddy");
 });

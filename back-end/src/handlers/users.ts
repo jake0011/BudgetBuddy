@@ -36,12 +36,11 @@ user.get("/all", async (c) => {
   }
 });
 
-userAuth.get("/get/:userId", async (c) => {
+userAuth.get("/get", async (c) => {
   const userId = Number(c.req.header("userId"));
-  const reqId = Number(c.req.param("userId"));
   try {
     const userRow = await db.query.users.findFirst({
-      where: eq(users.userId, reqId),
+      where: eq(users.userId, userId),
     });
     if (userRow) {
       return c.json({ data: userRow }, 201);
