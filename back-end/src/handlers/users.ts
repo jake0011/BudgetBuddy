@@ -3,13 +3,11 @@ import { sign } from "hono/jwt";
 import { eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-
 import { users } from "../db/schema/users.ts";
 import { db } from "../db/db";
 
 //TODO:
 //      send email verification after sign up
-//      get user by id
 
 const signUpSchema = z.object({
   username: z.string(),
@@ -33,6 +31,22 @@ user.get("/all", async (c) => {
   try {
     const userRows = await db.select().from(users);
     return c.json({ data: userRows }, 201);
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
+
+userAuth.get("/get", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const userRow = await db.query.users.findFirst({
+      where: eq(users.userId, userId),
+    });
+    if (userRow) {
+      return c.json({ data: userRow }, 201);
+    } else {
+      return c.json({ error: "User does not exist" }, 404);
+    }
   } catch (err) {
     return c.json({ message: "An error occured, try again", error: err });
   }
