@@ -71,10 +71,13 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ route }) => {
             borderRadius={"$4"}
             borderColor={"blue"}
             onChangeText={(text) => handleChange(text, index)}
-            placeholder="_" // Display underscore dash as placeholder
+            placeholder="_"
           />
         ))}
       </View>
+      <Text className="text-gray-300 my-4 font-semibold text-center">
+        Didn't receive OTP? <Text className="text-blue-500">Resend</Text>
+      </Text>
       <Button
         width="100%"
         margin="$2"

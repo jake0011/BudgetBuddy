@@ -92,7 +92,7 @@ const LoginScreen = () => {
         />
         <View className="w-full flex justify-start">
           <Link
-            href="/forgot-password"
+            href="/reset-password"
             className="text-red-500 text-base font-semibold"
           >
             Forgot Password?
