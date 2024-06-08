@@ -5,9 +5,10 @@ import {
   integer,
   timestamp,
   doublePrecision,
-  varchar
+  varchar,
 } from "drizzle-orm/pg-core";
-import { users } from "./users"
+import { users } from "./users";
+import { monthOfTheYearEnum } from "./incomes";
 
 export const typeEnum = pgEnum("type", ["budget", "expenses"]);
 
@@ -18,10 +19,14 @@ export const expenditures = pgTable("expenditures", {
   expendituresId: serial("expendituresId").primaryKey(),
   amount: doublePrecision("amount").default(19.4),
   type: typeEnum("type"),
-  categoriesId: integer('categoriesId').references(() =>
-    categories.categoriesId, { onDelete: 'set default' }).notNull(),
-  userId: integer('userId').references(() =>
-    users.userId, { onDelete: 'cascade' }).notNull(),
+  monthOfTheYear: monthOfTheYearEnum("month"),
+  year: varchar("year", { length: 256 }),
+  categoriesId: integer("categoriesId")
+    .references(() => categories.categoriesId, { onDelete: "set default" })
+    .notNull(),
+  userId: integer("userId")
+    .references(() => users.userId, { onDelete: "cascade" })
+    .notNull(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
 
