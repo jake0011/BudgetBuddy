@@ -24,6 +24,15 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
+const updateUserSchema = z.object({
+  username: z.string().optional(),
+  firstname: z.string().optional(),
+  middlename: z.string().optional(),
+  lastname: z.string().optional(),
+  password: z.string().min(8).max(20).optional(),
+  email: z.string().optional(),
+});
+
 export const user = new Hono().basePath("v1/user");
 export const userAuth = new Hono().basePath("auth/v1/user");
 
@@ -192,3 +201,43 @@ userAuth.delete("/deleteAccount", async (c) => {
     }
   }
 });
+
+userAuth.patch(
+  "/update",
+  zValidator("json", updateUserSchema, (result, c) => {
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    const userId = Number(c.req.header("userId"));
+    try {
+      const body = await c.req.json();
+
+      const bcryptHash = await Bun.password.hash(body.password, {
+        algorithm: "bcrypt",
+        cost: 4,
+      });
+      
+      await db
+        .update(users)
+        .set({
+          username: body.username,
+          firstname: body.firstname,
+          middlename: body.middlename,
+          lastname: body.lastname,
+          password: bcryptHash,
+          email: body.email,
+        })
+        .where(eq(users.userId, userId));
+
+        const userRow = await db.query.users.findFirst({
+          where: eq(users.userId, userId),
+        });
+
+         c.json({ data: userRow }, 201);
+    } catch (err) {
+      return c.json({ error: "An error occured, try again", message: err });
+    }
+  }
+);
