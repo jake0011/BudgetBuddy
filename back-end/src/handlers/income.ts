@@ -29,6 +29,23 @@ const incomeSchema = z.object({
   year: z.number(),
 });
 
+incomeAuth.get("/all", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const incomeRows = await db.query.incomes.findFirst({
+      where: eq(incomes.userId, userId),
+    });
+
+    if (incomeRows) {
+      return c.json({ data: incomeRows }, 201);
+    } else {
+      return c.json({ message: "Nothing found" }, 404);
+    }
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
+
 incomeAuth.post(
   "/add",
   zValidator("json", incomeSchema, (result, c) => {

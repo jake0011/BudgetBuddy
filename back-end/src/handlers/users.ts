@@ -8,7 +8,6 @@ import { expenditures } from "../db/schema/expenditures.ts";
 import { db } from "../db/db";
 import { expenditure, expenditureAuth } from "./expenditure.ts";
 
-
 //TODO:
 //      send email verification after sign up
 
@@ -244,21 +243,3 @@ userAuth.patch(
     }
   }
 );
-
-expenditureAuth.get("/all", async (c) => {
-  const userId = Number(c.req.header("userId"));
-  try {
-    const expenseRows = await db.query.expenditures.findFirst({
-      where: eq(expenditures.userId, userId),
-    });
-
-    if (expenseRows) {
-      console.log(expenseRows);
-      return c.json({ data: expenseRows }, 201);      
-    } else {
-      return c.json({ message: "Nothing found" }, 404);
-    }
-  } catch (err) {
-    return c.json({ message: "An error occured, try again", error: err });
-  }
-});
