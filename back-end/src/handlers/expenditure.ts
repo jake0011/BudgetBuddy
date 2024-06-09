@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { expenditures, categories } from "../db/schema/expenditures";
@@ -17,23 +17,6 @@ const expenditureSchema = z.object({
   year: z.number(),
   type: z.enum(VALUES),
   categoriesId: z.number(),
-});
-
-expenditureAuth.get("/all", async (c) => {
-  const userId = Number(c.req.header("userId"));
-  try {
-    const expenseRows = await db.query.expenditures.findFirst({
-      where: eq(expenditures.userId, userId),
-    });
-
-    if (expenseRows) {
-      return c.json({ data: expenseRows }, 201);
-    } else {
-      return c.json({ message: "Nothing found" }, 404);
-    }
-  } catch (err) {
-    return c.json({ message: "An error occured, try again", error: err });
-  }
 });
 
 expenditure.get("/categories", async (c) => {
@@ -71,3 +54,43 @@ expenditureAuth.post(
     }
   },
 );
+
+expenditureAuth.get("/expenses/all", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const expenseRows = await db.query.expenditures.findFirst({
+      where: or(
+        eq(expenditures.userId, userId),
+        eq(expenditures.type, "expenses")
+      ),
+    });
+
+    if (expenseRows) {
+      return c.json({ data: expenseRows }, 201);
+    } else {
+      return c.json({ message: "Nothing found" }, 404);
+    }
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
+
+expenditureAuth.get("/budget/all", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const expenseRows = await db.query.expenditures.findFirst({
+      where: or(
+        eq(expenditures.userId, userId),
+        eq(expenditures.type, "budget")
+      ),
+    });
+
+    if (expenseRows) {
+      return c.json({ data: expenseRows }, 201);
+    } else {
+      return c.json({ message: "Nothing found" }, 404);
+    }
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
