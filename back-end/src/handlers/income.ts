@@ -29,6 +29,12 @@ const incomeSchema = z.object({
   year: z.number(),
 });
 
+const updateIncomeSchema = z.object({
+  amount: z.number().optional(),
+  monthOfTheYear: z.enum(DATEVALUES).optional(),
+  year: z.number().optional(),
+});
+
 incomeAuth.get("/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
@@ -87,4 +93,35 @@ incomeAuth.post(
       return c.json({ message: "An error occured, try again", error: err });
     }
   },
+);
+
+incomeAuth.patch(
+  "/update",
+  zValidator("json", updateIncomeSchema, (result, c) => {
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    const userId = Number(c.req.header("userId"));
+    try {
+      const body = await c.req.json();
+
+      await db
+        .update(incomes)
+        .set({
+          amount: body.amount,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+        })
+        .where(eq(incomes.userId, userId));
+
+      const incomeRow = await db.query.incomes.findFirst({
+        where: eq(incomes.userId, userId),
+      });     
+      return c.json({ data: incomeRow }, 201);
+    } catch (err) {
+      return c.json({ error: "An error occured, try again", message: err });
+    }
+  }
 );
