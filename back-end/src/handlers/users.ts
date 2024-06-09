@@ -6,7 +6,7 @@ import { zValidator } from "@hono/zod-validator";
 import { users } from "../db/schema/users.ts";
 import { expenditures } from "../db/schema/expenditures.ts";
 import { db } from "../db/db";
-import { expenditure } from "./expenditure.ts";
+import { expenditure, expenditureAuth } from "./expenditure.ts";
 
 
 //TODO:
@@ -196,16 +196,18 @@ userAuth.delete("/deleteAccount", async (c) => {
   }
 });
 
-user.get("/exp", async (c) => {
+expenditureAuth.get("/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
-    const expenseRows = await db.select().from(expenditures)
-      .where(eq(expenditures.userId, userId));
+    const expenseRows = await db.query.expenditures.findFirst({
+      where: eq(expenditures.userId, userId),
+    });
 
     if (expenseRows) {
-      return c.json({ data: expenseRows }, 201);
+      console.log(expenseRows);
+      return c.json({ data: expenseRows }, 201);      
     } else {
-      return c.json({ error: "Null" }, 404);
+      return c.json({ message: "Nothing found" }, 404);
     }
   } catch (err) {
     return c.json({ message: "An error occured, try again", error: err });
