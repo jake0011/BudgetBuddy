@@ -64,6 +64,13 @@
       "when": 1716914021938,
       "tag": "0008_crazy_christian_walker",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1717874708965,
+      "tag": "0009_outgoing_stone_men",
+      "breakpoints": true
     }
   ]
 }

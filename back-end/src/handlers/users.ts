@@ -1,15 +1,15 @@
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
 import { eq, or } from "drizzle-orm";
-import { z } from "zod";
+import { number, z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-
 import { users } from "../db/schema/users.ts";
+import { expenditures } from "../db/schema/expenditures.ts";
 import { db } from "../db/db";
+import { expenditure, expenditureAuth } from "./expenditure.ts";
 
 //TODO:
 //      send email verification after sign up
-//      get user by id
 
 const signUpSchema = z.object({
   username: z.string(),
@@ -26,6 +26,15 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
+const updateUserSchema = z.object({
+  username: z.string().optional(),
+  firstname: z.string().optional(),
+  middlename: z.string().optional(),
+  lastname: z.string().optional(),
+  password: z.string().min(8).max(20).optional(),
+  email: z.string().optional(),
+});
+
 export const user = new Hono().basePath("v1/user");
 export const userAuth = new Hono().basePath("auth/v1/user");
 
@@ -38,6 +47,22 @@ user.get("/all", async (c) => {
   }
 });
 
+userAuth.get("/get", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const userRow = await db.query.users.findFirst({
+      where: eq(users.userId, userId),
+    });
+    if (userRow) {
+      return c.json({ data: userRow }, 201);
+    } else {
+      return c.json({ error: "User does not exist" }, 404);
+    }
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
+
 user.post(
   "/signup",
   zValidator("json", signUpSchema, (result, c) => {
@@ -45,6 +70,8 @@ user.post(
       return c.json({ error: "Password should be 8 or more characters" }, 415);
     } else if (result.data.password.length > 20) {
       return c.json({ error: "Password should be 20 or less characters" }, 415);
+    } else if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
     }
   }),
   async (c) => {
@@ -112,7 +139,7 @@ user.post(
 
         if (isPasswordMatch) {
           const payload = {
-            userId:userDetails.userId,
+            userId: userDetails.userId,
             exp:
               Math.floor(Date.now() / 1000) +
               60 * Number(process.env.JWT_EXPIRY_TIME ?? 48260),
@@ -154,7 +181,7 @@ interface deletedUser {
 }
 
 userAuth.delete("/deleteAccount", async (c) => {
-  //INFO: id is gotten from headers beccause of the jwt authentication 
+  //INFO: id is gotten from headers beccause of the jwt authentication
   const userId = Number(c.req.header("userId"));
   if (!userId) {
     return c.json({ error: "No user specified" });
@@ -176,3 +203,43 @@ userAuth.delete("/deleteAccount", async (c) => {
     }
   }
 });
+
+userAuth.patch(
+  "/update",
+  zValidator("json", updateUserSchema, (result, c) => {
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    const userId = Number(c.req.header("userId"));
+    try {
+      const body = await c.req.json();
+
+      const bcryptHash = await Bun.password.hash(body.password, {
+        algorithm: "bcrypt",
+        cost: 4,
+      });
+      
+      await db
+        .update(users)
+        .set({
+          username: body.username,
+          firstname: body.firstname,
+          middlename: body.middlename,
+          lastname: body.lastname,
+          password: bcryptHash,
+          email: body.email,
+        })
+        .where(eq(users.userId, userId));
+
+        const userRow = await db.query.users.findFirst({
+          where: eq(users.userId, userId),
+        });
+
+         c.json({ data: userRow }, 201);
+    } catch (err) {
+      return c.json({ error: "An error occured, try again", message: err });
+    }
+  }
+);
