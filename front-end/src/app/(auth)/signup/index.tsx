@@ -26,8 +26,8 @@ const SignupScreen = () => {
         <Text className="text-4xl font-bold text-white pt-5">Sign Up</Text>
       </View>
 
-      <View className="w-full flex gap-4 justify-center items-center">
-        <View className="flex flex-row gap-4 w-full">
+      <View className="w-full flex gap-4 justify-center ">
+        <View className="flex flex-row gap-4 w-1/2">
           <Controller
             control={control}
             name="firstName"
@@ -53,7 +53,7 @@ const SignupScreen = () => {
             control={control}
             name="lastName"
             render={({ field: { onChange, value } }) => (
-              <View className=" flex-col gap-2 justify-start">
+              <View className=" flex-col gap-2 justify-between w-1/2">
                 <Text className="text-white">Last Name</Text>
                 <Input
                   id="lastName"
@@ -147,7 +147,7 @@ const SignupScreen = () => {
           Sign Up
         </Button>
       </View>
-      <Link href="/login" asChild className="justify-center">
+      <Link href="../root" asChild className="justify-center">
         <Button>Login</Button>
       </Link>
     </View>

@@ -16,14 +16,14 @@ const StackLayout = () => {
   const router = useRouter();
 
   useEffect(() => {
-    setTimeout(SplashScreen.hideAsync, 2000);
+    setTimeout(SplashScreen.hideAsync, 1500);
   }, []);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === "(root)";
-    if (!user && inAuthGroup) {
+    if (user && inAuthGroup) {
       router.replace("/onboarding");
-    } else if (user && !inAuthGroup) {
+    } else if (!user && !inAuthGroup) {
       router.replace("/(root)");
     }
   }, [user, segments, router]);

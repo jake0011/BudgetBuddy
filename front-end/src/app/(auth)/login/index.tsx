@@ -26,7 +26,6 @@ const LoginScreen = () => {
       <View className="w-full justify-center items-center">
         <Text className="text-4xl font-bold text-white pt-5">Login</Text>
       </View>
-
       <View className="w-full flex gap-4 justify-center items-center">
         <Controller
           control={control}
@@ -36,6 +35,7 @@ const LoginScreen = () => {
               <Text className="text-white">Email</Text>
               <Input
                 id="email"
+                autoComplete="email"
                 className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
                 placeholder="Email"
                 value={value}
@@ -57,6 +57,7 @@ const LoginScreen = () => {
                 id="password"
                 className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
                 placeholder="Password"
+                autoComplete="password"
                 value={value}
                 onChangeText={onChange}
                 secureTextEntry
@@ -68,14 +69,6 @@ const LoginScreen = () => {
           )}
         />
       </View>
-      {/* <TouchableOpacity
-        className="w-full p-2 bg-slate-600 border border-gray-300 rounded-2xl px-2 mb-2"
-        // onPress={handleSubmit(onSubmit)}
-      >
-        <Text className="text-white text-center rounded-xl text-xl py-3 justify-center">
-          Login
-        </Text>
-      </TouchableOpacity> */}
       <View className="w-full">
         <Button
           size="$5"
@@ -90,7 +83,7 @@ const LoginScreen = () => {
         </Button>
       </View>
       <Link href="/signup" asChild className="justify-center">
-        <Button>Sign Up</Button>
+        <Button>Log in</Button>
       </Link>
     </View>
   );
