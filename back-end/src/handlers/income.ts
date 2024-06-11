@@ -133,7 +133,6 @@ incomeAuth.patch(
 interface deletedIncome {
   incomeId: number;
 }
-// deleteIncomeSchema
 
 incomeAuth.delete(
   "/delete",
@@ -151,9 +150,9 @@ incomeAuth.delete(
     });
 
     if (!userId) {
-      return c.json({ error: "No income specified" }, 400);
-    } else if (!incomeRows) {
       return c.json({ error: "User does not exist" }, 404);
+    } else if (!incomeRows) {
+      return c.json({ error: "No income specified" }, 400);
     } else {
       try {
         const deletedIncomeRow: deletedIncome[] = await db.delete(incomes)
