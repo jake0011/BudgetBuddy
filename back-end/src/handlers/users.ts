@@ -215,20 +215,12 @@ userAuth.patch(
     const userId = Number(c.req.header("userId"));
     try {
       const body = await c.req.json();
-
-      const bcryptHash = await Bun.password.hash(body.password, {
-        algorithm: "bcrypt",
-        cost: 4,
-      });
       
-      await db
-        .update(users)
-        .set({
+      await db.update(users).set({
           username: body.username,
           firstname: body.firstname,
           middlename: body.middlename,
           lastname: body.lastname,
-          password: bcryptHash,
           email: body.email,
         })
         .where(eq(users.userId, userId));
@@ -237,7 +229,7 @@ userAuth.patch(
           where: eq(users.userId, userId),
         });
 
-         c.json({ data: userRow }, 201);
+        return c.json({ data: userRow }, 201);
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
     }

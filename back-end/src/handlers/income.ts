@@ -35,6 +35,10 @@ const updateIncomeSchema = z.object({
   year: z.number().optional(),
 });
 
+const deleteIncomeSchema = z.object({
+  incomesId: z.number()
+});
+
 incomeAuth.get("/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
@@ -122,6 +126,49 @@ incomeAuth.patch(
       return c.json({ data: incomeRow }, 201);
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
+    }
+  }
+);
+
+interface deletedIncome {
+  incomeId: number;
+}
+// deleteIncomeSchema
+
+incomeAuth.delete(
+  "/delete",
+  zValidator("json", deleteIncomeSchema, (result, c) => {
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    const userId = Number(c.req.header("userId"));
+    const body = await c.req.json();
+
+    const incomeRows = await db.query.incomes.findMany({
+      where: eq(incomes.userId, userId),
+    });
+
+    if (!userId) {
+      return c.json({ error: "No income specified" }, 400);
+    } else if (!incomeRows) {
+      return c.json({ error: "User does not exist" }, 404);
+    } else {
+      try {
+        const deletedIncomeRow: deletedIncome[] = await db.delete(incomes)
+          .where(eq(incomes.incomesId, body.incomesId))
+          .returning({ incomeId: incomes.incomesId });
+
+        return c.json(
+          {
+            message: `Income ${deletedIncomeRow[0].incomeId} deleted successfully`,
+          },
+          404
+        );
+      } catch (err: any) {
+        return c.json({ error: "Income does not exist", message: err }, 404);
+      }
     }
   }
 );
