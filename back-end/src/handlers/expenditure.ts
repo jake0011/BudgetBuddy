@@ -19,6 +19,14 @@ const expenditureSchema = z.object({
   categoriesId: z.number(),
 });
 
+const updateExpenditureSchema = z.object({
+  amount: z.number().optional(),
+  monthOfTheYear: z.enum(DATEVALUES).optional(),
+  year: z.number().optional(),
+  type: z.enum(VALUES),
+  categoriesId: z.number().optional(),
+});
+
 expenditure.get("/categories", async (c) => {
   try {
     const expenditureCategories = await db.select().from(categories);
@@ -54,6 +62,23 @@ expenditureAuth.post(
     }
   },
 );
+
+expenditureAuth.get("/all", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const expenditureRows = await db.query.expenditures.findMany({
+      where: or(eq(expenditures.userId, userId)),
+    });
+
+    if (expenditureRows) {
+      return c.json({ data: expenditureRows }, 201);
+    } else {
+      return c.json({ message: "Nothing found" }, 404);
+    }
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
 
 expenditureAuth.get("/expenses/all", async (c) => {
   const userId = Number(c.req.header("userId"));
@@ -94,3 +119,43 @@ expenditureAuth.get("/budget/all", async (c) => {
     return c.json({ message: "An error occured, try again", error: err });
   }
 });
+
+expenditureAuth.patch(
+  "/update",
+  zValidator("json", updateExpenditureSchema, (result, c) => {
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    const userId = Number(c.req.header("userId"));
+    try {
+      const body = await c.req.json();
+      
+      await db.update(expenditures).set({
+          amount: body.amount,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          categoriesId: body.categoriesId,
+        })
+        .where(
+          or(
+            eq(expenditures.userId, userId),
+            eq(expenditures.type, body.type)
+          )
+        );
+      const expenditureRow = await db.query.expenditures.findFirst({
+        where: or(
+          eq(expenditures.userId, userId),
+          eq(expenditures.type, body.type)
+        ),
+      });
+      return c.json({
+        message: `${body.type} updated successfully`,
+        data: expenditureRow
+      }, 201);
+    } catch (err) {
+      return c.json({ error: "An error occured, try again", message: err });
+    }
+  }
+);
