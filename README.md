@@ -99,7 +99,7 @@ These are a list of the categories for expenditure(budget/expenses) with their d
 - transportation: self explanatory
 - food: self explanatory
 - utilitites: gas, water bill, electricity bill, sewage bills, airconditoining, internet expenses and cell phone bills
-- insurance: health insurance, homewowners insurance, auto insurance, life insurance
+- insurance: health insurance, homeowners insurance, auto insurance, life insurance
 - healthcare: self explanatory
 - saving, investing and debt payment
 - personal spending: gym membership, clothes and shoes, home decor and furnishings, gift
