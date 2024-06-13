@@ -7,6 +7,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { TamaguiProvider } from "tamagui";
 import tamaguiConfig from "tamagui.config";
 import { useFonts } from "expo-font";
+import { StatusBar } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,10 +30,17 @@ const StackLayout = () => {
   }, [user, segments, router]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(root)" />
-    </Stack>
+    <>
+      <StatusBar barStyle="default" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(root)" />
+      </Stack>
+    </>
   );
 };
 

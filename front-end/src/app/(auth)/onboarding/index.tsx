@@ -80,7 +80,7 @@ const OnboardingScreen: React.FC = () => {
           <View className="flex flex-row justify-between mx-4">
             {activeScreenIndex === 0 ? (
               <TouchableOpacity
-                className="p-2 rounded-2xl bg-gray-800 justify-start"
+                className="p-2 rounded-2xl  justify-start"
                 onPress={onBack}
               ></TouchableOpacity>
             ) : (
