@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Text, View } from "react-native";
+import { Image, Keyboard, Text, View } from "react-native";
 import { Button, Input } from "tamagui";
 import * as z from "zod";
 
@@ -24,6 +24,23 @@ export const schema = z
 export type formData = z.infer<typeof schema>;
 
 const ResetPasswordScreen = () => {
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => setKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => setKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
   const {
     control,
     handleSubmit,
@@ -41,9 +58,16 @@ const ResetPasswordScreen = () => {
 
   return (
     <View className="flex-1 justify-center p-8 items-center">
-      <Text className="text-3xl text-white font-bold text-center my-6">
-        Reset Password
-      </Text>
+      <View className="w-full mb-4 justify-center items-center">
+        {!keyboardVisible && (
+          <Image
+            source={require("../../../../assets/logo.png")}
+            resizeMode="cover"
+            className="rounded-full w-60 h-52 object-contain object-center"
+          />
+        )}
+        <Text className="text-4xl font-bold text-white">Reset Password</Text>
+      </View>
       <View className="flex-col gap-6 w-full">
         <Controller
           control={control}

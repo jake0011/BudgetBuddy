@@ -26,6 +26,7 @@ const LoginScreen = () => {
       keyboardDidHideListener.remove();
     };
   }, []);
+
   const {
     control,
     handleSubmit,
@@ -92,7 +93,7 @@ const LoginScreen = () => {
         />
         <View className="w-full flex justify-start">
           <Link
-            href="/reset-password"
+            href="/forgot-password"
             className="text-red-500 text-base font-semibold"
           >
             Forgot Password?

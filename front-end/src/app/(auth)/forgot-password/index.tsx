@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Link, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Text, View } from "react-native";
+import { Image, Keyboard, Text, View } from "react-native";
 import { Input, Button } from "tamagui";
 import * as z from "zod";
 
@@ -15,6 +15,24 @@ export const schema = z.object({
 export type formData = z.infer<typeof schema>;
 
 const ForgotPasswordScreen = () => {
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => setKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => setKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   const {
     control,
     register,
@@ -32,9 +50,16 @@ const ForgotPasswordScreen = () => {
 
   return (
     <View className="flex-1 justify-center p-8 items-center">
-      <Text className="text-3xl text-white font-bold text-center my-6">
-        Forgot Password
-      </Text>
+      <View className="w-full mb-4 justify-center items-center">
+        {!keyboardVisible && (
+          <Image
+            source={require("../../../../assets/logo.png")}
+            resizeMode="cover"
+            className="rounded-full w-60 h-52 object-contain object-center"
+          />
+        )}
+        <Text className="text-4xl font-bold text-white">Forgot Password</Text>
+      </View>
       <View className="flex-col gap-6 w-full">
         <Controller
           control={control}
@@ -56,6 +81,12 @@ const ForgotPasswordScreen = () => {
         />
         <Button onPress={handleSubmit(onSubmit)}>Send</Button>
       </View>
+      <Text className="text-gray-400 text-xl font-normal py-4">
+        Remembered your password?{" "}
+        <Link href="/login" className="text-white font-bold cursor-pointer">
+          Login
+        </Link>
+      </Text>
     </View>
   );
 };

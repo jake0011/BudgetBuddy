@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { View, Text } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { View, Text, Image, Keyboard } from "react-native";
 import { SignUpFormData } from "@/helpers/validations";
 import { Button, Input } from "tamagui";
 
@@ -14,6 +14,23 @@ interface OTPScreenProps {
 const OTPScreen: React.FC<OTPScreenProps> = ({ route }) => {
   const [otp, setOTP] = useState(Array(6).fill(""));
   const inputRefs = useRef<Array<Input | null>>([]);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => setKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => setKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleChange = (text: string, index: number) => {
     if (text.length === 1 && /^\d$/.test(text)) {
@@ -46,9 +63,16 @@ const OTPScreen: React.FC<OTPScreenProps> = ({ route }) => {
 
   return (
     <View className="flex-1 justify-center items-center p-4 ">
-      <Text className="text-3xl font-bold mb-4 text-white">
-        OTP Verification
-      </Text>
+      <View className="w-full mb-4 justify-center items-center">
+        {!keyboardVisible && (
+          <Image
+            source={require("../../../../assets/logo.png")}
+            resizeMode="cover"
+            className="rounded-full w-60 h-52 object-contain object-center"
+          />
+        )}
+        <Text className="text-4xl font-bold text-white">OTP Verification</Text>
+      </View>
       <View className="flex gap-2 mb-4">
         <Text className="text-white text-xl font-semibold text-center">
           OTP sent to ***sam@gmail.com.

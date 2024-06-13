@@ -181,7 +181,7 @@ const SignupScreen = () => {
         <Link href="/login" className="text-white font-bold cursor-pointer">
           Login
         </Link>
-        <Link href="/otp">OTP</Link>
+        {/* <Link href="/otp">OTP</Link> */}
       </Text>
     </View>
   );
