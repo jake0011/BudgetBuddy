@@ -12,8 +12,11 @@ export default function TabsLayout() {
         tabBarHideOnKeyboard: true,
         tabBarAccessibilityLabel: "Home",
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: "bold",
+          marginBottom: 10,
+          padding: 0,
+          gap: 0,
         },
         tabBarStyle: {
           display: usePathname() === "example" ? "none" : "flex", // {To hide the TabItem from the list where necessary }
@@ -23,7 +26,7 @@ export default function TabsLayout() {
           borderWidth: 1,
           borderColor: "#31363F",
           backgroundColor: "#31363F",
-          height: 90,
+          height:80,
           // shadowColor: "#000",
           // shadowOffset: { width: 0, height: 2 },
           // shadowOpacity: 0.8,
@@ -41,7 +44,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="(accounts)/index"
+        name="accounts/index"
         options={{
           // href: null,   {To hide the TabItem from the list where necessary }
           title: "Accounts",
@@ -51,7 +54,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="(cashflow)/index"
+        name="cashflow/index"
         options={{
           title: "Cash Flow",
           tabBarIcon: ({ color }) => (
@@ -60,7 +63,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="(settings)/index"
+        name="settings/index"
         options={{
           title: "Settings",
           tabBarIcon: ({ color }) => (

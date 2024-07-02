@@ -31,7 +31,7 @@ const DashboardProps = {
 
 export default function Home() {
   return (
-    <View className="w-full h-full bg-gray-900">
+    
       <SafeAreaView style={SafeAreaViewAndroid.AndroidSafeArea}>
         <View className=" flex flex-row w-full h-auto  justify-between">
           <Text className="p-4 text-white text-4xl">Hello, Edem</Text>
@@ -72,33 +72,7 @@ export default function Home() {
               </TouchableOpacity>
             </View>
             <View className="w-full h-1/6 flex flex-row gap-2 rounded-3xl p-1 m-1 overflow-scroll ">
-              {/* <View
-                className="w-2/6 h-full bg-gray-600 rounded-3xl overflow-hidden"
-                id="card-container"
-              >
-                <View className="flex flex-col gap-2" id="content-container">
-                  <Image src="../../../../assets/images/getStarted.png" />
-                  <Text className="text-white text-2xl px-4">Good News!</Text>
-                </View>
-              </View>
-              <View
-                className="w-3/6 h-full bg-gray-600 rounded-3xl overflow-hidden"
-                id="card-container"
-              >
-                <View className="flex flex-col gap-2" id="content-container">
-                  <Image src="../../../../assets/images/getStarted.png" />
-                  <Text className="text-white text-2xl px-4">Good News!</Text>
-                </View>
-              </View>
-              <View
-                className="w-2/6 h-full bg-gray-600 rounded-3xl overflow-hidden"
-                id="card-container"
-              >
-                <View className="flex flex-col gap-2" id="content-container">
-                  <Image src="../../../../assets/images/getStarted.png" />
-                  <Text className="text-white text-2xl px-4">Good News!</Text>
-                </View>
-              </View> */}
+             
               <FlatList
                 data={[
                   DashboardProps.card1,
@@ -135,7 +109,7 @@ export default function Home() {
               </TouchableOpacity>
             </View>
             <View
-              className="w-90 h-2/6 bg-gray-600 rounded-3xl p-2 m-3 overflow-hidden"
+              className="w-full h-2/6 bg-gray-600 rounded-3xl p-2 m-3 overflow-hidden"
               id="card-container"
             >
               <View className="flex flex-col gap-2">
@@ -146,6 +120,6 @@ export default function Home() {
           </View>
         </View>
       </SafeAreaView>
-    </View>
+    //</View>
   );
 }
