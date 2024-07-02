@@ -1,11 +1,12 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Tabs, usePathname } from "expo-router";
 import React from "react";
+import { View, StyleSheet } from "react-native";
 
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{
+      screenOptions={({ route }) => ({
         tabBarActiveTintColor: "white",
         headerShown: false,
         tabBarInactiveTintColor: "gray",
@@ -16,58 +17,81 @@ export default function TabsLayout() {
           fontWeight: "bold",
         },
         tabBarStyle: {
-          display: usePathname() === "example" ? "none" : "flex", // {To hide the TabItem from the list where necessary }
+          display: usePathname() === "example" ? "none" : "flex",
           position: "absolute",
           elevation: 0,
-          borderRadius: 10,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
           borderWidth: 1,
           borderColor: "#31363F",
           backgroundColor: "#31363F",
           height: 90,
-          // shadowColor: "#000",
-          // shadowOffset: { width: 0, height: 2 },
-          // shadowOpacity: 0.8,
+          paddingBottom: 10,
+          paddingTop: 10,
         },
-      }}
+        tabBarIcon: ({ focused, color }) => {
+          let iconName;
+          if (route.name === "index") {
+            iconName = "home";
+          } else if (route.name === "accounts/index") {
+            iconName = "folder1";
+          } else if (route.name === "cashflow/index") {
+            iconName = "linechart";
+          } else if (route.name === "settings/index") {
+            iconName = "setting";
+          }
+
+          return (
+            <View style={styles.iconContainer}>
+              <AntDesign name={iconName} size={28} color={color} />
+              {focused && <View style={styles.indicator} />}
+            </View>
+          );
+        },
+      })}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-
-          tabBarIcon: ({ color }) => (
-            <AntDesign size={28} name="home" color={color} />
-          ),
         }}
       />
       <Tabs.Screen
-        name="(accounts)/index"
+        name="accounts/index"
         options={{
-          // href: null,   {To hide the TabItem from the list where necessary }
           title: "Accounts",
-          tabBarIcon: ({ color }) => (
-            <AntDesign size={28} name="creditcard" color={color} />
-          ),
         }}
       />
       <Tabs.Screen
-        name="(cashflow)/index"
+        name="cashflow/index"
         options={{
           title: "Cash Flow",
-          tabBarIcon: ({ color }) => (
-            <AntDesign size={28} name="piechart" color={color} />
-          ),
         }}
       />
       <Tabs.Screen
-        name="(settings)/index"
+        name="settings/index"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <AntDesign size={28} name="setting" color={color} />
-          ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  focusedTab: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: -5,
+  },
+  indicator: {
+    width: 20,
+    height: 2,
+    backgroundColor: "white",
+    marginTop: 4,
+  },
+});

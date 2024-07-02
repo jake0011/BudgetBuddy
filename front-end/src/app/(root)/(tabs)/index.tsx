@@ -4,6 +4,7 @@ import {
   FlatList,
   Image,
   SafeAreaView,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -29,13 +30,20 @@ const DashboardProps = {
   },
 };
 
-export default function Home() {
+const Home = () => {
   return (
-    <View className="w-full h-full bg-gray-900">
-      <SafeAreaView style={SafeAreaViewAndroid.AndroidSafeArea}>
-        <View className=" flex flex-row w-full h-auto  justify-between">
-          <Text className="p-4 text-white text-4xl">Hello, Edem</Text>
-          <View className=" flex flex-row gap-2 p-1">
+    <SafeAreaView style={SafeAreaViewAndroid.AndroidSafeArea}>
+      <ScrollView
+        style={{ padding: 10 }}
+        showsVerticalScrollIndicator
+        contentContainerStyle={{
+          paddingBottom: 150,
+          flex: 1,
+        }}
+      >
+        <View className="flex flex-row items-center justify-between">
+          <Text className=" text-white text-4xl">Hello, Edem</Text>
+          <View className=" flex flex-row gap-2">
             <Avatar circular size="$5" backgroundColor="$black1">
               <Plus size="$2" color="$blue5" />
             </Avatar>
@@ -49,9 +57,9 @@ export default function Home() {
             </Avatar>
           </View>
         </View>
-        <View className="w-full h-full mt-4">
+        <View className="mt-4">
           <TouchableOpacity className="flex flex-row text-black text-2xl items-center ">
-            <Text className="text-white pl-4 text-xl ">Home </Text>
+            <Text className="text-white text-xl ">Home </Text>
             <ChevronRight size="$1" color={"$white2"} />
           </TouchableOpacity>
           {/* 1st card */}
@@ -71,7 +79,7 @@ export default function Home() {
                 <ChevronRight size="$1" color={"$white2"} />
               </TouchableOpacity>
             </View>
-            <View className="w-full h-1/6 flex flex-row gap-2 rounded-3xl p-1 m-1 overflow-scroll ">
+            <View className="w-full h-32 flex flex-row gap-2 rounded-3xl p-1 m-1 overflow-scroll ">
               {/* <View
                 className="w-2/6 h-full bg-gray-600 rounded-3xl overflow-hidden"
                 id="card-container"
@@ -118,7 +126,6 @@ export default function Home() {
                       <Text className="text-white text-2xl px-4">
                         {item.title}
                       </Text>
-                     
                     </View>
                   </View>
                 )}
@@ -135,7 +142,7 @@ export default function Home() {
               </TouchableOpacity>
             </View>
             <View
-              className="w-90 h-2/6 bg-gray-600 rounded-3xl p-2 m-3 overflow-hidden"
+              className="w-90 h-52 bg-gray-600 rounded-3xl p-2 m-3 overflow-hidden"
               id="card-container"
             >
               <View className="flex flex-col gap-2">
@@ -145,7 +152,9 @@ export default function Home() {
             </View>
           </View>
         </View>
-      </SafeAreaView>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
-}
+};
+
+export default Home;
