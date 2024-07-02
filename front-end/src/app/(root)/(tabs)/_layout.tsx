@@ -19,11 +19,11 @@ export default function TabsLayout() {
           display: usePathname() === "example" ? "none" : "flex", // {To hide the TabItem from the list where necessary }
           position: "absolute",
           elevation: 0,
-          borderRadius: 20,
+          borderRadius: 10,
           borderWidth: 1,
           borderColor: "#31363F",
           backgroundColor: "#31363F",
-          height: 110,
+          height: 90,
           // shadowColor: "#000",
           // shadowOffset: { width: 0, height: 2 },
           // shadowOpacity: 0.8,
