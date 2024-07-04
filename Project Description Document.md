@@ -1,3 +1,125 @@
+## 2. Detailed Requirements
+
+### 2.1 Functional Requirements
+
+**User Management:**
+
+- **User Registration and Login:**
+  - **Feature:** Users can create accounts using their email address and identification details.
+  - **Details:** Capture basic information like first name, middle name, last name, username, email, and password. Ensure compliance with security standards for social media logins.
+
+- **Profile Management:**
+  - **Feature:** Users can manage their profiles, update personal information, change passwords, and set notification and currency preferences.
+  - **Details:** Allow users to upload a profile picture and adjust notification settings.
+
+**Expense Tracking:**
+
+- **Log Expenses:**
+  - **Feature:** Users can record expenses with details such as amount, category, date, merchant, and notes.
+  - **Details:** Include predefined categories (food, transportation, utilities) and support for custom categories.
+
+- **Edit and Delete Expenses:**
+  - **Feature:** Users can edit or delete recorded expenses.
+  - **Details:** Maintain a history of changes for audit purposes.
+
+- **Search Functionality:**
+  - **Feature:** Users can search expenses by date range, category, amount, or merchant.
+  - **Details:** Provide filters and sorting options for enhanced usability.
+
+**Budget Management:**
+
+- **Set Up Budgets:**
+  - **Feature:** Users can create budgets for different categories with specified amounts and timeframes (e.g., monthly, weekly).
+  - **Details:** Options for recurring or one-time budgets, and carry over unspent amounts.
+
+- **Adjust Budgets:**
+  - **Feature:** Users can modify budgets, updating amounts, timeframes, and categories.
+  - **Details:** Notify users of changes and maintain a history of budget adjustments.
+
+- **Notifications for Budget Limits:**
+  - **Feature:** Alerts notify users when approaching or exceeding budget limits.
+  - **Details:** Customizable thresholds for notifications (e.g., 80% spent, 100% spent).
+
+**Financial Insights:**
+
+- **Reports and Graphs:**
+  - **Feature:** Visual representations (pie charts, bar graphs, line charts) of spending patterns.
+  - **Details:** Reports on spending by category, monthly trends, top merchants, etc.
+
+- **Monthly and Yearly Summaries:**
+  - **Feature:** Summarized views of expenses and budgets for each month and year.
+  - **Details:** Breakdown of income versus expenses, savings, and budget adherence.
+
+- **Expense Trends:**
+  - **Feature:** Analysis of expense trends over time, identifying spikes or consistent patterns.
+  - **Details:** Comparison against previous periods and projections for future spending.
+
+**Goal Setting:**
+
+- **Define Financial Goals:**
+  - **Feature:** Users can set specific financial goals (e.g., saving for vacation, debt payoff).
+  - **Details:** Include target amount, deadline, and progress tracking.
+
+- **Track Progress:**
+  - **Feature:** Visual tracking of goal progress, showing current savings versus target.
+  - **Details:** Provide recommendations to achieve goals faster (e.g., adjust budgets, reduce expenses).
+
+- **Recommendations:**
+  - **Feature:** Suggestions based on user spending patterns and financial health.
+  - **Details:** Guidance on budget adjustments or savings increases.
+
+**Reports and Export:**
+
+- **Generate Reports:**
+  - **Feature:** Users can generate detailed reports in PDF or CSV formats.
+  - **Details:** Reports cover transactions, budget details, and financial summaries.
+
+- **Export Data:**
+  - **Feature:** Users can export data for use in other applications or personal records.
+  - **Details:** Include options for transactions, budgets, and financial summaries.
+
+**Notifications and Reminders:**
+
+- **Bill Payment Reminders:**
+  - **Feature:** Alerts for upcoming bill payments and due dates.
+  - **Details:** Customizable reminders with user-defined notification preferences.
+
+- **Budget Review Alerts:**
+  - **Feature:** Notifications for regular budget reviews and adjustments.
+  - **Details:** Scheduled reminders for weekly or monthly reviews.
+
+- **Significant Transaction Alerts:**
+  - **Feature:** Alerts for large transactions or deviations from normal spending.
+  - **Details:** Customizable thresholds for significant transactions.
+
+### 2.2 Non-Functional Requirements
+
+**Scalability:**
+
+- **Feature:** Support a growing number of users and data without performance degradation (Max: 700).
+- **Details:** Design considerations for database scaling, load balancing, and efficient resource management.
+
+**Security:**
+
+- **Feature:** Robust measures to protect user data and transactions.
+- **Details:** Encryption of sensitive data (at rest and in transit), secure authentication (JWT), and regular security audits.
+
+**Performance:**
+
+- **Feature:** Fast load times and responsive user experience.
+- **Details:** Optimized database queries, caching strategies, and efficient codebase for handling high loads.
+
+**Usability:**
+
+- **Feature:** Intuitive and user-friendly interface for diverse users.
+- **Details:** Accessibility features, consistent navigation, and modern design.
+
+**Reliability:**
+
+- **Feature:** High availability with minimal downtime.
+- **Details:** Redundant systems, robust error handling, and comprehensive logging for issue resolution.
+
+
 ## 3. System Architecture
 
 ### 3.1 Frontend
