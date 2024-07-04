@@ -8,7 +8,7 @@ BudgetBuddy is designed as a comprehensive personal finance management tool to a
 
 **Scope:**
 
-BudgetBuddy will offer the following features to address key challenges faced by individuals and families in managing their finances:
+BudgetBuddy will offer the following features to address key challenges faced by individuals in managing their finances:
 
 - **Expense Tracking:** Users can log and categorize their daily expenses to understand their spending habits.
   
