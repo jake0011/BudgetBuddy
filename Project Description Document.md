@@ -1,3 +1,99 @@
+## 3. System Architecture
+
+### 3.1 Frontend
+
+**Technology:**
+
+- React Native, Expo: A JavaScript library for building user interfaces on mobile, chosen for its responsiveness and interactivity.
+  
+**Features:**
+
+- **Responsive Design:**
+  - Details: Utilization of CSS frameworks like TailwindCSS to ensure consistent and responsive UI across selected Android screen sizes.
+  
+- **Dynamic Routing:**
+  - Details: Implementation using Expo Router for seamless client-side navigation between pages such as dashboard, expense tracking, budgeting, and user profile.
+  
+- **State Management:**
+  - Details: Zustand for efficient global state management, handling user data, session information, and application settings.
+  
+- **Reusable Components:**
+  - Details: Creation of modular components (forms, tables, charts, buttons) to streamline UI development and maintenance.
+
+### 3.2 Backend
+
+**Technology:**
+
+- Bun with Hono.js: A lightweight JavaScript runtime and minimalist framework for scalable and maintainable applications.
+
+**Features:**
+
+- **RESTful APIs:**
+  - Details: Development of endpoints for user management, transactions, budgets, and goals.
+  
+- **Business Logic Implementation:**
+  - Details: Middleware functions for validation, authentication, authorization, budget calculations, expense categorization, and financial analysis.
+
+### 3.3 Database
+
+**Database:**
+
+- PostgreSQL: An open-source object-relational database system known for advanced data types and performance optimization.
+
+**ORM:**
+
+- Drizzle: A lightweight, TypeScript ORM offering relational and SQL-like query APIs, serverless-ready and typesafe.
+
+**Features:**
+
+- **Schema Design:**
+  - Details: Tables for Users, Transactions, Budgets, Goals, and Categories with primary keys, foreign keys, indexes, and entity relationships.
+  
+- **Relations:**
+  - Details: One-to-many and many-to-many relationships between Users, Transactions, Budgets, Goals, and Categories.
+  
+- **Data Integrity:**
+  - Details: Constraints enforcement (e.g., unique email addresses), foreign key references, data validation rules, and database triggers for data consistency.
+
+### 3.4 Hosting
+
+**Platform:**
+
+- **Server and API:**
+  - Render: A cloud-based hosting service offering scalability, serverless functions, edge caching, and automatic updates.
+  
+- **Database:**
+  - Neon: A managed PostgreSQL service with automatic backups, performance optimization, and collaborative query editing.
+
+**Features:**
+
+- **Scalable Infrastructure:**
+  - Details: Support for scaling resources and auto-scaling to handle varying traffic loads.
+  
+- **Data Backups and Recovery:**
+  - Details: Automated daily backups, on-demand backups, and recovery solutions for data integrity and availability.
+
+### 3.5 Additional Architectural Components
+
+**Authentication and Authorization:**
+
+- **JWT (JSON Web Tokens):**
+  - Details: Secure token-based authentication system with mechanisms for token storage and validation.
+
+**Logging:**
+
+- **Centralized Logging:**
+  - Details: System for tracking application activities, errors, and performance metrics.
+
+**Error Handling:**
+
+- **Graceful Degradation:**
+  - Details: Implementation of robust error-handling to prevent system breakdowns.
+
+- **User Feedback:**
+  - Details: User-friendly error messages, options for issue reporting, and automated logging of critical errors for developer review.
+
+
 ## 4. Implementation Plan
 
 ### 4.1 Development Phases
