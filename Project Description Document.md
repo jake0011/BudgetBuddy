@@ -457,3 +457,81 @@ The scope also includes user registration and login, role-based access control, 
 - **Mitigation Planning:** Develop and implement mitigation plans for identified risks.
 - **Contingency Planning:** Prepare contingency plans for high-impact risks.
 - **Risk Monitoring:** Continuously monitor risks and adjust plans as needed.
+
+- ## 5. Testing and Quality Assurance
+
+### 5.1 Testing Strategy
+
+**Overview:**
+The testing strategy for BudgetBuddy focuses on ensuring reliability, security, and performance across the application.
+    *This was the plan but time did not permit anything beyond unit testing and usability testing by ourselves.*
+
+**Testing Levels:**
+- **Unit Testing:**
+  - **Purpose:** Verify individual components like frontend, backend, and database operations.
+  - **Tools:** Jest for JavaScript, Mocha/Chai for Node.js.
+- **Integration Testing:**
+  - **Purpose:** Ensure modules and services interact correctly.
+  - **Tools:** Jest, Supertest.
+- **End-to-End (E2E) Testing:**
+  - **Purpose:** Test complete application flow from start to finish.
+  - **Tools:** Cypress, Selenium.
+- **Performance Testing:**
+  - **Purpose:** Evaluate application performance under various conditions.
+  - **Tools:** JMeter, LoadRunner.
+- **Security Testing:**
+  - **Purpose:** Identify vulnerabilities and protect user data.
+  - **Tools:** OWASP ZAP, Burp Suite.
+- **Usability Testing:**
+  - **Purpose:** Assess user experience and interface.
+  - **Tools:** User testing platforms, feedback tools.
+- **Compatibility Testing:**
+  - **Purpose:** Ensure application works across different browsers and devices.
+  - **Tools:** BrowserStack, Sauce Labs.
+
+### 5.2 Test Planning
+
+**Components:**
+- **Objectives:** Validate application functionalities and ensure high quality.
+- **Scope:** Cover all features including user management, expense tracking, and reporting.
+- **Test Cases:** Detailed scenarios with steps, expected results, and postconditions.
+
+### 5.3 Test Execution
+
+**Process:**
+- **Unit Testing Execution:** Developers run tests during development.
+- **Integration Testing Execution:** QA engineers verify module interactions.
+- **E2E Testing Execution:** Full system functionality testing.
+- **Performance Testing Execution:** Load and stress tests.
+- **Security Testing Execution:** Vulnerability scans and penetration tests.
+- **Usability Testing Execution:** User feedback and interface evaluation.
+- **Compatibility Testing Execution:** Cross-browser and device testing.
+
+### 5.4 Defect Management
+
+**Process:**
+- **Defect Logging:** Use bug-tracking system (e.g., Jira) for logging issues.
+- **Defect Triage:** Prioritize based on severity and impact.
+- **Defect Resolution:** Developers fix issues followed by QA validation.
+- **Defect Tracking:** Monitor status and ensure timely resolution.
+- **Reporting:** Generate reports to analyze trends and quality metrics.
+
+### 5.5 Quality Assurance Metrics
+
+**Key Metrics:**
+- **Test Coverage:** Percentage of code covered by tests.
+- **Defect Density:** Number of defects per unit of code.
+- **Test Pass Rate:** Percentage of passed test cases.
+- **Defect Resolution Time:** Average time to resolve issues.
+- **Performance Metrics:** Response time, throughput, error rates.
+- **User Satisfaction:** Feedback scores from usability testing.
+
+### 5.6 Quality Assurance Tools
+
+**Tools and Technologies:**
+- **Testing Frameworks:** Jest, Mocha, Cypress.
+- **Bug Tracking:** Jira, Bugzilla.
+- **Performance Testing:** JMeter, LoadRunner.
+- **Security Testing:** OWASP ZAP, Burp Suite.
+- **CI/CD Integration:** Jenkins, GitLab CI.
+
