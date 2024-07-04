@@ -1,3 +1,33 @@
+1. Project Overview
+1.1 Purpose and Scope
+Purpose:
+BudgetBuddy is designed to be a comprehensive personal finance management tool that assists users in tracking their daily expenses, managing budgets, and achieving their financial goals. The application aims to simplify financial planning by providing intuitive tools for expense tracking, budgeting, and goal setting, empowering users to make informed financial decisions.
+Scope:
+BudgetBuddy will offer a range of features to address the key challenges faced by individuals and families in managing their finances:
+•	Expense Tracking: Users can log and categorize their daily expenses, allowing them to see where their money is going.
+•	Budget Management: Users can set up and adjust budgets for different spending categories, helping them stay on track with their financial goals.
+•	Financial Insights: Visual reports and analytics will provide users with a clear understanding of their spending patterns and financial health.
+•	Goal Setting: Users can define financial goals, track their progress, and receive recommendations on how to achieve these goals.
+•	Notifications and Reminders: The application will send alerts for bill payments, budget reviews, and significant transactions to help users stay on top of their finances.
+•	Data Export and Reporting: Users can generate detailed financial reports and export their data for personal use or sharing with financial advisors.
+The scope also includes user registration and login, role-based access control, and administrative tools for managing the platform and supporting users.
+1.2 Target Audience and User Personas
+Target Audience:
+•	Individuals: People who want to manage their personal finances, track their spending, and save money efficiently.
+•	Students: Young adults with limited income who need to be mindful of their spending and save for future needs.
+User Personas:
+•	Kwabena, the Individual User:
+o	Age: 24
+o	Occupation: Teaching Assistant 
+o	Needs: DOY wants to keep track of his monthly expenses, save for a vacation, and ensure he is not overspending on dining out.
+o	Goals: To achieve a savings target for his vacation within six months and manage his monthly budget effectively.
+•	Jake, the Student User:
+o	Age: 21
+o	Occupation: College Student
+o	Needs: Jake needs to manage his limited income from a part-time job, track his spending, and save for textbooks and tuition.
+o	Goals: To avoid overspending, save enough for next semester’s chillinng, and manage his money efficiently.
+
+
 ## 2. Detailed Requirements
 
 ### 2.1 Functional Requirements
