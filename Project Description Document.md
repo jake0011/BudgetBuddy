@@ -46,6 +46,8 @@ The scope also includes user registration and login, role-based access control, 
   - **Needs:** Jake needs to manage income from a part-time job, track spending, and save for textbooks and tuition.
   - **Goals:** Avoid overspending, save for next semester’s expenses, and manage finances efficiently.
 
+
+
 ## 2. Detailed Requirements
 
 ### 2.1 Functional Requirements
@@ -168,6 +170,8 @@ The scope also includes user registration and login, role-based access control, 
 - **Details:** Redundant systems, robust error handling, and comprehensive logging for issue resolution.
 
 
+
+
 ## 3. System Architecture
 
 ### 3.1 Frontend
@@ -262,6 +266,8 @@ The scope also includes user registration and login, role-based access control, 
 
 - **User Feedback:**
   - Details: User-friendly error messages, options for issue reporting, and automated logging of critical errors for developer review.
+
+
 
 
 ## 4. Implementation Plan
