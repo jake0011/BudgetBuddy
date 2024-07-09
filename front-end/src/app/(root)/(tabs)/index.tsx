@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ScrollView,
 } from "react-native";
 import { Avatar } from "tamagui";
 import { ChevronRight, Plus } from "@tamagui/lucide-icons";
@@ -31,10 +32,13 @@ const DashboardProps = {
 
 export default function Home() {
   return (
-    
-      <SafeAreaView style={SafeAreaViewAndroid.AndroidSafeArea}>
-        <View className=" flex flex-row w-full h-auto  justify-between">
-          <Text className="p-4 text-white text-4xl">Hello, Edem</Text>
+    <SafeAreaView
+      style={SafeAreaViewAndroid.AndroidSafeArea}
+      className="w-full h-full"
+    >
+      <View className="h-1/10 flex flex-row w-full h-auto  justify-between">
+        <View className="h-1/10 flex flex-row w-full h-auto  justify-between">
+          <Text className="p-2 text-white text-4xl">Hello, Edem</Text>
           <View className=" flex flex-row gap-2 p-1">
             <Avatar circular size="$5" backgroundColor="$black1">
               <Plus size="$2" color="$blue5" />
@@ -49,15 +53,15 @@ export default function Home() {
             </Avatar>
           </View>
         </View>
-        <View className="w-full h-full mt-4">
+        <View className="w-full h-2/10 mt-2">
           <TouchableOpacity className="flex flex-row text-black text-2xl items-center ">
             <Text className="text-white pl-4 text-xl ">Home </Text>
             <ChevronRight size="$1" color={"$white2"} />
           </TouchableOpacity>
           {/* 1st card */}
-          <View className="w-full h-full mt-1 ">
+          <View className="w-auto h-auto mt-1 ">
             <View
-              className="w-90 h-1/6 bg-gray-600 rounded-3xl p-1 m-2 overflow-hidden"
+              className="w-90 h-auto bg-gray-600 rounded-3xl p-1 m-2 overflow-hidden"
               id="card-container"
             >
               <View className="flex flex-col gap-2">
@@ -65,14 +69,13 @@ export default function Home() {
                 <Text className="text-white text-2xl px-4">Good News!</Text>
               </View>
             </View>
-            <View className="w-full mt-1 ">
+            <View className="w-auto mt-1 ">
               <TouchableOpacity className="flex flex-row text-black text-2xl items-center ">
                 <Text className="text-white pl-4 text-xl ">Goals </Text>
                 <ChevronRight size="$1" color={"$white2"} />
               </TouchableOpacity>
             </View>
-            <View className="w-full h-1/6 flex flex-row gap-2 rounded-3xl p-1 m-1 overflow-scroll ">
-             
+            <View className="w-full h-auto flex flex-row gap-2 rounded-3xl p-1 m-1 overflow-scroll ">
               <FlatList
                 data={[
                   DashboardProps.card1,
@@ -81,7 +84,7 @@ export default function Home() {
                 ]}
                 renderItem={({ item }) => (
                   <View
-                    className="h-full mr-4 bg-gray-600 rounded-3xl overflow-hidden"
+                    className="h-auto mr-4 bg-gray-600 rounded-3xl overflow-hidden"
                     id="card-container"
                   >
                     <View
@@ -92,7 +95,9 @@ export default function Home() {
                       <Text className="text-white text-2xl px-4">
                         {item.title}
                       </Text>
-                     
+                      <Text className="text-white text-2xl px-4">
+                        {item.description}
+                      </Text>
                     </View>
                   </View>
                 )}
@@ -100,7 +105,7 @@ export default function Home() {
                 keyExtractor={(item) => item.title}
               />
             </View>
-            <View className="w-full mt-1  ">
+            <View className="w-auto mt-1 px ">
               <TouchableOpacity className="flex flex-row text-black text-2xl items-center ">
                 <Text className="text-white pl-4 text-xl ">
                   Expenses Category (October){" "}
@@ -109,7 +114,7 @@ export default function Home() {
               </TouchableOpacity>
             </View>
             <View
-              className="w-full h-2/6 bg-gray-600 rounded-3xl p-2 m-3 overflow-hidden"
+              className="w-auto h-auto bg-gray-600 rounded-3xl p-2 m-3 overflow-hidden"
               id="card-container"
             >
               <View className="flex flex-col gap-2">
@@ -119,7 +124,7 @@ export default function Home() {
             </View>
           </View>
         </View>
-      </SafeAreaView>
-    //</View>
+      </View>
+    </SafeAreaView>
   );
 }
