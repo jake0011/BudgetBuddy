@@ -15,7 +15,6 @@ BudgetBuddy will offer the following features to address key challenges faced by
 - **Budget Management:** Users can set up and adjust budgets for different categories to stay on track with financial goals.
   
 - **Financial Insights:** Visual reports and analytics provide users with a clear understanding of spending patterns and overall financial health.
-  
 - **Goal Setting:** Users can define financial goals, track progress, and receive recommendations to achieve those goals.
   
 - **Notifications and Reminders:** Alerts for bill payments, budget reviews, and significant transactions help users stay organized.
@@ -44,9 +43,7 @@ The scope also includes user registration and login, role-based access control, 
   - **Age:** 21
   - **Occupation:** College Student
   - **Needs:** Jake needs to manage income from a part-time job, track spending, and save for textbooks and tuition.
-  - **Goals:** Avoid overspending, save for next semester’s expenses, and manage finances efficiently.
-
-
+  - **Goals:** Avoid overspending, save for next semester’s expenses, and manage finances efficiently.  
 
 ## 2. Detailed Requirements
 
@@ -533,7 +530,7 @@ The deployment strategy for BudgetBuddy aims to transition smoothly from develop
 - **Stakeholder Communication:**
   - **Action:** Inform stakeholders about deployment.
 
-### 6.4 Deployment Steps
+### 6.3 Deployment Steps
 
 **Steps:**
 1. **Prepare the Deployment Package:**
@@ -548,9 +545,7 @@ The deployment strategy for BudgetBuddy aims to transition smoothly from develop
    - **Method:** Use blue-green deployment for a smooth transition.
 5. **Post-Deployment Verification:**
    - **Action:** Check if the deployment was successful.
-6. **Update DNS (If Applicable):**
-   - **Action:** Update DNS settings if necessary.
-7. **Monitor and Rollback:**
+6. **Monitor and Rollback:**
    - **Action:** Monitor the application and be ready to rollback if issues arise.
 
 
