@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { monthOfTheYearEnum } from "./incomes";
+import { goals } from "./goals";
 
 export const typeEnum = pgEnum("type", ["budget", "expenses"]);
 
@@ -27,6 +28,7 @@ export const expenditures = pgTable("expenditures", {
   userId: integer("userId")
     .references(() => users.userId, { onDelete: "cascade" })
     .notNull(),
+  goalsId: integer("goalsId").references(() => goals.goalId, { onDelete: "set default" }),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
 
