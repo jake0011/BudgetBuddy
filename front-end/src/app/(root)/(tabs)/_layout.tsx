@@ -33,17 +33,19 @@ export default function TabsLayout() {
           let iconName;
           if (route.name === "index") {
             iconName = "home";
-          } else if (route.name === "accounts/index") {
-            iconName = "folder1";
-          } else if (route.name === "cashflow/index") {
-            iconName = "linechart";
-          } else if (route.name === "settings/index") {
-            iconName = "setting";
+          } else if (route.name === "income/index") {
+            iconName = "wallet";
+          } else if (route.name === "expenses/index") {
+            iconName = "calculator";
+          } else if (route.name === "goals/index") {
+            iconName = "flag";
+          } else if (route.name === "budget/index") {
+            iconName = "profile";
           }
 
           return (
             <View style={styles.iconContainer}>
-              <AntDesign name={iconName} size={28} color={color} />
+              <AntDesign name={iconName} size={24} color={color} />
               {focused && <View style={styles.indicator} />}
             </View>
           );
@@ -57,21 +59,27 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="accounts/index"
+        name="income/index"
         options={{
-          title: "Accounts",
+          title: "Income",
         }}
       />
       <Tabs.Screen
-        name="cashflow/index"
+        name="expenses/index"
         options={{
-          title: "Cash Flow",
+          title: "Expenses",
         }}
       />
       <Tabs.Screen
-        name="settings/index"
+        name="budget/index"
         options={{
-          title: "Settings",
+          title: "Budget",
+        }}
+      />
+      <Tabs.Screen
+        name="goals/index"
+        options={{
+          title: "Goals",
         }}
       />
     </Tabs>
@@ -92,6 +100,6 @@ const styles = StyleSheet.create({
     width: 20,
     height: 2,
     backgroundColor: "white",
-    marginTop: 4,
+    marginTop: 2,
   },
 });

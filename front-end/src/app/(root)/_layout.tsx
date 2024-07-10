@@ -6,7 +6,6 @@ export default function MainLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        // contentStyle: { backgroundColor: "#161E2B" },
       }}
     >
       <Stack.Screen name="(tabs)" />

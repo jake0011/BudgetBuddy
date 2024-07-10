@@ -7,7 +7,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { TamaguiProvider } from "tamagui";
 import tamaguiConfig from "tamagui.config";
 import { useFonts } from "expo-font";
-import { StatusBar } from "react-native";
+import { StatusBar, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
