@@ -15,7 +15,6 @@ BudgetBuddy will offer the following features to address key challenges faced by
 - **Budget Management:** Users can set up and adjust budgets for different categories to stay on track with financial goals.
   
 - **Financial Insights:** Visual reports and analytics provide users with a clear understanding of spending patterns and overall financial health.
-  
 - **Goal Setting:** Users can define financial goals, track progress, and receive recommendations to achieve those goals.
   
 - **Notifications and Reminders:** Alerts for bill payments, budget reviews, and significant transactions help users stay organized.
@@ -44,9 +43,7 @@ The scope also includes user registration and login, role-based access control, 
   - **Age:** 21
   - **Occupation:** College Student
   - **Needs:** Jake needs to manage income from a part-time job, track spending, and save for textbooks and tuition.
-  - **Goals:** Avoid overspending, save for next semester’s expenses, and manage finances efficiently.
-
-
+  - **Goals:** Avoid overspending, save for next semester’s expenses, and manage finances efficiently.  
 
 ## 2. Detailed Requirements
 
@@ -470,24 +467,12 @@ The testing strategy for BudgetBuddy focuses on ensuring reliability, security, 
 - **Unit Testing:**
   - **Purpose:** Verify individual components like frontend, backend, and database operations.
   - **Tools:** Jest for JavaScript, Mocha/Chai for Node.js.
-- **Integration Testing:**
-  - **Purpose:** Ensure modules and services interact correctly.
-  - **Tools:** Jest, Supertest.
-- **End-to-End (E2E) Testing:**
-  - **Purpose:** Test complete application flow from start to finish.
-  - **Tools:** Cypress, Selenium.
-- **Performance Testing:**
-  - **Purpose:** Evaluate application performance under various conditions.
-  - **Tools:** JMeter, LoadRunner.
-- **Security Testing:**
-  - **Purpose:** Identify vulnerabilities and protect user data.
-  - **Tools:** OWASP ZAP, Burp Suite.
 - **Usability Testing:**
   - **Purpose:** Assess user experience and interface.
   - **Tools:** User testing platforms, feedback tools.
 - **Compatibility Testing:**
-  - **Purpose:** Ensure application works across different browsers and devices.
-  - **Tools:** BrowserStack, Sauce Labs.
+  - **Purpose:** Ensure application works across different devices, screen sizes and OS.
+  - **Tools:** Different android devices with different android versions.
 
 ### 5.2 Test Planning
 
@@ -500,40 +485,18 @@ The testing strategy for BudgetBuddy focuses on ensuring reliability, security, 
 
 **Process:**
 - **Unit Testing Execution:** Developers run tests during development.
-- **Integration Testing Execution:** QA engineers verify module interactions.
-- **E2E Testing Execution:** Full system functionality testing.
-- **Performance Testing Execution:** Load and stress tests.
-- **Security Testing Execution:** Vulnerability scans and penetration tests.
 - **Usability Testing Execution:** User feedback and interface evaluation.
-- **Compatibility Testing Execution:** Cross-browser and device testing.
+- **Compatibility Testing Execution:** Cross-device and OS testing.
 
 ### 5.4 Defect Management
 
 **Process:**
-- **Defect Logging:** Use bug-tracking system (e.g., Jira) for logging issues.
+- **Defect Logging:** Use bug-tracking system  for logging issues.
 - **Defect Triage:** Prioritize based on severity and impact.
 - **Defect Resolution:** Developers fix issues followed by QA validation.
 - **Defect Tracking:** Monitor status and ensure timely resolution.
 - **Reporting:** Generate reports to analyze trends and quality metrics.
 
-### 5.5 Quality Assurance Metrics
-
-**Key Metrics:**
-- **Test Coverage:** Percentage of code covered by tests.
-- **Defect Density:** Number of defects per unit of code.
-- **Test Pass Rate:** Percentage of passed test cases.
-- **Defect Resolution Time:** Average time to resolve issues.
-- **Performance Metrics:** Response time, throughput, error rates.
-- **User Satisfaction:** Feedback scores from usability testing.
-
-### 5.6 Quality Assurance Tools
-
-**Tools and Technologies:**
-- **Testing Frameworks:** Jest, Mocha, Cypress.
-- **Bug Tracking:** Jira, Bugzilla.
-- **Performance Testing:** JMeter, LoadRunner.
-- **Security Testing:** OWASP ZAP, Burp Suite.
-- **CI/CD Integration:** Jenkins, GitLab CI.
 
 ## 6. Deployment Plan
 
@@ -546,32 +509,12 @@ The deployment strategy for BudgetBuddy aims to transition smoothly from develop
 - **Blue-Green Deployment:**
   - **Purpose:** Reduce downtime during deployment.
   - **Description:** Two identical environments (blue and green); one serves users while the other is updated. Traffic is switched to the new environment once it's verified.
-- **Continuous Deployment (CD):**
-  - **Purpose:** Automate the deployment process.
-  - **Description:** Automatically deploy updates after passing all tests.
 - **Rolling Deployment:**
   - **Purpose:** Gradually update servers to avoid downtime.
   - **Description:** Incrementally update application instances.
 
-### 6.2 Deployment Environment
 
-**Environment Configuration:**
-- **Production Environment:**
-  - **Hosting:** AWS EC2 or Heroku.
-  - **Database:** PostgreSQL.
-  - **Storage:** Amazon S3 for files and backups.
-- **Staging Environment:**
-  - **Purpose:** Testing before production.
-  - **Configuration:** Similar to production but isolated.
-- **Development Environment:**
-  - **Purpose:** Local setup for development and testing.
-  - **Configuration:** Local Docker containers.
-
-**Infrastructure as Code (IaC):**
-- **Tool:** Terraform or AWS CloudFormation.
-- **Purpose:** Automate environment setup.
-
-### 6.3 Pre-Deployment Checklist
+### 6.2 Pre-Deployment Checklist
 
 **Checklist:**
 - **Code Review:**
@@ -587,7 +530,7 @@ The deployment strategy for BudgetBuddy aims to transition smoothly from develop
 - **Stakeholder Communication:**
   - **Action:** Inform stakeholders about deployment.
 
-### 6.4 Deployment Steps
+### 6.3 Deployment Steps
 
 **Steps:**
 1. **Prepare the Deployment Package:**
@@ -602,47 +545,8 @@ The deployment strategy for BudgetBuddy aims to transition smoothly from develop
    - **Method:** Use blue-green deployment for a smooth transition.
 5. **Post-Deployment Verification:**
    - **Action:** Check if the deployment was successful.
-6. **Update DNS (If Applicable):**
-   - **Action:** Update DNS settings if necessary.
-7. **Monitor and Rollback:**
+6. **Monitor and Rollback:**
    - **Action:** Monitor the application and be ready to rollback if issues arise.
-
-### 6.5 Post-Deployment Activities
-
-**Activities:**
-- **Monitoring:**
-  - **Tools:** CloudWatch, New Relic.
-  - **Purpose:** Monitor performance and errors.
-- **User Feedback:**
-  - **Tools:** Surveys, feedback forms.
-  - **Purpose:** Collect user feedback.
-- **Bug Fixes and Patches:**
-  - **Purpose:** Address post-deployment bugs.
-- **Documentation Update:**
-  - **Purpose:** Update with deployment details.
-- **Performance Tuning:**
-  - **Purpose:** Optimize based on usage metrics.
-
-### 6.6 Rollback Plan
-
-**Overview:**
-If deployment fails, revert to the previous stable state.
-
-**Triggers:**
-- Major functionality issues
-- Severe performance issues
-
-**Procedure:**
-- **Initiate Rollback:**
-  - **Action:** Switch back to the previous environment.
-- **Revert Database Changes:**
-  - **Action:** Restore from the latest backup if needed.
-- **Notify Stakeholders:**
-  - **Action:** Inform about the rollback.
-- **Investigate Issues:**
-  - **Action:** Analyze and fix the issues.
-- **Prepare for Redeployment:**
-  - **Action:** Fix issues and redeploy.
 
 
 ## 7. Maintenance and Support Plan
@@ -672,179 +576,3 @@ Ensure BudgetBuddy continues to operate smoothly post-deployment through regular
   - **Purpose:** Address potential issues proactively.
   - **Scope:** Code cleanup, performance checks, security reviews.
   - **Process:** Regular reviews, conduct audits, optimize periodically.
-
-### 7.2 Support Model
-
-**Support Levels:**
-- **Level 1 (L1) Support:**
-  - **Scope:** Basic troubleshooting and user support.
-  - **Responsibility:** Helpdesk or initial support contact.
-  
-- **Level 2 (L2) Support:**
-  - **Scope:** Handle more complex issues not resolved by L1.
-  - **Responsibility:** Technical support team or developers.
-  
-- **Level 3 (L3) Support:**
-  - **Scope:** Deep technical issues requiring code changes.
-  - **Responsibility:** Development team.
-
-**Support Channels:**
-- **Email Support:**
-  - **Purpose:** Allow users to report issues directly.
-  - **Tools:** Support email (e.g., support@budgetbuddy.com).
-  
-- **Helpdesk Portal:**
-  - **Purpose:** Centralize support requests.
-  - **Tools:** Basic helpdesk software.
-
-- **Live Chat:**
-  - **Purpose:** Provide real-time assistance.
-  - **Tools:** Simple live chat on the website or app.
-
-**Service Level Agreements (SLAs):**
-- **Response Time:**
-  - Critical Issues: Respond within 2 hours.
-  - High Priority: Respond within 8 hours.
-  - Medium Priority: Respond within 1 day.
-  - Low Priority: Respond within 2 days.
-
-- **Resolution Time:**
-  - Critical Issues: Resolve within 8 hours.
-  - High Priority: Resolve within 2 days.
-  - Medium Priority: Resolve within 5 days.
-  - Low Priority: Resolve within 10 days.
-
-### 7.3 Monitoring and Performance Management
-
-**Monitoring Tools:**
-- **Performance Monitoring:**
-  - **Purpose:** Track application performance and identify issues.
-  - **Tools:** Basic APM tool or custom logging.
-  
-- **Log Management:**
-  - **Purpose:** Analyze logs for errors.
-  - **Tools:** Simple log analysis tool.
-  
-- **Uptime Monitoring:**
-  - **Purpose:** Ensure the application remains available.
-  - **Tools:** Basic uptime monitoring tool.
-  
-- **User Analytics:**
-  - **Purpose:** Track user behavior.
-  - **Tools:** Google Analytics.
-
-**Performance Metrics:**
-- **Response Time:**
-  - **Definition:** Time for the app to respond to requests.
-  - **Objective:** Keep below 500 ms.
-
-- **Error Rates:**
-  - **Definition:** Percentage of error responses.
-  - **Objective:** Keep below 1%.
-
-- **Uptime:**
-  - **Definition:** Percentage of time the app is operational.
-  - **Objective:** Maintain above 99%.
-
-- **User Engagement:**
-  - **Definition:** Measure user activity and retention.
-  - **Objective:** Increase active user retention.
-
-### 7.4 Incident Management
-
-**Incident Response Process:**
-- **Incident Detection:**
-  - **Action:** Detect issues via monitoring tools or user reports.
-  
-- **Incident Triage:**
-  - **Action:** Prioritize incidents based on impact.
-  
-- **Incident Resolution:**
-  - **Action:** Investigate and fix the issue.
-  
-- **Incident Communication:**
-  - **Action:** Inform users and stakeholders about the incident.
-  
-- **Post-Incident Review:**
-  - **Action:** Analyze to prevent future occurrences.
-
-**Incident Management Tools:**
-- **Ticketing System:**
-  - **Purpose:** Manage incident reports.
-  - **Tools:** Basic ticketing system.
-
-- **Communication Tools:**
-  - **Purpose:** Coordinate response efforts.
-  - **Tools:** Email or chat tools.
-
-### 7.5 Security Management
-
-**Security Policies:**
-- **Data Protection:**
-  - **Purpose:** Ensure user data is secure.
-  - **Policies:** Encrypt data, control access.
-  
-- **Authentication:**
-  - **Purpose:** Secure user access.
-  - **Policies:** Use strong passwords and multi-factor authentication.
-  
-- **Incident Response:**
-  - **Purpose:** Quickly address security issues.
-  - **Policies:** Incident response plan.
-
-**Security Tools:**
-- **Vulnerability Scanners:**
-  - **Purpose:** Identify security risks.
-  - **Tools:** Basic scanning tools.
-  
-- **Encryption:**
-  - **Purpose:** Protect data.
-  - **Tools:** Use TLS for data in transit.
-
-### 7.6 Updates and Upgrades
-
-**Update Process:**
-- **Release Planning:**
-  - **Action:** Plan updates for bug fixes and new features.
-  
-- **Testing:**
-  - **Action:** Test updates before deploying.
-  
-- **Deployment:**
-  - **Action:** Deploy updates carefully.
-  
-- **User Notification:**
-  - **Action:** Inform users about updates.
-
-**Upgrade Management:**
-- **Backward Compatibility:**
-  - **Purpose:** Ensure new versions work with existing data.
-  
-- **Feature Rollout:**
-  - **Purpose:** Gradually release new features.
-  
-- **End-of-Life (EOL) Management:**
-  - **Purpose:** Transition users from old to new versions smoothly.
-
-### 7.7 Documentation and Knowledge Management
-
-**Documentation:**
-- **Technical Documentation:**
-  - **Scope:** Codebase and API documentation.
-  
-- **User Documentation:**
-  - **Scope:** User guides and troubleshooting manuals.
-  
-- **Maintenance Logs:**
-  - **Scope:** Records of updates and fixes.
-
-**Knowledge Management:**
-- **Knowledge Base:**
-  - **Purpose:** Centralize project knowledge.
-  
-- **Training:**
-  - **Purpose:** Train support staff and new team members.
-  
-- **Feedback Loop:**
-  - **Purpose:** Improve documentation based on feedback.
-
