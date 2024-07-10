@@ -4,7 +4,6 @@ import {
   Text,
   SafeAreaView,
   FlatList,
-  Modal,
   TouchableOpacity,
   Dimensions,
 } from "react-native";
@@ -13,45 +12,24 @@ import { Input, Button as TamaguiButton } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import { Text as SvgText } from "react-native-svg";
 import {
   Modal as PaperModal,
   Button as PaperButton,
   Portal,
-  Provider,
 } from "react-native-paper";
+import CustomSelect from "@/components/global/CustomSelect";
 
 const dummyData = {
   totalExpenses: "$1,500",
   expenses: [
-    {
-      id: 1,
-      category: "Groceries",
-      amount: 150.25,
-      date: "2023-10-01",
-      recurrence: "One-time",
-    },
-    {
-      id: 2,
-      category: "Rent",
-      amount: 600,
-      date: "2023-10-01",
-      recurrence: "Monthly",
-    },
-    {
-      id: 3,
-      category: "Utilities",
-      amount: 100,
-      date: "2023-10-05",
-      recurrence: "Monthly",
-    },
-    {
-      id: 4,
-      category: "Dining",
-      amount: 50,
-      date: "2023-10-10",
-      recurrence: "One-time",
-    },
+    { id: 1, category: "Groceries", amount: 150.25, date: "2023-10-01" },
+    { id: 2, category: "Rent", amount: 600, date: "2023-10-01" },
+    { id: 3, category: "Utilities", amount: 100, date: "2023-10-05" },
+    { id: 4, category: "Dining", amount: 50, date: "2023-10-10" },
+  ],
+  savings: [
+    { id: 1, category: "Emergency Fund", amount: 200, date: "2023-10-01" },
+    { id: 2, category: "Vacation", amount: 300, date: "2023-10-05" },
   ],
 };
 
@@ -68,7 +46,9 @@ const predefinedColors = [
 
 const Expenses = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const { control, handleSubmit, reset } = useForm();
+  const { control, handleSubmit, reset, watch } = useForm();
+  const categoryType = watch("categoryType");
+  const savingsType = watch("savingsType");
 
   const onSubmit = (data) => {
     console.log(data);
@@ -80,79 +60,164 @@ const Expenses = () => {
   const renderItem = ({ item }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
-        <Text className="text-white text-lg font-bold">{item.category}</Text>
-        <Text className="text-gray-400">Amount: ${item.amount}</Text>
+        <Text className={`text-white text-lg font-bold`}>{item.category}</Text>
         <Text className="text-gray-400">Date: {item.date}</Text>
-        <Text className="text-gray-400">Recurrence: {item.recurrence}</Text>
       </View>
       <Text className="text-white text-lg font-bold">${item.amount}</Text>
     </View>
   );
 
-  const totalExpensesAmount = dummyData.expenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
+  // const renderItem = ({ item }) => (
+  //   <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
+  //     <View className="flex gap-1">
+  //       <Text className="text-white font-semibold text-base">Date:</Text>
+  //       <Text className="text-white font-bold text-lg"> {item.date}</Text>
+  //     </View>
+  //     <View className="flex gap-1">
+  //       <Text className="text-white font-semibold text-base">Amount:</Text>
+  //       <Text className="text-white font-bold text-lg"> ${item.amount}</Text>
+  //     </View>
+  //   </View>
+  // );
 
-  const pieChartData = dummyData.expenses.map((expense, index) => ({
-    name: expense.category,
-    amount: expense.amount,
-    color: predefinedColors[index % predefinedColors.length],
-    legendFontColor: "#FFF",
-    legendFontSize: 15,
-    percentage: ((expense.amount / totalExpensesAmount) * 100).toFixed(2) + "%",
-  }));
+  const totalExpensesAmount = [
+    ...dummyData.expenses,
+    ...dummyData.savings,
+  ].reduce((sum, expense) => sum + expense.amount, 0);
 
-  const renderLabel = ({ slices }) => {
-    return slices.map((slice, index) => {
-      const { pieCentroid, data } = slice;
-      return (
-        <SvgText
-          key={`label-${index}`}
-          x={pieCentroid[0]}
-          y={pieCentroid[1]}
-          fill="white"
-          textAnchor="middle"
-          alignmentBaseline="middle"
-          fontSize={15}
-        >
-          {data.percentage}
-        </SvgText>
-      );
-    });
-  };
-
-  const generateScenes = (expenses) => {
-    const categories = [
-      ...new Set(expenses.map((expense) => expense.category)),
-    ];
-    const scenes = {};
-    categories.forEach((category: string) => {
-      scenes[category.toLowerCase()] = () => (
-        <FlatList
-          data={expenses.filter((expense) => expense.category === category)}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
-        />
-      );
-    });
-
-    return scenes;
-  };
-
-  const renderScene = SceneMap(generateScenes(dummyData.expenses));
+  const pieChartData = [
+    ...dummyData.expenses,
+    {
+      name: "Savings",
+      amount: dummyData.savings.reduce(
+        (sum, expense) => sum + expense.amount,
+        0
+      ),
+    },
+  ].map((expense, index) => {
+    const isExpense = (exp): exp is { category: string; amount: number } =>
+      "category" in exp;
+    return {
+      name: isExpense(expense) ? expense.category : expense.name,
+      amount: expense.amount,
+      color: predefinedColors[index % predefinedColors.length],
+      legendFontColor: "#FFF",
+      legendFontSize: 15,
+      percentage:
+        ((expense.amount / totalExpensesAmount) * 100).toFixed(2) + "%",
+    };
+  });
 
   const [index, setIndex] = useState(0);
-  const categories = [
-    ...new Set(dummyData.expenses.map((expense) => expense.category)),
-  ];
-  const [routes] = useState(
-    categories.map((category) => ({
-      key: category.toLowerCase(),
-      title: category,
-    }))
-  );
+  const [routes] = useState([
+    { key: "living", title: "Living Expenses" },
+    { key: "savings", title: "Savings" },
+  ]);
+
+  const [livingIndex, setLivingIndex] = useState(0);
+  const [livingRoutes] = useState([
+    { key: "groceries", title: "Groceries" },
+    { key: "rent", title: "Rent" },
+    { key: "utilities", title: "Utilities" },
+    { key: "dining", title: "Dining" },
+  ]);
+
+  const [savingsIndex, setSavingsIndex] = useState(0);
+  const [savingsRoutes] = useState([
+    { key: "goals", title: "Goals" },
+    { key: "general", title: "General" },
+  ]);
+
+  const renderLivingExpensesScene = ({ route }) => {
+    const subcategories = {
+      groceries: dummyData.expenses.filter(
+        (item) => item.category === "Groceries"
+      ),
+      rent: dummyData.expenses.filter((item) => item.category === "Rent"),
+      utilities: dummyData.expenses.filter(
+        (item) => item.category === "Utilities"
+      ),
+      dining: dummyData.expenses.filter((item) => item.category === "Dining"),
+    };
+
+    return (
+      <FlatList
+        data={subcategories[route.key]}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+      />
+    );
+  };
+
+  const renderSavingsScene = ({ route }) => {
+    const subcategories = {
+      goals: dummyData.savings.filter(
+        (item) =>
+          item.category === "Emergency Fund" || item.category === "Vacation"
+      ),
+      general: dummyData.savings.filter(
+        (item) =>
+          item.category !== "Emergency Fund" && item.category !== "Vacation"
+      ),
+    };
+
+    return (
+      <FlatList
+        data={subcategories[route.key]}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+      />
+    );
+  };
+
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case "living":
+        return (
+          <TabView
+            navigationState={{ index: livingIndex, routes: livingRoutes }}
+            renderScene={renderLivingExpensesScene}
+            onIndexChange={setLivingIndex}
+            initialLayout={{ width: screenWidth }}
+            renderTabBar={(props) => (
+              <TabBar
+                {...props}
+                indicatorStyle={{ backgroundColor: "white", height: 3 }}
+                style={{ backgroundColor: "#1E2A3B" }}
+                labelStyle={{ color: "white" }}
+                scrollEnabled={true}
+                tabStyle={{ width: 200 }}
+                contentContainerStyle={{ flexGrow: 1 }}
+              />
+            )}
+          />
+        );
+      case "savings":
+        return (
+          <TabView
+            navigationState={{ index: savingsIndex, routes: savingsRoutes }}
+            renderScene={renderSavingsScene}
+            onIndexChange={setSavingsIndex}
+            initialLayout={{ width: screenWidth }}
+            renderTabBar={(props) => (
+              <TabBar
+                {...props}
+                indicatorStyle={{ backgroundColor: "white", height: 3 }}
+                style={{ backgroundColor: "#1E2A3B" }}
+                labelStyle={{ color: "white" }}
+                scrollEnabled={true}
+                tabStyle={{ width: 200 }}
+                contentContainerStyle={{ flexGrow: 1 }}
+              />
+            )}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
@@ -193,14 +258,11 @@ const Expenses = () => {
           renderTabBar={(props) => (
             <TabBar
               {...props}
-              indicatorStyle={{
-                backgroundColor: "white",
-                height: 3, // Adjust the height of the indicator
-              }}
+              indicatorStyle={{ backgroundColor: "white", height: 3 }}
               style={{ backgroundColor: "#1E2A3B" }}
               labelStyle={{ color: "white" }}
-              scrollEnabled={true} // Enable horizontal scrolling
-              tabStyle={{ width: 120 }} // Fixed width for each tab
+              scrollEnabled={true}
+              tabStyle={{ width: 200 }}
               contentContainerStyle={{ flexGrow: 1 }}
             />
           )}
@@ -226,17 +288,95 @@ const Expenses = () => {
               <Text className="text-white text-lg mb-5">Add Expense</Text>
               <Controller
                 control={control}
-                name="category"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Category"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
+                name="categoryType"
+                render={({ field: { onChange, value } }) => (
+                  <CustomSelect
                     value={value}
-                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
+                    onValueChange={onChange}
+                    placeholder="Select Category Type"
+                    items={[
+                      { label: "Living Expenses", value: "living" },
+                      { label: "Savings", value: "savings" },
+                    ]}
+                    label="Category Type"
                   />
                 )}
               />
+              {categoryType === "living" && (
+                <Controller
+                  control={control}
+                  name="category"
+                  render={({ field: { onChange, value } }) => (
+                    <CustomSelect
+                      value={value}
+                      onValueChange={onChange}
+                      placeholder="Select Subcategory"
+                      items={[
+                        { label: "Groceries", value: "Groceries" },
+                        { label: "Rent", value: "Rent" },
+                        { label: "Utilities", value: "Utilities" },
+                        { label: "Dining", value: "Dining" },
+                      ]}
+                      label="Subcategory"
+                    />
+                  )}
+                />
+              )}
+              {categoryType === "savings" && (
+                <>
+                  <Controller
+                    control={control}
+                    name="savingsType"
+                    render={({ field: { onChange, value } }) => (
+                      <CustomSelect
+                        value={value}
+                        onValueChange={onChange}
+                        placeholder="Select Savings Type"
+                        items={[
+                          { label: "Goals", value: "goals" },
+                          { label: "General", value: "general" },
+                        ]}
+                        label="Savings Type"
+                      />
+                    )}
+                  />
+                  {savingsType === "goals" && (
+                    <Controller
+                      control={control}
+                      name="goal"
+                      render={({ field: { onChange, value } }) => (
+                        <CustomSelect
+                          value={value}
+                          onValueChange={onChange}
+                          placeholder="Select Goal"
+                          items={[
+                            {
+                              label: "Emergency Fund",
+                              value: "Emergency Fund",
+                            },
+                            { label: "Vacation", value: "Vacation" },
+                          ]}
+                          label="Goal"
+                        />
+                      )}
+                    />
+                  )}
+                  {savingsType === "general" && (
+                    <Controller
+                      control={control}
+                      name="generalSavings"
+                      render={({ field: { onChange, value } }) => (
+                        <Input
+                          placeholder="General Savings"
+                          onChangeText={onChange}
+                          value={value}
+                          className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
+                        />
+                      )}
+                    />
+                  )}
+                </>
+              )}
               <Controller
                 control={control}
                 name="amount"
@@ -256,19 +396,6 @@ const Expenses = () => {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     placeholder="Date"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="recurrence"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Recurrence"
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
