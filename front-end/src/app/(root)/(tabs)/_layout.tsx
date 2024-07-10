@@ -13,7 +13,7 @@ export default function TabsLayout() {
         tabBarHideOnKeyboard: true,
         tabBarAccessibilityLabel: "Home",
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: "bold",
         },
         tabBarStyle: {
@@ -100,6 +100,6 @@ const styles = StyleSheet.create({
     width: 20,
     height: 2,
     backgroundColor: "white",
-    marginTop: 2,
+    marginTop: 5,
   },
 });

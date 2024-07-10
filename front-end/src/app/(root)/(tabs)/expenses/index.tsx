@@ -12,9 +12,14 @@ import { useForm, Controller } from "react-hook-form";
 import { Input, Button as TamaguiButton } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
-import { BlurView } from "expo-blur";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { Text as SvgText } from "react-native-svg";
+import {
+  Modal as PaperModal,
+  Button as PaperButton,
+  Portal,
+  Provider,
+} from "react-native-paper";
 
 const dummyData = {
   totalExpenses: "$1,500",
@@ -43,13 +48,6 @@ const dummyData = {
     {
       id: 4,
       category: "Dining",
-      amount: 50,
-      date: "2023-10-10",
-      recurrence: "One-time",
-    },
-    {
-      id: 5,
-      category: "Resting",
       amount: 50,
       date: "2023-10-10",
       recurrence: "One-time",
@@ -157,138 +155,146 @@ const Expenses = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#161E2B]">
-      <View className="flex-row justify-between items-center p-5">
-        <Text className="text-white text-2xl font-bold">Expenses</Text>
-      </View>
-      <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 mx-5">
-        <Text className="text-white text-lg mb-2">Total Expenses</Text>
-        <Text className="text-white text-4xl font-bold">
-          {dummyData.totalExpenses}
-        </Text>
-      </View>
-      <PieChart
-        data={pieChartData}
-        width={screenWidth - 40}
-        height={220}
-        chartConfig={{
-          backgroundColor: "#1E2A3B",
-          backgroundGradientFrom: "#1E2A3B",
-          backgroundGradientTo: "#1E2A3B",
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          decimalPlaces: 2,
-        }}
-        accessor={"amount"}
-        backgroundColor={"transparent"}
-        paddingLeft={"15"}
-        absolute
-        hasLegend={true}
-        center={[0, 0]}
-      />
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: screenWidth }}
-        renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            indicatorStyle={{
-              backgroundColor: "white",
-              height: 3, // Adjust the height of the indicator
+    <>
+      <SafeAreaView className="flex-1 bg-[#161E2B]">
+        <View className="flex-row justify-between items-center p-5">
+          <Text className="text-white text-2xl font-bold">Expenses</Text>
+        </View>
+        <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 mx-5">
+          <Text className="text-white text-lg mb-2">Total Expenses</Text>
+          <Text className="text-white text-4xl font-bold">
+            {dummyData.totalExpenses}
+          </Text>
+        </View>
+        <PieChart
+          data={pieChartData}
+          width={screenWidth - 40}
+          height={220}
+          chartConfig={{
+            backgroundColor: "#1E2A3B",
+            backgroundGradientFrom: "#1E2A3B",
+            backgroundGradientTo: "#1E2A3B",
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            decimalPlaces: 2,
+          }}
+          accessor={"amount"}
+          backgroundColor={"transparent"}
+          paddingLeft={"15"}
+          absolute
+          hasLegend={true}
+          center={[0, 0]}
+        />
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: screenWidth }}
+          renderTabBar={(props) => (
+            <TabBar
+              {...props}
+              indicatorStyle={{
+                backgroundColor: "white",
+                height: 3, // Adjust the height of the indicator
+              }}
+              style={{ backgroundColor: "#1E2A3B" }}
+              labelStyle={{ color: "white" }}
+              scrollEnabled={true} // Enable horizontal scrolling
+              tabStyle={{ width: 120 }} // Fixed width for each tab
+              contentContainerStyle={{ flexGrow: 1 }}
+            />
+          )}
+        />
+        <TouchableOpacity
+          onPress={() => setModalVisible(true)}
+          className="absolute bottom-32 right-10 bg-blue-500 p-4 rounded-full shadow-lg"
+        >
+          <Plus color="white" size={28} />
+        </TouchableOpacity>
+        <Portal>
+          <PaperModal
+            visible={modalVisible}
+            onDismiss={() => setModalVisible(false)}
+            contentContainerStyle={{
+              backgroundColor: "#1E2A3B",
+              padding: 20,
+              margin: 20,
+              borderRadius: 10,
             }}
-            style={{ backgroundColor: "#1E2A3B" }}
-            labelStyle={{ color: "white" }}
-            scrollEnabled={true} // Enable horizontal scrolling
-            tabStyle={{ width: 120 }} // Fixed width for each tab
-            contentContainerStyle={{ flexGrow: 1 }}
-          />
-        )}
-      />
-      <TouchableOpacity
-        onPress={() => setModalVisible(true)}
-        className="absolute bottom-32 right-10 bg-blue-500 p-4 rounded-full shadow-lg"
-      >
-        <Plus color="white" size={28} />
-      </TouchableOpacity>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <BlurView intensity={50} className="flex-1 justify-center items-center">
-          <View className="bg-[#1E2A3B] flex gap-4 rounded-lg p-5 w-11/12">
-            <Text className="text-white text-lg mb-5">Add Expense</Text>
-            <Controller
-              control={control}
-              name="category"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Category"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="amount"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Amount"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="date"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Date"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="recurrence"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Recurrence"
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                />
-              )}
-            />
-            <TamaguiButton
-              onPress={handleSubmit(onSubmit)}
-              className="bg-blue-500 text-white p-2 rounded-lg mb-4"
-            >
-              Save
-            </TamaguiButton>
-            <TamaguiButton
-              onPress={() => setModalVisible(false)}
-              className="bg-red-500 text-white p-2 rounded-lg"
-            >
-              Cancel
-            </TamaguiButton>
-          </View>
-        </BlurView>
-      </Modal>
-    </SafeAreaView>
+          >
+            <View className="flex gap-4 rounded-lg p-5 w-11/12">
+              <Text className="text-white text-lg mb-5">Add Expense</Text>
+              <Controller
+                control={control}
+                name="category"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Category"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Amount"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="date"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Date"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="recurrence"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Recurrence"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
+                  />
+                )}
+              />
+              <PaperButton
+                mode="contained"
+                onPress={handleSubmit(onSubmit)}
+                className="bg-blue-500 text-white p-2 rounded-lg mb-4"
+              >
+                Save
+              </PaperButton>
+              <PaperButton
+                mode="contained"
+                onPress={() => setModalVisible(false)}
+                className="bg-red-500 text-white p-2 rounded-lg"
+              >
+                Cancel
+              </PaperButton>
+            </View>
+          </PaperModal>
+        </Portal>
+      </SafeAreaView>
+    </>
   );
 };
 

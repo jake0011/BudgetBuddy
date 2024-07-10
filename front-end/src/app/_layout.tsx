@@ -8,6 +8,7 @@ import { TamaguiProvider } from "tamagui";
 import tamaguiConfig from "tamagui.config";
 import { useFonts } from "expo-font";
 import { StatusBar, View } from "react-native";
+import { Provider } from "react-native-paper";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -65,8 +66,10 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <TamaguiProvider config={tamaguiConfig}>
-      <StackLayout />
-    </TamaguiProvider>
+    <Provider>
+      <TamaguiProvider config={tamaguiConfig}>
+        <StackLayout />
+      </TamaguiProvider>
+    </Provider>
   );
 }

@@ -110,11 +110,7 @@ const Dashboard = () => {
                 <ProgressBar
                   progress={goal.progress / 100}
                   color="#3498db"
-                  style={{
-                    height: 10,
-                    borderRadius: 5,
-                    backgroundColor: "#2c3e50",
-                  }}
+                  style={{ marginTop: 10 }}
                 />
                 <Text className="text-[#3498db] text-base mt-1">
                   {goal.progress}%
