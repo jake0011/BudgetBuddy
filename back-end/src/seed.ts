@@ -3,6 +3,7 @@ import { users } from "./db/schema/users.ts";
 import { expenditures } from "./db/schema/expenditures.ts";
 import { incomes } from "./db/schema/incomes.ts";
 import { categories } from "./db/schema/expenditures.ts";
+import { goals } from "./db/schema/goals.ts";
 
 async function seed() {
   //TODO: Don't forget to catch these types of errors when it comes to the actual
@@ -41,7 +42,7 @@ async function seed() {
       email: "flavio@live.com",
     },
     {
-      username: "owulo_onions",
+      username: "owulo onions",
       firstname: "Alan",
       lastname: "Perry",
       password: await Bun.password.hash("lifeofacomrade", {
@@ -187,6 +188,20 @@ async function seed() {
       type: "expenses",
       categoriesId: categoriesIds[3],
       userId: userIds[3],
+    },
+  ]);
+
+  await db.insert(goals).values([
+    {
+      title: "RTX 5080",
+      amount: 4000,
+      description: "Get this as soon as possible",
+    },
+    {
+      title: "RTX 4090 Ti",
+      amount: 16000,
+      description: "Get this as soon as possible",
+      percentageToGoal: 0.004,
     },
   ]);
 }

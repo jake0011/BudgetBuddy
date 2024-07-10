@@ -27,7 +27,8 @@ export const expenditures = pgTable("expenditures", {
   userId: integer("userId")
     .references(() => users.userId, { onDelete: "cascade" })
     .notNull(),
-  goalsId: integer("goalsId").references(() => goals.goalId, { onDelete: "set default" }),
+  goalsId: integer("goalsId")
+    .references(() => goals.goalsId, { onDelete: "set default" }),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
 
