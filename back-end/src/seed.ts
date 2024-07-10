@@ -54,33 +54,8 @@ async function seed() {
 
   const userRows = await db.select().from(users);
   const userIds = userRows.map((row) => row.userId);
-
-  await db.insert(incomes).values([
-    {
-      amount: 35.23,
-      userId: userIds[0],
-      monthOfTheYear: "June",
-      year: "2003",
-    },
-    {
-      amount: 350.23,
-      userId: userIds[1],
-      monthOfTheYear: "June",
-      year: "2003",
-    },
-    {
-      amount: 1832.24,
-      userId: userIds[2],
-      monthOfTheYear: "June",
-      year: "2013",
-    },
-    {
-      amount: 7350.29,
-      userId: userIds[3],
-      monthOfTheYear: "June",
-      year: "2023",
-    },
-  ]);
+  const categoriesRows = await db.select().from(categories);
+  const categoriesIds = categoriesRows.map((row) => row.categoriesId);
 
   await db.insert(categories).values([
     {
@@ -139,8 +114,36 @@ async function seed() {
     },
   ]);
 
-  const categoriesRows = await db.select().from(categories);
-  const categoriesIds = categoriesRows.map((row) => row.categoriesId);
+  await db.insert(incomes).values([
+    {
+      amount: 35.23,
+      userId: userIds[0],
+      categoriesId: categoriesIds[0],
+      monthOfTheYear: "June",
+      year: "2003",
+    },
+    {
+      amount: 350.23,
+      userId: userIds[1],
+      categoriesId: categoriesIds[9],
+      monthOfTheYear: "June",
+      year: "2003",
+    },
+    {
+      amount: 1832.24,
+      userId: userIds[2],
+      categoriesId: categoriesIds[7],
+      monthOfTheYear: "June",
+      year: "2013",
+    },
+    {
+      amount: 7350.29,
+      userId: userIds[3],
+      categoriesId: categoriesIds[3],
+      monthOfTheYear: "June",
+      year: "2023",
+    },
+  ]);
 
   await db.insert(expenditures).values([
     {

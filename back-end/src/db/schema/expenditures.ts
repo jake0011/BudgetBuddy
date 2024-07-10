@@ -10,7 +10,6 @@ import {
 import { users } from "./users";
 import { monthOfTheYearEnum } from "./incomes";
 import { goals } from "./goals";
-
 export const typeEnum = pgEnum("type", ["budget", "expenses"]);
 
 // INFO: on update now is does not work with postgress

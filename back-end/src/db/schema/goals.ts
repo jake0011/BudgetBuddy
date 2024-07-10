@@ -11,7 +11,7 @@ import {
 export const goals = pgTable("goals", {
   goalId: serial("goalId").primaryKey(),
   title: varchar("title", { length: 256 }).notNull().unique(),
-  description: varchar("description", { length: 256 }),
+  description: varchar("description", { length: 1024 }),
   amount: doublePrecision("amount").default(0.0).notNull(),
   percentageToGoal: doublePrecision("percentageToGoal").default(0.0),
   isGoalReached: boolean("isGoalReached").default(false).notNull(),
