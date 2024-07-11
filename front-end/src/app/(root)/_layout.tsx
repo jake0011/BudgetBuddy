@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, Tabs } from "expo-router";
+import { Stack } from "expo-router";
 
 export default function MainLayout() {
   return (
@@ -8,6 +8,7 @@ export default function MainLayout() {
         headerShown: false,
       }}
     >
+      <Stack.Screen name="(drawer)" />
       <Stack.Screen name="(tabs)" />
     </Stack>
   );
