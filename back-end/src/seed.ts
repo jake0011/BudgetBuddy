@@ -3,6 +3,7 @@ import { users } from "./db/schema/users.ts";
 import { expenditures } from "./db/schema/expenditures.ts";
 import { incomes } from "./db/schema/incomes.ts";
 import { categories } from "./db/schema/expenditures.ts";
+import { goals } from "./db/schema/goals.ts";
 
 async function seed() {
   //TODO: Don't forget to catch these types of errors when it comes to the actual
@@ -41,7 +42,7 @@ async function seed() {
       email: "flavio@live.com",
     },
     {
-      username: "owulo_onions",
+      username: "owulo onions",
       firstname: "Alan",
       lastname: "Perry",
       password: await Bun.password.hash("lifeofacomrade", {
@@ -54,33 +55,6 @@ async function seed() {
 
   const userRows = await db.select().from(users);
   const userIds = userRows.map((row) => row.userId);
-
-  await db.insert(incomes).values([
-    {
-      amount: 35.23,
-      userId: userIds[0],
-      monthOfTheYear: "June",
-      year: "2003",
-    },
-    {
-      amount: 350.23,
-      userId: userIds[1],
-      monthOfTheYear: "June",
-      year: "2003",
-    },
-    {
-      amount: 1832.24,
-      userId: userIds[2],
-      monthOfTheYear: "June",
-      year: "2013",
-    },
-    {
-      amount: 7350.29,
-      userId: userIds[3],
-      monthOfTheYear: "June",
-      year: "2023",
-    },
-  ]);
 
   await db.insert(categories).values([
     {
@@ -142,6 +116,37 @@ async function seed() {
   const categoriesRows = await db.select().from(categories);
   const categoriesIds = categoriesRows.map((row) => row.categoriesId);
 
+  await db.insert(incomes).values([
+    {
+      amount: 35.23,
+      userId: userIds[0],
+      categoriesId: categoriesIds[0],
+      monthOfTheYear: "June",
+      year: "2003",
+    },
+    {
+      amount: 350.23,
+      userId: userIds[1],
+      categoriesId: categoriesIds[5],
+      monthOfTheYear: "June",
+      year: "2003",
+    },
+    {
+      amount: 1832.24,
+      userId: userIds[2],
+      categoriesId: categoriesIds[7],
+      monthOfTheYear: "June",
+      year: "2013",
+    },
+    {
+      amount: 7350.29,
+      userId: userIds[3],
+      categoriesId: categoriesIds[3],
+      monthOfTheYear: "June",
+      year: "2023",
+    },
+  ]);
+
   await db.insert(expenditures).values([
     {
       amount: 34.3,
@@ -184,6 +189,20 @@ async function seed() {
       type: "expenses",
       categoriesId: categoriesIds[3],
       userId: userIds[3],
+    },
+  ]);
+
+  await db.insert(goals).values([
+    {
+      title: "RTX 5080",
+      amount: 4000,
+      description: "Get this as soon as possible",
+    },
+    {
+      title: "RTX 4090 Ti",
+      amount: 16000,
+      description: "Get this as soon as possible",
+      percentageToGoal: 0.004,
     },
   ]);
 }
