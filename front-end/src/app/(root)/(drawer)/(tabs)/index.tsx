@@ -137,6 +137,7 @@ const Dashboard = () => {
           </View>
         );
       case "chart":
+      case "chart":
         return (
           <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
             <Text className="text-white font-bold text-lg mb-2">
@@ -144,15 +145,15 @@ const Dashboard = () => {
             </Text>
             <LineChart
               data={{
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
                 datasets: [
                   {
-                    data: [2000, 2100, 2500, 2200, 2300, 2400],
+                    data: [800, 900, 750, 850],
                     color: (opacity = 1) => `rgba(46, 204, 113, ${opacity})`, // Green
                     strokeWidth: 2,
                   },
                   {
-                    data: [800, 900, 750, 850, 950, 1000],
+                    data: [200, 300, 250, 400],
                     color: (opacity = 1) => `rgba(231, 76, 60, ${opacity})`, // Red
                     strokeWidth: 2,
                   },

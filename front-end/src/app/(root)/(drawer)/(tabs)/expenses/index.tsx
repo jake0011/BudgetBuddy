@@ -222,10 +222,7 @@ const Expenses = () => {
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
-        <View className="flex-row justify-between items-center p-5">
-          <Text className="text-white text-2xl font-bold">Expenses</Text>
-        </View>
-        <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 mx-5">
+        <View className="bg-[#1E2A3B] rounded-lg p-5 my-5 mx-5">
           <Text className="text-white text-lg mb-2">Total Expenses</Text>
           <Text className="text-white text-4xl font-bold">
             {dummyData.totalExpenses}

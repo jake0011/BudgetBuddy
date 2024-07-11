@@ -108,9 +108,6 @@ const Income = () => {
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
-        <View className="flex-row justify-between items-center p-5">
-          <Text className="text-white text-2xl font-bold">Income</Text>
-        </View>
         <FlatList
           data={data}
           renderItem={({ item }) => {
