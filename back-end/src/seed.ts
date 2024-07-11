@@ -55,8 +55,6 @@ async function seed() {
 
   const userRows = await db.select().from(users);
   const userIds = userRows.map((row) => row.userId);
-  const categoriesRows = await db.select().from(categories);
-  const categoriesIds = categoriesRows.map((row) => row.categoriesId);
 
   await db.insert(categories).values([
     {
@@ -115,6 +113,9 @@ async function seed() {
     },
   ]);
 
+  const categoriesRows = await db.select().from(categories);
+  const categoriesIds = categoriesRows.map((row) => row.categoriesId);
+
   await db.insert(incomes).values([
     {
       amount: 35.23,
@@ -126,7 +127,7 @@ async function seed() {
     {
       amount: 350.23,
       userId: userIds[1],
-      categoriesId: categoriesIds[9],
+      categoriesId: categoriesIds[5],
       monthOfTheYear: "June",
       year: "2003",
     },

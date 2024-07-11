@@ -7,5 +7,5 @@ import { neon } from "@neondatabase/serverless";
 
 export const connection = neon(process.env.DRIZZLE_DATABASE_URL!);
 export const db = drizzle(connection, {
-  schema: { ...users, ...expenditures, ...incomes, ...goals },
+  schema: { ...users, ...goals,  ...incomes,...expenditures },
 });
