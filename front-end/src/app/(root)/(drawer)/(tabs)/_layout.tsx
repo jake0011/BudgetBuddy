@@ -1,14 +1,41 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { DrawerToggleButton } from "@react-navigation/drawer";
 import { Tabs, usePathname } from "expo-router";
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: "white",
-        headerShown: false,
+        // headerShown: false,
+        headerTintColor: "white",
+        headerStyle: {
+          backgroundColor: "#161E2B",
+        },
+        headerTitleAlign: "center",
+        headerLeft: () => {
+          return <DrawerToggleButton tintColor="white" />;
+        },
+        headerTitle: () => (
+          <Image
+            source={require("../../../../../assets/logo.png")}
+            style={{ width: 100, height: 100 }}
+            resizeMode="contain"
+          />
+        ),
+        headerRight: () => {
+          return (
+            <MaterialIcons
+              name="calendar-month"
+              size={24}
+              color="white"
+              className="mr-4"
+            />
+          );
+        },
         tabBarInactiveTintColor: "gray",
         tabBarHideOnKeyboard: true,
         tabBarAccessibilityLabel: "Home",

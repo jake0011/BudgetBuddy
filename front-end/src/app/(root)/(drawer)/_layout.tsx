@@ -1,23 +1,77 @@
+import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
-import React from "react";
+import CustomDrawerContent from "@/components/layout/CustomDrawerContent";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function DrawerLayout() {
+  const router = useRouter();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer>
+      <Drawer
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
+        screenOptions={{
+          drawerActiveTintColor: "#fff",
+          drawerInactiveTintColor: "#ccc",
+          drawerStyle: {
+            backgroundColor: "#161E2B",
+          },
+          headerStyle: {
+            backgroundColor: "#161E2B",
+          },
+          headerTintColor: "#fff",
+          headerShown: false,
+        }}
+      >
         <Drawer.Screen
-          name="/reports/index"
+          name="reports/index"
           options={{
-            drawerLabel: "Reports",
+            headerShown: true,
             title: "Reports",
+            headerTitleAlign: "center",
+            headerLeft: () => (
+              <MaterialIcons
+                name="arrow-back"
+                size={24}
+                color="white"
+                onPress={() => {
+                  router.navigate("(drawer)");
+                }}
+                className="ml-2"
+              />
+            ),
+            headerRight: () => (
+              <MaterialIcons
+                name="calendar-month"
+                size={24}
+                color="white"
+                className="mr-4"
+              />
+            ),
+            sceneContainerStyle: {
+              backgroundColor: "#161E2B",
+            },
           }}
         />
         <Drawer.Screen
-          name="/profile/index"
+          name="settings/index"
           options={{
-            drawerLabel: "Profile",
-            title: "Profile",
+            headerShown: true,
+            title: "Settings",
+            headerTitleAlign: "center",
+
+            headerLeft: () => (
+              <MaterialIcons
+                name="arrow-back"
+                size={24}
+                color="white"
+                onPress={() => {
+                  router.navigate("(drawer)");
+                }}
+                className="ml-2"
+              />
+            ),
           }}
         />
       </Drawer>

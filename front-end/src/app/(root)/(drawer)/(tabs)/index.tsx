@@ -47,7 +47,7 @@ const Dashboard = () => {
       case "welcome":
         return (
           <View className="mb-5">
-            <Text className="text-white text-2xl font-bold mb-2">
+            <Text className="text-white text-center text-4xl font-bold mb-2">
               Welcome Synx!
             </Text>
             <View className="border-b border-gray-600 mb-5" />

@@ -1,8 +1,6 @@
 import { Link } from "expo-router";
-import { Activity, Airplay } from "@tamagui/lucide-icons";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image, Keyboard } from "react-native";
-import { Button as B } from "react-native-paper";
 import { Button, Input, Label } from "tamagui";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

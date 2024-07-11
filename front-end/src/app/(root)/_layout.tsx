@@ -9,7 +9,6 @@ export default function MainLayout() {
       }}
     >
       <Stack.Screen name="(drawer)" />
-      <Stack.Screen name="(tabs)" />
     </Stack>
   );
 }
