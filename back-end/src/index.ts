@@ -7,6 +7,7 @@ import { logger } from "hono/logger";
 import { userAuth, user } from "./handlers/users";
 import { incomeAuth, income } from "./handlers/income";
 import { expenditure, expenditureAuth } from "./handlers/expenditure";
+import { goal, goalAuth } from "./handlers/goals";
 
 const app = new Hono();
 
@@ -49,4 +50,6 @@ app.route("/", income);
 app.route("/", incomeAuth);
 app.route("/", expenditureAuth);
 app.route("/", expenditure);
+app.route("/", goal);
+app.route("/", goalAuth);
 export default app;

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { incomes } from "../db/schema/incomes.ts";
 import { db } from "../db/db";
+import { categories } from "../db/schema/expenditures.ts";
 
 export const income = new Hono().basePath("v1/income");
 export const incomeAuth = new Hono().basePath("auth/v1/income");
@@ -25,24 +26,26 @@ export const DATEVALUES = [
 
 const incomeSchema = z.object({
   amount: z.number(),
+  categoriesId: z.number(),
   monthOfTheYear: z.enum(DATEVALUES),
   year: z.number(),
 });
 
 const updateIncomeSchema = z.object({
   amount: z.number().optional(),
+  categoriesId: z.number().optional(),
   monthOfTheYear: z.enum(DATEVALUES).optional(),
   year: z.number().optional(),
 });
 
 const deleteIncomeSchema = z.object({
-  incomesId: z.number()
+  incomesId: z.number(),
 });
 
 incomeAuth.get("/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
-    const incomeRows = await db.query.incomes.findFirst({
+    const incomeRows = await db.query.incomes.findMany({
       where: eq(incomes.userId, userId),
     });
 
@@ -73,7 +76,7 @@ incomeAuth.post(
         where: and(
           eq(incomes.userId, userId),
           eq(incomes.year, body.year),
-          eq(incomes.monthOfTheYear, body.monthOfTheYear),
+          eq(incomes.monthOfTheYear, body.monthOfTheYear)
         ),
       });
 
@@ -82,13 +85,14 @@ incomeAuth.post(
           {
             error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
           },
-          400,
+          400
         );
       }
 
       await db.insert(incomes).values({
         amount: body.amount,
         userId: userId,
+        categoriesId: body.categories,
         monthOfTheYear: body.monthOfTheYear,
         year: body.year,
       });
@@ -96,7 +100,7 @@ incomeAuth.post(
     } catch (err) {
       return c.json({ message: "An error occured, try again", error: err });
     }
-  },
+  }
 );
 
 incomeAuth.patch(
@@ -122,7 +126,7 @@ incomeAuth.patch(
 
       const incomeRow = await db.query.incomes.findFirst({
         where: eq(incomes.userId, userId),
-      });     
+      });
       return c.json({ data: incomeRow }, 201);
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
@@ -155,7 +159,8 @@ incomeAuth.delete(
       return c.json({ error: "No income specified" }, 400);
     } else {
       try {
-        const deletedIncomeRow: deletedIncome[] = await db.delete(incomes)
+        const deletedIncomeRow: deletedIncome[] = await db
+          .delete(incomes)
           .where(eq(incomes.incomesId, body.incomesId))
           .returning({ incomeId: incomes.incomesId });
 

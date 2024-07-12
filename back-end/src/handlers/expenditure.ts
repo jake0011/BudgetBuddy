@@ -16,6 +16,7 @@ const expenditureSchema = z.object({
   monthOfTheYear: z.enum(DATEVALUES),
   year: z.number(),
   type: z.enum(VALUES),
+  goalsId: z.null().optional(),
   categoriesId: z.number(),
 });
 
@@ -24,6 +25,7 @@ const updateExpenditureSchema = z.object({
   monthOfTheYear: z.enum(DATEVALUES).optional(),
   year: z.number().optional(),
   type: z.enum(VALUES),
+  goalsId: z.number().optional(),
   categoriesId: z.number().optional(),
 });
 
@@ -52,14 +54,16 @@ expenditureAuth.post(
     const userId = Number(c.req.header("userId"));
 
     try {
-      await db.insert(expenditures).values({
-        amount: body.amount,
-        userId: userId,
-        monthOfTheYear: body.monthOfTheYear,
-        year: body.year,
-        type: body.type,
-        categoriesId: body.categoriesId,
-      });
+        await db.insert(expenditures).values({
+          amount: body.amount,
+          userId: userId,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          type: body.type,
+          // goalsId: body.goalsId,
+          categoriesId: body.categoriesId,
+        });
+      
       return c.json({ message: `${body.type} added for user` }, 201);
     } catch (err) {
       return c.json({ message: "An error occured, try again", error: err });
@@ -87,7 +91,7 @@ expenditureAuth.get("/all", async (c) => {
 expenditureAuth.get("/expenses/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
-    const expenseRows = await db.query.expenditures.findFirst({
+    const expenseRows = await db.query.expenditures.findMany({
       where: or(
         eq(expenditures.userId, userId),
         eq(expenditures.type, "expenses")
@@ -95,6 +99,7 @@ expenditureAuth.get("/expenses/all", async (c) => {
     });
 
     if (expenseRows) {
+      console.log(c.res);
       return c.json({ data: expenseRows }, 201);
     } else {
       return c.json({ message: "Nothing found" }, 404);
@@ -107,7 +112,7 @@ expenditureAuth.get("/expenses/all", async (c) => {
 expenditureAuth.get("/budget/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
-    const expenseRows = await db.query.expenditures.findFirst({
+    const expenseRows = await db.query.expenditures.findMany({
       where: or(
         eq(expenditures.userId, userId),
         eq(expenditures.type, "budget")

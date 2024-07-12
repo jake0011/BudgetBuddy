@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS "goals" (
 	"amount" double precision DEFAULT 0 NOT NULL,
 	"percentageToGoal" double precision DEFAULT 0,
 	"isGoalReached" boolean DEFAULT false,
+	"userId" integer,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "goals_title_unique" UNIQUE("title")
 );
@@ -42,10 +43,11 @@ CREATE TABLE IF NOT EXISTS "goals" (
 CREATE TABLE IF NOT EXISTS "incomes" (
 	"incomesId" serial PRIMARY KEY NOT NULL,
 	"amount" double precision DEFAULT 19.4,
-	"categoriesId" integer NOT NULL,
 	"month" "month",
 	"year" varchar(256),
 	"userId" integer NOT NULL,
+	"categoriesId" integer NOT NULL,
+	"goalsId" integer,
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -75,7 +77,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "expenditures" ADD CONSTRAINT "expenditures_goalsId_goals_goalsId_fk" FOREIGN KEY ("goalsId") REFERENCES "public"."goals"("goalsId") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "expenditures" ADD CONSTRAINT "expenditures_goalsId_goals_goalsId_fk" FOREIGN KEY ("goalsId") REFERENCES "public"."goals"("goalsId") ON DELETE set default ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "goals" ADD CONSTRAINT "goals_userId_users_userId_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("userId") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "incomes" ADD CONSTRAINT "incomes_userId_users_userId_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("userId") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -87,7 +101,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "incomes" ADD CONSTRAINT "incomes_userId_users_userId_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("userId") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "incomes" ADD CONSTRAINT "incomes_goalsId_goals_goalsId_fk" FOREIGN KEY ("goalsId") REFERENCES "public"."goals"("goalsId") ON DELETE set default ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

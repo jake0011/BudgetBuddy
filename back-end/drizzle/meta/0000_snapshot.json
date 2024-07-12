@@ -1,5 +1,5 @@
 {
-  "id": "ff77ee35-4632-4455-80b0-d2a3d18dedfd",
+  "id": "ea530245-e866-40ad-b1cc-1fb25e9ac8c4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "6",
   "dialect": "postgresql",
@@ -133,7 +133,7 @@
           "columnsTo": [
             "goalsId"
           ],
-          "onDelete": "no action",
+          "onDelete": "set default",
           "onUpdate": "no action"
         }
       },
@@ -183,6 +183,12 @@
           "notNull": false,
           "default": false
         },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -192,7 +198,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "goals_userId_users_userId_fk": {
+          "name": "goals_userId_users_userId_fk",
+          "tableFrom": "goals",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "userId"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "goals_title_unique": {
@@ -221,12 +241,6 @@
           "notNull": false,
           "default": 19.4
         },
-        "categoriesId": {
-          "name": "categoriesId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
         "month": {
           "name": "month",
           "type": "month",
@@ -246,6 +260,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "categoriesId": {
+          "name": "categoriesId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "goalsId": {
+          "name": "goalsId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -256,6 +282,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "incomes_userId_users_userId_fk": {
+          "name": "incomes_userId_users_userId_fk",
+          "tableFrom": "incomes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "userId"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "incomes_categoriesId_categories_categoriesId_fk": {
           "name": "incomes_categoriesId_categories_categoriesId_fk",
           "tableFrom": "incomes",
@@ -269,17 +308,17 @@
           "onDelete": "set default",
           "onUpdate": "no action"
         },
-        "incomes_userId_users_userId_fk": {
-          "name": "incomes_userId_users_userId_fk",
+        "incomes_goalsId_goals_goalsId_fk": {
+          "name": "incomes_goalsId_goals_goalsId_fk",
           "tableFrom": "incomes",
-          "tableTo": "users",
+          "tableTo": "goals",
           "columnsFrom": [
-            "userId"
+            "goalsId"
           ],
           "columnsTo": [
-            "userId"
+            "goalsId"
           ],
-          "onDelete": "cascade",
+          "onDelete": "set default",
           "onUpdate": "no action"
         }
       },
