@@ -173,7 +173,7 @@ const Budget = () => {
               style={{ backgroundColor: "#1E2A3B" }}
               labelStyle={{ color: "white" }}
               scrollEnabled={true} // Enable horizontal scrolling
-              tabStyle={{ width: 200 }} // Fixed width for each tab
+              tabStyle={{ width: Dimensions.get("window").width / 2 }} // Fixed width for each tab
               contentContainerStyle={{ flexGrow: 1 }}
             />
           )}
