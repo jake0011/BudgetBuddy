@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Input, Button as TamaguiButton } from "tamagui";
+import { Input } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";

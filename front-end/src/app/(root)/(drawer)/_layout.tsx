@@ -4,9 +4,14 @@ import { Drawer } from "expo-router/drawer";
 import CustomDrawerContent from "@/components/layout/CustomDrawerContent";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import CustomDatePicker from "@/components/global/CustomDatePicker";
 
 export default function DrawerLayout() {
   const router = useRouter();
+  const handleDateChange = (date: Date) => {
+    // Handle date change
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
@@ -38,15 +43,13 @@ export default function DrawerLayout() {
                 onPress={() => {
                   router.navigate("(drawer)");
                 }}
-                className="ml-2"
+                style={{ marginLeft: 2 }}
               />
             ),
             headerRight: () => (
-              <MaterialIcons
-                name="calendar-month"
-                size={24}
-                color="white"
-                className="mr-4"
+              <CustomDatePicker
+                onDateChange={handleDateChange}
+                showTimePicker={true}
               />
             ),
             sceneContainerStyle: {
@@ -60,7 +63,6 @@ export default function DrawerLayout() {
             headerShown: true,
             title: "Settings",
             headerTitleAlign: "center",
-
             headerLeft: () => (
               <MaterialIcons
                 name="arrow-back"
