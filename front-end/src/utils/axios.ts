@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const url = "http://localhost:3500";
+const url = "https://budgetbuddy-leza.onrender.com/v1";
 
 export default axios.create({
   baseURL: url,

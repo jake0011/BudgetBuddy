@@ -58,6 +58,26 @@ const SignupScreen = () => {
 
       <ScrollView keyboardShouldPersistTaps="handled" style={{ width: "100%" }}>
         <View className="w-full flex gap-4 justify-center items-center">
+          <Controller
+            control={control}
+            name="username"
+            render={({ field: { onChange, value } }) => (
+              <View className="w-full flex-col gap-2 justify-start">
+                <Text className="text-white">Username</Text>
+                <Input
+                  className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+                  placeholder="Username"
+                  value={value}
+                  onChangeText={onChange}
+                />
+                {errors.username && (
+                  <Text className="text-red-500">
+                    {errors.username.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
           <View className="w-full flex-row gap-3 pr-4 ">
             <Controller
               control={control}

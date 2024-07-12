@@ -10,7 +10,7 @@ import {
 import SafeAreaViewAndroid from "@/components/global/SafeAreaViewAndroid";
 import { useAuthStore } from "@/stores/auth";
 
-const OnboardingScreen: React.FC = () => {
+const OnboardingScreen = () => {
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const setOnBoarded = useAuthStore((state) => state.setOnBoarded);
   const router = useRouter();
