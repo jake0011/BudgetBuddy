@@ -4,7 +4,6 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { incomes } from "../db/schema/incomes.ts";
 import { db } from "../db/db";
-import { categories } from "../db/schema/expenditures.ts";
 import { goals } from "../db/schema/goals.ts";
 
 export const income = new Hono().basePath("v1/income");
