@@ -1,10 +1,12 @@
 import { Hono } from "hono";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, ne, asc } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { expenditures, categories } from "../db/schema/expenditures";
 import { db } from "../db/db";
 import { DATEVALUES } from "./income";
+import { goals } from "../db/schema/goals";
+import { goal } from "./goals";
 
 export const expenditure = new Hono().basePath("v1/expenditure");
 export const expenditureAuth = new Hono().basePath("auth/v1/expenditure");
@@ -16,11 +18,12 @@ const expenditureSchema = z.object({
   monthOfTheYear: z.enum(DATEVALUES),
   year: z.number(),
   type: z.enum(VALUES),
-  goalsId: z.null().optional(),
+  goalsId: z.number().optional(),
   categoriesId: z.number(),
 });
 
 const updateExpenditureSchema = z.object({
+  expendituresId: z.number(),
   amount: z.number().optional(),
   monthOfTheYear: z.enum(DATEVALUES).optional(),
   year: z.number().optional(),
@@ -42,35 +45,6 @@ expenditure.get("/categories", async (c) => {
   }
 });
 
-expenditureAuth.post(
-  "/add",
-  zValidator("json", expenditureSchema, (result, c) => {
-    if (!result.success) {
-      return c.json({ error: "Invalid Input" }, 415);
-    }
-  }),
-  async (c) => {
-    const body = await c.req.json();
-    const userId = Number(c.req.header("userId"));
-
-    try {
-        await db.insert(expenditures).values({
-          amount: body.amount,
-          userId: userId,
-          monthOfTheYear: body.monthOfTheYear,
-          year: body.year,
-          type: body.type,
-          // goalsId: body.goalsId,
-          categoriesId: body.categoriesId,
-        });
-      
-      return c.json({ message: `${body.type} added for user` }, 201);
-    } catch (err) {
-      return c.json({ message: "An error occured, try again", error: err });
-    }
-  },
-);
-
 expenditureAuth.get("/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
@@ -87,6 +61,56 @@ expenditureAuth.get("/all", async (c) => {
     return c.json({ message: "An error occured, try again", error: err });
   }
 });
+
+expenditureAuth.post(
+  "/add",
+  zValidator("json", expenditureSchema, (result, c) => {
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    const body = await c.req.json();
+    const userId = Number(c.req.header("userId"));
+    const goalId = await db.query.goals.findFirst({
+      where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
+    });
+
+    if (goalId) {
+      try {
+        if (body.categoriesId === 7) {
+          await db.update(expenditures).set({
+            amount: body.amount,
+            userId: userId,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            type: body.type,
+            goalsId: goalId.goalsId,
+            categoriesId: body.categoriesId,
+          });
+        } else {
+          await db.update(expenditures).set({
+            amount: body.amount,
+            userId: userId,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            type: body.type,
+            goalsId: null,
+            categoriesId: body.categoriesId,
+          });
+        }
+        return c.json({ message: `${body.type} added for user` }, 201);
+      } catch (err) {
+        return c.json({
+          message: "An error occured, try again",
+          error: err,
+        });
+      }
+    } else {
+      return c.json({ error: "Goal specified does not exist for user" }, 404);
+    }
+  }
+);
 
 expenditureAuth.get("/expenses/all", async (c) => {
   const userId = Number(c.req.header("userId"));
@@ -138,33 +162,72 @@ expenditureAuth.patch(
   }),
   async (c) => {
     const userId = Number(c.req.header("userId"));
-    try {
-      const body = await c.req.json();
-      
-      await db.update(expenditures).set({
-          amount: body.amount,
-          monthOfTheYear: body.monthOfTheYear,
-          year: body.year,
-          categoriesId: body.categoriesId,
-        })
-        .where(
-          or(
+    const body = await c.req.json();
+    const goalId = await db.query.goals.findFirst({
+      where: and(
+        eq(goals.userId, userId),
+        eq(goals.goalsId, body.goalsId)
+      )
+    });
+
+    if (goalId) {
+      try {
+        if (body.categoriesId === 7) {
+          await db
+            .update(expenditures)
+            .set({
+              amount: body.amount,
+              monthOfTheYear: body.monthOfTheYear,
+              year: body.year,
+              categoriesId: body.categoriesId,
+              goalsId: goalId.goalsId,
+            })
+            .where(
+              and(
+                eq(expenditures.userId, userId),
+                eq(expenditures.type, body.type),
+                eq(expenditures.expendituresId, body.expendituresId)
+              )
+            );
+        } else {
+          await db
+            .update(expenditures)
+            .set({
+              amount: body.amount,
+              monthOfTheYear: body.monthOfTheYear,
+              year: body.year,
+              categoriesId: body.categoriesId,
+              goalsId: null,
+            })
+            .where(
+              and(
+                eq(expenditures.userId, userId),
+                eq(expenditures.type, body.type),
+                eq(expenditures.expendituresId, body.expendituresId)
+              )
+            );
+        }  
+        const expenditureRow = await db.query.expenditures.findFirst({
+          where: and(
             eq(expenditures.userId, userId),
-            eq(expenditures.type, body.type)
+            eq(expenditures.type, body.type),
+            eq(expenditures.expendituresId, body.expendituresId)
           )
-        );
-      const expenditureRow = await db.query.expenditures.findFirst({
-        where: or(
-          eq(expenditures.userId, userId),
-          eq(expenditures.type, body.type)
-        ),
-      });
-      return c.json({
-        message: `${body.type} updated successfully`,
-        data: expenditureRow
-      }, 201);
-    } catch (err) {
-      return c.json({ error: "An error occured, try again", message: err });
+        });
+        if (expenditureRow) {
+          return c.json(
+            {
+              message: `${body.type} updated successfully`,
+              data: expenditureRow,
+            },
+            201
+          );
+        } else {
+          return c.json({ error: "An error occured, check the type" }, 400);
+        }
+      } catch (err) {
+        return c.json({ error: "An error occured, try again", message: err });
+      }
     }
   }
 );
@@ -214,3 +277,47 @@ expenditureAuth.delete(
     }
   }
 );
+
+expenditureAuth.get("/recent-budget", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const expenditureRows = await db.query.expenditures.findMany({
+      where: and(
+        eq(expenditures.userId, userId),
+        eq(expenditures.type, "budget")
+      ),
+      limit: 15,
+      orderBy: [asc(expenditures.createdAt)],
+    });
+
+    if (expenditureRows) {
+      return c.json({ data: expenditureRows }, 201);
+    } else {
+      return c.json({ message: "Nothing found" }, 404);
+    }
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
+
+expenditureAuth.get("/recent-expenses", async (c) => {
+  const userId = Number(c.req.header("userId"));
+  try {
+    const expenditureRows = await db.query.expenditures.findMany({
+      where: and(
+        eq(expenditures.userId, userId),
+        eq(expenditures.type, "expenses"),
+      ),
+      limit: 15,
+      orderBy: [asc(expenditures.createdAt)],
+    });
+
+    if (expenditureRows) {
+      return c.json({ data: expenditureRows }, 201);
+    } else {
+      return c.json({ message: "Nothing found" }, 404);
+    }
+  } catch (err) {
+    return c.json({ message: "An error occured, try again", error: err });
+  }
+});
