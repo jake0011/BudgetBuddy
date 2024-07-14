@@ -87,7 +87,7 @@ async function seed() {
         "Expenses related to maintaining your health, such as doctor visits, hospital stays, prescription medications, and other medical treatments.",
     },
     {
-      name: "Saving, Investing and Debt Payment",
+      name: "Savings",
       description:
         "Setting aside money for the future, growing your wealth through investments, and paying off outstanding debts.",
     },
@@ -97,7 +97,7 @@ async function seed() {
         "Costs for personal items and services like gym memberships, clothing, home decor, and gifts.",
     },
     {
-      name: "Recreation and Entertainment",
+      name: "Entertainment",
       description:
         "Money spent on leisure activities such as concerts, sporting events, family outings, vacations, streaming services, restaurants, video games, and hobbies.",
     },
@@ -107,7 +107,7 @@ async function seed() {
         "Costs related to learning, such as online courses, college tuition (undergraduate and graduate), and other educational expenses.",
     },
     {
-      name: "miscellaneous",
+      name: "Miscellaneous",
       description:
         "Expenses that do not fit into any of the other categories, or for unexpected costs that may arise.",
     },
@@ -136,6 +136,7 @@ async function seed() {
       userId: userIds[2],
       categoriesId: categoriesIds[7],
       monthOfTheYear: "June",
+      goalsId: 2,
       year: "2013",
     },
     {
@@ -197,12 +198,14 @@ async function seed() {
       title: "RTX 5080",
       amount: 4000,
       description: "Get this as soon as possible",
+      userId: 4,
     },
     {
       title: "RTX 4090 Ti",
       amount: 16000,
       description: "Get this as soon as possible",
-      percentageToGoal: 0.004,
+      percentageToGoal: 0,
+      userId: 2,
     },
   ]);
 }
