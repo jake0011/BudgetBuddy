@@ -9,9 +9,35 @@ import {
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useAuthStore } from "@/stores/auth";
+import { logout } from "@/services/authService";
+import Toast from "react-native-toast-message";
 
 const Profile = () => {
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const setUser = useAuthStore((state) => state.setUser);
+
+  const Logout = async () => {
+    try {
+      const response = await logout({ setUser });
+      if (response) {
+        Toast.show({
+          type: "success",
+          text1: "Logout Success",
+          text1Style: {
+            fontSize: 16,
+            textAlign: "center",
+            color: "green",
+          },
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Logout Failed",
+      });
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#161E2B]">
@@ -90,7 +116,10 @@ const Profile = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity className="bg-red-600 rounded-lg p-4 items-center">
+        <TouchableOpacity
+          className="bg-red-600 rounded-lg p-4 items-center"
+          onPress={Logout}
+        >
           <Text className="text-white text-lg font-bold">Log Out</Text>
         </TouchableOpacity>
       </ScrollView>

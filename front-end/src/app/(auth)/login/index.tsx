@@ -1,13 +1,22 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Image, Keyboard } from "react-native";
-import { Button, Input, Label } from "tamagui";
+import { View, Text, Image, Keyboard } from "react-native";
+import { TextInput } from "react-native-paper";
+import { Button, Input, Spinner } from "tamagui";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormData, loginSchema } from "../../../helpers/validations";
+import { login } from "@/services/authService";
+import Toast from "react-native-toast-message";
+import { useAuthStore } from "@/stores/auth";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const LoginScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
+  const router = useRouter();
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -33,9 +42,41 @@ const LoginScreen = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    // Handle login logic here
-    console.log(data);
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      setIsLoading(true);
+      const response = await login(
+        {
+          username: data.username,
+          password: data.password,
+        },
+        setUser
+      );
+      Toast.show({
+        type: "success",
+        text1: "Login Successful",
+        text1Style: {
+          color: "green",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+      if (response) {
+        router.push("/");
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response.data.error,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,18 +94,23 @@ const LoginScreen = () => {
       <View className="w-full flex gap-4 justify-center items-center">
         <Controller
           control={control}
-          name="email"
+          name="username"
           render={({ field: { onChange, value } }) => (
             <View className="w-full flex-col gap-2 justify-start">
-              <Text className="text-white">Email</Text>
-              <Input
-                className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
-                placeholder="Email"
+              <Text className="text-white">Username</Text>
+              <TextInput
+                placeholder="Username"
                 value={value}
                 onChangeText={onChange}
+                error={!!errors.username}
+                outlineColor="gray"
+                activeOutlineColor="black"
+                style={{
+                  height: 45,
+                }}
               />
-              {errors.email && (
-                <Text className="text-red-500">{errors.email.message}</Text>
+              {errors.username && (
+                <Text className="text-red-500">{errors.username.message}</Text>
               )}
             </View>
           )}
@@ -75,13 +121,22 @@ const LoginScreen = () => {
           render={({ field: { onChange, value } }) => (
             <View className="w-full flex-col gap-2 justify-start">
               <Text className="text-white">Password</Text>
-              <Input
-                className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+              <TextInput
                 placeholder="Password"
                 autoComplete="password"
                 value={value}
                 onChangeText={onChange}
-                secureTextEntry
+                secureTextEntry={!passwordVisible}
+                error={!!errors.password}
+                style={{
+                  height: 45,
+                }}
+                right={
+                  <TextInput.Icon
+                    icon={passwordVisible ? "eye-off" : "eye"}
+                    onPress={() => setPasswordVisible(!passwordVisible)}
+                  />
+                }
               />
               {errors.password && (
                 <Text className="text-red-500">{errors.password.message}</Text>
@@ -104,6 +159,8 @@ const LoginScreen = () => {
           theme="active"
           fontWeight="$16"
           textAlign="center"
+          disabled={isLoading}
+          icon={isLoading ? <Spinner size="small" color="$green10" /> : null}
           radiused
           onPress={handleSubmit(onSubmit)}
         >

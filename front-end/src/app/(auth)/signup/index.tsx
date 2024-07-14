@@ -1,33 +1,48 @@
 import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, Keyboard, ScrollView } from "react-native";
-import { Button, Input } from "tamagui";
+import { TextInput } from "react-native-paper";
+import { Button, Spinner } from "tamagui";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, SignUpFormData } from "../../../helpers/validations";
+import { signUp, login } from "@/services/authService";
+import Toast from "react-native-toast-message";
+import { useAuthStore } from "@/stores/auth";
 
 const SignupScreen = () => {
   const router = useRouter();
+
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
       () => setKeyboardVisible(true)
     );
+
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
+
       () => setKeyboardVisible(false)
     );
 
     return () => {
       keyboardDidShowListener.remove();
+
       keyboardDidHideListener.remove();
     };
   }, []);
 
   const {
     control,
+
     handleSubmit,
     formState: { errors },
   } = useForm<SignUpFormData>({
@@ -36,10 +51,53 @@ const SignupScreen = () => {
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      // router.push('/otp', { formData: data });
-      router.push("/otp");
+      setIsLoading(true);
+
+      const response = await signUp({
+        username: data.username,
+
+        password: data.password,
+        email: data.email,
+        firstname: data.firstName,
+
+        lastname: data.lastName,
+      });
+      if (response.message) {
+        await login(
+          {
+            username: data.username,
+            password: data.password,
+          },
+          setUser
+        );
+        Toast.show({
+          type: "success",
+          text1: "Signup Successful",
+
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+
+            textAlign: "center",
+          },
+        });
+
+        router.push("/");
+      }
     } catch (error) {
-      console.error("Error requesting OTP:", error);
+      Toast.show({
+        type: "error",
+
+        text1: error.response?.data?.error || "Signup failed",
+        text1Style: {
+          color: "red",
+
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,6 +111,7 @@ const SignupScreen = () => {
             className="rounded-full w-60 h-52 object-contain object-center"
           />
         )}
+
         <Text className="text-4xl font-bold text-white ">Sign Up</Text>
       </View>
 
@@ -64,11 +123,16 @@ const SignupScreen = () => {
             render={({ field: { onChange, value } }) => (
               <View className="w-full flex-col gap-2 justify-start">
                 <Text className="text-white">Username</Text>
-                <Input
-                  className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+                <TextInput
                   placeholder="Username"
                   value={value}
                   onChangeText={onChange}
+                  error={!!errors.username}
+                  outlineColor="gray"
+                  style={{
+                    height: 45,
+                  }}
+                  activeOutlineColor="black"
                 />
                 {errors.username && (
                   <Text className="text-red-500">
@@ -85,11 +149,17 @@ const SignupScreen = () => {
               render={({ field: { onChange, value } }) => (
                 <View className="flex-col gap-2 w-1/2">
                   <Text className="text-white">First Name</Text>
-                  <Input
-                    className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+
+                  <TextInput
                     placeholder="First Name"
                     value={value}
                     onChangeText={onChange}
+                    error={!!errors.firstName}
+                    outlineColor="gray"
+                    style={{
+                      height: 45,
+                    }}
+                    activeOutlineColor="black"
                   />
                   {errors.firstName && (
                     <Text className="text-red-500">
@@ -105,11 +175,16 @@ const SignupScreen = () => {
               render={({ field: { onChange, value } }) => (
                 <View className="flex-col gap-2 w-1/2">
                   <Text className="text-white">Last Name</Text>
-                  <Input
-                    className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+                  <TextInput
                     placeholder="Last Name"
                     value={value}
                     onChangeText={onChange}
+                    error={!!errors.lastName}
+                    outlineColor="gray"
+                    style={{
+                      height: 45,
+                    }}
+                    activeOutlineColor="black"
                   />
                   {errors.lastName && (
                     <Text className="text-red-500">
@@ -127,11 +202,17 @@ const SignupScreen = () => {
             render={({ field: { onChange, value } }) => (
               <View className="w-full flex-col gap-2 justify-start">
                 <Text className="text-white">Email</Text>
-                <Input
-                  className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+
+                <TextInput
                   placeholder="Email"
                   value={value}
                   onChangeText={onChange}
+                  error={!!errors.email}
+                  outlineColor="gray"
+                  style={{
+                    height: 45,
+                  }}
+                  activeOutlineColor="black"
                 />
                 {errors.email && (
                   <Text className="text-red-500">{errors.email.message}</Text>
@@ -145,13 +226,26 @@ const SignupScreen = () => {
             render={({ field: { onChange, value } }) => (
               <View className="w-full flex-col gap-2 justify-start">
                 <Text className="text-white">Password</Text>
-                <Input
-                  className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+                <TextInput
                   placeholder="Password"
+                  autoComplete="password"
                   value={value}
                   onChangeText={onChange}
-                  secureTextEntry
+                  secureTextEntry={!passwordVisible}
+                  style={{
+                    height: 45,
+                  }}
+                  error={!!errors.password}
+                  right={
+                    <TextInput.Icon
+                      icon={passwordVisible ? "eye-off" : "eye"}
+                      onPress={() => setPasswordVisible(!passwordVisible)}
+                    />
+                  }
+                  outlineColor="gray"
+                  activeOutlineColor="black"
                 />
+
                 {errors.password && (
                   <Text className="text-red-500">
                     {errors.password.message}
@@ -166,12 +260,25 @@ const SignupScreen = () => {
             render={({ field: { onChange, value } }) => (
               <View className="w-full flex-col gap-2 justify-start">
                 <Text className="text-white">Confirm Password</Text>
-                <Input
-                  className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+                <TextInput
                   placeholder="Confirm Password"
                   value={value}
                   onChangeText={onChange}
-                  secureTextEntry
+                  secureTextEntry={!confirmPasswordVisible}
+                  error={!!errors.confirmPassword}
+                  style={{
+                    height: 45,
+                  }}
+                  right={
+                    <TextInput.Icon
+                      icon={confirmPasswordVisible ? "eye-off" : "eye"}
+                      onPress={() =>
+                        setConfirmPasswordVisible(!confirmPasswordVisible)
+                      }
+                    />
+                  }
+                  outlineColor="gray"
+                  activeOutlineColor="black"
                 />
                 {errors.confirmPassword && (
                   <Text className="text-red-500">
@@ -189,6 +296,8 @@ const SignupScreen = () => {
           theme="active"
           fontWeight="$16"
           textAlign="center"
+          disabled={isLoading}
+          icon={isLoading ? <Spinner size="small" color="$green10" /> : null}
           radiused
           onPress={handleSubmit(onSubmit)}
         >
@@ -201,7 +310,6 @@ const SignupScreen = () => {
         <Link href="/login" className="text-white font-bold cursor-pointer">
           Login
         </Link>
-        {/* <Link href="/otp">OTP</Link> */}
       </Text>
     </View>
   );

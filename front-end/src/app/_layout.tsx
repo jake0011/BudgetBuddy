@@ -9,6 +9,7 @@ import tamaguiConfig from "tamagui.config";
 import { useFonts } from "expo-font";
 import { StatusBar, View } from "react-native";
 import { Provider } from "react-native-paper";
+import Toast from "react-native-toast-message";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -69,6 +70,7 @@ export default function RootLayout() {
     <Provider>
       <TamaguiProvider config={tamaguiConfig}>
         <StackLayout />
+        <Toast />
       </TamaguiProvider>
     </Provider>
   );

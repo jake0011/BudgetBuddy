@@ -1,6 +1,6 @@
-const axios = require("axios");
+import axios from "axios";
 
-const url = "https://budgetbuddy-leza.onrender.com/v1";
+const url = process.env.BACKEND_URL;
 
 export default axios.create({
   baseURL: url,
