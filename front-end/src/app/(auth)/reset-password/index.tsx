@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Image, Keyboard, Text, View } from "react-native";
+import { TextInput } from "react-native-paper";
 import { Button, Input } from "tamagui";
 import * as z from "zod";
 
@@ -25,6 +26,8 @@ export type formData = z.infer<typeof schema>;
 
 const ResetPasswordScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -75,12 +78,20 @@ const ResetPasswordScreen = () => {
           render={({ field: { onChange, value } }) => (
             <View className="w-full flex-col gap-2 justify-start">
               <Text className="text-white">Password</Text>
-              <Input
-                className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+              <TextInput
+                style={{
+                  height: 45,
+                }}
                 placeholder="Password"
                 value={value}
                 onChangeText={onChange}
-                secureTextEntry
+                secureTextEntry={!showPassword}
+                right={
+                  <TextInput.Icon
+                    icon={showPassword ? "eye" : "eye-off"}
+                    onPress={() => setShowPassword(!showPassword)}
+                  />
+                }
               />
               {errors.password && (
                 <Text className="text-red-500">{errors.password.message}</Text>
@@ -94,12 +105,20 @@ const ResetPasswordScreen = () => {
           render={({ field: { onChange, value } }) => (
             <View className="w-full flex-col gap-2 justify-start">
               <Text className="text-white">Confirm Password</Text>
-              <Input
-                className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+              <TextInput
+                style={{
+                  height: 45,
+                }}
                 placeholder="Confirm Password"
                 value={value}
                 onChangeText={onChange}
-                secureTextEntry
+                secureTextEntry={!showConfirmPassword}
+                right={
+                  <TextInput.Icon
+                    icon={showConfirmPassword ? "eye" : "eye-off"}
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  />
+                }
               />
               {errors.confirmPassword && (
                 <Text className="text-red-500">

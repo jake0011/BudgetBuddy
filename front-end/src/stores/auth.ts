@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { secureStore } from "@/utils/secureStore";
+import { UserType } from "@/types/UserType";
 
 interface AuthState {
-  user: any;
+  user: UserType | null;
   onBoarded: boolean;
   setOnBoarded: (onBoarded: boolean) => void;
-  setUser: (user: any) => void;
+  setUser: (user: UserType) => void;
 }
 
 export const useAuthStore = create<AuthState>()(

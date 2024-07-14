@@ -188,7 +188,7 @@ const Expenses = () => {
                 style={{ backgroundColor: "#1E2A3B" }}
                 labelStyle={{ color: "white" }}
                 scrollEnabled={true}
-                tabStyle={{ width: 200 }}
+                tabStyle={{ width: Dimensions.get("window").width / 3 }}
                 contentContainerStyle={{ flexGrow: 1 }}
               />
             )}
@@ -208,7 +208,7 @@ const Expenses = () => {
                 style={{ backgroundColor: "#1E2A3B" }}
                 labelStyle={{ color: "white" }}
                 scrollEnabled={true}
-                tabStyle={{ width: Dimensions.get("window").width / 3 }}
+                tabStyle={{ width: Dimensions.get("window").width / 2 }}
                 contentContainerStyle={{ flexGrow: 1 }}
               />
             )}

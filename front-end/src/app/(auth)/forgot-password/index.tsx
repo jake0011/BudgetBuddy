@@ -5,6 +5,7 @@ import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Image, Keyboard, Text, View } from "react-native";
+import { TextInput } from "react-native-paper";
 import { Input, Button } from "tamagui";
 import * as z from "zod";
 
@@ -67,11 +68,13 @@ const ForgotPasswordScreen = () => {
           render={({ field: { onChange, value } }) => (
             <View className="flex-col gap-2 w-full">
               <Text className="text-white">Email</Text>
-              <Input
-                className="w-full p-3 border-2 border-gray-300 placeholder:text-gray-300 rounded-md px-2"
+              <TextInput
                 placeholder="Email"
                 value={value}
                 onChangeText={onChange}
+                style={{
+                  height: 45,
+                }}
               />
               {errors.email && (
                 <Text className="text-red-500">{errors.email.message}</Text>

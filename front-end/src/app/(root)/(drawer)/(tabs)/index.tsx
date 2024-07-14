@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, FlatList, Dimensions } from "react-native";
 import { ProgressBar } from "react-native-paper";
 import { LineChart } from "react-native-chart-kit";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { useAuthStore } from "@/stores/auth";
 
 const dummyData = {
   totalBalance: "$2,450.75",
@@ -32,6 +33,7 @@ const screenWidth = Dimensions.get("window").width;
 
 const Dashboard = () => {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -48,7 +50,7 @@ const Dashboard = () => {
         return (
           <View className="mb-5">
             <Text className="text-white text-center text-4xl font-bold mb-2">
-              Welcome Synx!
+              Welcome {user?.username}
             </Text>
             <View className="border-b border-gray-600 mb-5" />
           </View>
