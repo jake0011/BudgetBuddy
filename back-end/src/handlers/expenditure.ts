@@ -228,6 +228,11 @@ expenditureAuth.patch(
       } catch (err) {
         return c.json({ error: "An error occured, try again", message: err });
       }
+    } else {
+          return c.json(
+            { error: "Goal specified does not exist for user" },
+            404
+          );
     }
   }
 );

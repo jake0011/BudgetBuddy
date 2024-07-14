@@ -5,6 +5,7 @@ import { zValidator } from "@hono/zod-validator";
 import { incomes } from "../db/schema/incomes.ts";
 import { db } from "../db/db";
 import { categories } from "../db/schema/expenditures.ts";
+import { goals } from "../db/schema/goals.ts";
 
 export const income = new Hono().basePath("v1/income");
 export const incomeAuth = new Hono().basePath("auth/v1/income");
@@ -36,6 +37,7 @@ const updateIncomeSchema = z.object({
   categoriesId: z.number().optional(),
   monthOfTheYear: z.enum(DATEVALUES).optional(),
   year: z.number().optional(),
+  incomesId: z.number(),
 });
 
 const deleteIncomeSchema = z.object({
@@ -87,21 +89,40 @@ incomeAuth.post(
           },
           400
         );
-      }
+      } else {
+        const goalId = await db.query.goals.findFirst({
+          where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
+        });
 
-      await db.insert(incomes).values({
-        amount: body.amount,
-        userId: userId,
-        categoriesId: body.categories,
-        monthOfTheYear: body.monthOfTheYear,
-        year: body.year,
-      });
-      return c.json({ message: `Income added for user` }, 201);
+        if (goalId) {
+          if (body.categoriesId === 7) {
+            await db.update(incomes).set({
+              amount: body.amount,
+              userId: userId,
+              monthOfTheYear: body.monthOfTheYear,
+              year: body.year,
+              goalsId: goalId.goalsId,
+              categoriesId: body.categoriesId,
+            });
+          } else {
+            await db.update(incomes).set({
+              amount: body.amount,
+              userId: userId,
+              monthOfTheYear: body.monthOfTheYear,
+              year: body.year,
+              goalsId: null,
+              categoriesId: body.categoriesId,
+            });
+          }
+        } else {
+          return c.json({ error: "Goal specified does not exist for user" }, 404);
+        } 
+        return c.json({ message: `Income added for user` }, 201);
+      }
     } catch (err) {
       return c.json({ message: "An error occured, try again", error: err });
-    }
-  }
-);
+  };   
+});
 
 incomeAuth.patch(
   "/update",
@@ -114,25 +135,71 @@ incomeAuth.patch(
     const userId = Number(c.req.header("userId"));
     try {
       const body = await c.req.json();
+      const goalId = await db.query.goals.findFirst({
+        where: and(
+          eq(goals.userId, userId),
+          eq(goals.goalsId, body.goalsId)
+        )
+      });
 
-      await db
-        .update(incomes)
-        .set({
-          amount: body.amount,
-          monthOfTheYear: body.monthOfTheYear,
-          year: body.year,
-        })
-        .where(eq(incomes.userId, userId));
+      if (goalId) {
+        if (body.categoriesId === 7) {
+          await db
+            .update(incomes)
+            .set({
+              amount: body.amount,
+              monthOfTheYear: body.monthOfTheYear,
+              year: body.year,
+              categoriesId: body.categoriesId,
+              goalsId: goalId.goalsId,
+            })
+            .where(
+              and(
+                eq(incomes.userId, userId),
+                eq(incomes.incomesId, body.incomesId)
+              )
+            );
+        } else {
+          await db
+            .update(incomes)
+            .set({
+              amount: body.amount,
+              monthOfTheYear: body.monthOfTheYear,
+              year: body.year,
+              categoriesId: body.categoriesId,
+              goalsId: null,
+            })
+            .where(
+              and(
+                eq(incomes.userId, userId),
+                eq(incomes.incomesId, body.incomesId)
+              )
+            );
+          }
+        } else {
+          return c.json(
+            { error: "Goal specified does not exist for user" },
+            404
+          );
+        }
 
       const incomeRow = await db.query.incomes.findFirst({
-        where: eq(incomes.userId, userId),
+        where: and(
+                eq(incomes.userId, userId),
+                eq(incomes.incomesId, body.incomesId)
+              )
       });
-      return c.json({ data: incomeRow }, 201);
+      return c.json(
+        {
+        message: `Income updated successfully`,
+        data: incomeRow
+        },
+        201
+      );
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
-    }
   }
-);
+});
 
 interface deletedIncome {
   incomeId: number;
