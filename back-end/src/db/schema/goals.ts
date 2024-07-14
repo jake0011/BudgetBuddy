@@ -6,7 +6,9 @@ import {
   unique,
   doublePrecision,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
+import { users } from "./users";
 
 export const goals = pgTable("goals", {
   goalsId: serial("goalsId").primaryKey(),
@@ -15,5 +17,7 @@ export const goals = pgTable("goals", {
   amount: doublePrecision("amount").default(0.0).notNull(),
   percentageToGoal: doublePrecision("percentageToGoal").default(0.0),
   isGoalReached: boolean("isGoalReached").default(false),
+  userId: integer("userId")
+    .references(() => users.userId, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
