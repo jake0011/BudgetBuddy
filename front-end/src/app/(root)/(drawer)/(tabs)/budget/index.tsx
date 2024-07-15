@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Input } from "tamagui";
+import { Input, Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
@@ -18,20 +18,12 @@ import {
   Portal,
 } from "react-native-paper";
 import CustomSelect from "@/components/global/CustomSelect";
-
-const dummyData = {
-  totalBudget: "$5,000",
-  budgetCategories: [
-    { id: 1, category: "Groceries", budgeted: 500 },
-    { id: 2, category: "Rent", budgeted: 1200 },
-    { id: 3, category: "Utilities", budgeted: 200 },
-    { id: 4, category: "Dining", budgeted: 300 },
-  ],
-  savingsCategories: [
-    { id: 1, category: "Emergency Fund", budgeted: 500 },
-    { id: 2, category: "Vacation", budgeted: 1000 },
-  ],
-};
+import {
+  getExpenditureCategories,
+  getUserBudget,
+} from "@/services/expenditureService";
+import useSWR from "swr";
+import { useAuthStore } from "@/stores/auth";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -42,62 +34,123 @@ const predefinedColors = [
   "#4BC0C0",
   "#9966FF",
   "#FF9F40",
+  "#8A2BE2",
+  "#FFA500",
+  "#00FF00",
+  "#FF00FF",
+  "#00FFFF",
 ];
 
-const Budget = () => {
+const Expenses = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const { control, handleSubmit, reset, watch } = useForm();
   const categoryType = watch("categoryType");
   const savingsType = watch("savingsType");
+  const user = useAuthStore((state) => state.user);
+
+  const fetcher = useCallback(async () => {
+    const [categories, budget] = await Promise.all([
+      getExpenditureCategories(),
+      getUserBudget(user.userId),
+    ]);
+    return { categories, budget };
+  }, [user.userId]);
+
+  const { data, error } = useSWR(`/expenditure/data`, fetcher);
+
+  const categoriesData = data?.categories || [];
+  const budgetData = data?.budget || [];
 
   const onSubmit = (data) => {
     console.log(data);
-    // Handle form submission
     reset();
     setModalVisible(false);
   };
 
   const renderItem = ({ item }) => (
-    <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
-      <View className="flex-row justify-between items-center">
-        <Text className="text-white text-lg font-bold">{item.category}</Text>
-        <Text className="text-white text-lg font-bold">${item.budgeted}</Text>
+    <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
+      <View>
+        <Text className={`text-white text-lg font-bold`}>{item?.name}</Text>
       </View>
+      <Text className="text-white text-lg font-bold">${item?.budgeted}</Text>
     </View>
   );
 
-  const totalBudgetAmount = [
-    ...dummyData.budgetCategories,
-    ...dummyData.savingsCategories,
-  ].reduce((sum, category) => sum + category.budgeted, 0);
+  const categorizedBudget = useMemo(() => {
+    const initialCategorizedBudget = {
+      living: categoriesData
+        .filter((cat) => cat.categoriesId !== 7)
+        .map((cat) => ({ ...cat, budgeted: 0 })),
+      savings: { goals: [], general: [] },
+    };
 
-  const pieChartData = [
-    ...dummyData.budgetCategories,
-    {
-      name: "Savings",
-      amount: dummyData.savingsCategories.reduce(
+    budgetData.forEach((budget) => {
+      if (budget.categoriesId === 7) {
+        if (budget.savingsType === "goals") {
+          initialCategorizedBudget.savings.goals.push(budget);
+        } else {
+          initialCategorizedBudget.savings.general.push(budget);
+        }
+      } else {
+        const category = initialCategorizedBudget.living.find(
+          (cat) => cat.categoriesId === budget.categoriesId
+        );
+        if (category) {
+          category.budgeted += budget.budgeted;
+        }
+      }
+    });
+
+    return initialCategorizedBudget;
+  }, [categoriesData, budgetData]);
+
+  const totalBudgetAmount = useMemo(() => {
+    return (
+      categorizedBudget.living.reduce(
         (sum, category) => sum + category.budgeted,
         0
-      ),
-    },
-  ].map((category, index) => {
-    const isBudgetCategory = (
-      cat
-    ): cat is { category: string; budgeted: number } => "category" in cat;
-    return {
-      name: isBudgetCategory(category) ? category.category : category.name,
-      amount: isBudgetCategory(category) ? category.budgeted : category.amount,
-      color: predefinedColors[index % predefinedColors.length],
+      ) +
+      categorizedBudget.savings.goals.reduce(
+        (sum, category) => sum + category.budgeted,
+        0
+      ) +
+      categorizedBudget.savings.general.reduce(
+        (sum, category) => sum + category.budgeted,
+        0
+      )
+    );
+  }, [categorizedBudget]);
+
+  const pieChartData = useMemo(() => {
+    const livingExpensesData = categorizedBudget.living.map(
+      (category, index) => ({
+        name: category.name,
+        amount: category.budgeted,
+        color: predefinedColors[index % predefinedColors.length],
+        legendFontColor: "#FFF",
+        legendFontSize: 15,
+        percentage:
+          ((category.budgeted / totalBudgetAmount) * 100).toFixed(2) + "%",
+      })
+    );
+
+    const savingsTotalAmount = categorizedBudget.savings.goals
+      .concat(categorizedBudget.savings.general)
+      .reduce((sum, category) => sum + category.budgeted, 0);
+
+    const savingsData = {
+      name: "Savings",
+      amount: savingsTotalAmount,
+      color:
+        predefinedColors[livingExpensesData.length % predefinedColors.length],
       legendFontColor: "#FFF",
       legendFontSize: 15,
       percentage:
-        (
-          ((isBudgetCategory(category) ? category.budgeted : category.amount) /
-            totalBudgetAmount) *
-          100
-        ).toFixed(2) + "%",
+        ((savingsTotalAmount / totalBudgetAmount) * 100).toFixed(2) + "%",
     };
-  });
+
+    return [...livingExpensesData, savingsData];
+  }, [categorizedBudget, totalBudgetAmount]);
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -110,25 +163,66 @@ const Budget = () => {
       case "living":
         return (
           <FlatList
-            data={dummyData.budgetCategories}
+            data={categorizedBudget.living}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.categoriesId.toString()}
             contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+            ListEmptyComponent={
+              <Text className="text-white text-2xl font-bold text-center">
+                No budget
+              </Text>
+            }
           />
         );
       case "savings":
         return (
-          <FlatList
-            data={dummyData.savingsCategories}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
-          />
+          <View className="p-5">
+            <Text className="text-gray-400 text-lg font-bold mb-6">Goals</Text>
+            <FlatList
+              data={categorizedBudget.savings.goals}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              ListEmptyComponent={
+                <Text className="text-white text-2xl font-bold text-center">
+                  No budget
+                </Text>
+              }
+            />
+            <Text className="text-gray-400 text-lg font-bold mb-6">
+              General
+            </Text>
+            <FlatList
+              data={categorizedBudget.savings.general}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              ListEmptyComponent={
+                <Text className="text-white text-2xl font-bold text-center">
+                  No budget
+                </Text>
+              }
+            />
+          </View>
         );
       default:
         return null;
     }
   };
+
+  if (error)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Text className="text-white text-center">Failed to load data</Text>
+      </SafeAreaView>
+    );
+
+  if (!data)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Spinner size="large" color="white" />
+      </SafeAreaView>
+    );
 
   return (
     <>
@@ -136,12 +230,12 @@ const Budget = () => {
         <View className="bg-[#1E2A3B] rounded-lg p-5 my-5 mx-5">
           <Text className="text-white text-lg mb-2">Total Budget</Text>
           <Text className="text-white text-4xl font-bold">
-            {dummyData.totalBudget}
+            ${totalBudgetAmount.toFixed(2)}
           </Text>
         </View>
         <PieChart
           data={pieChartData}
-          width={screenWidth - 40}
+          width={screenWidth - 20}
           height={220}
           chartConfig={{
             backgroundColor: "#1E2A3B",
@@ -166,14 +260,11 @@ const Budget = () => {
           renderTabBar={(props) => (
             <TabBar
               {...props}
-              indicatorStyle={{
-                backgroundColor: "white",
-                height: 3, // Adjust the height of the indicator
-              }}
+              indicatorStyle={{ backgroundColor: "white", height: 3 }}
               style={{ backgroundColor: "#1E2A3B" }}
               labelStyle={{ color: "white" }}
-              scrollEnabled={true} // Enable horizontal scrolling
-              tabStyle={{ width: Dimensions.get("window").width / 2 }} // Fixed width for each tab
+              scrollEnabled={true}
+              tabStyle={{ width: Dimensions.get("window").width / 2 }}
               contentContainerStyle={{ flexGrow: 1 }}
             />
           )}
@@ -196,9 +287,7 @@ const Budget = () => {
             }}
           >
             <View className="flex gap-4 rounded-lg p-5 w-11/12">
-              <Text className="text-white text-lg mb-5">
-                Add Budget Category
-              </Text>
+              <Text className="text-white text-lg mb-5">Add Budget</Text>
               <Controller
                 control={control}
                 name="categoryType"
@@ -224,12 +313,9 @@ const Budget = () => {
                       value={value}
                       onValueChange={onChange}
                       placeholder="Select Subcategory"
-                      items={[
-                        { label: "Groceries", value: "Groceries" },
-                        { label: "Rent", value: "Rent" },
-                        { label: "Utilities", value: "Utilities" },
-                        { label: "Dining", value: "Dining" },
-                      ]}
+                      items={categoriesData
+                        ?.filter((cat) => cat.categoriesId !== 7)
+                        .map((cat) => ({ label: cat.name, value: cat.name }))}
                       label="Subcategory"
                     />
                   )}
@@ -325,4 +411,4 @@ const Budget = () => {
   );
 };
 
-export default Budget;
+export default Expenses;

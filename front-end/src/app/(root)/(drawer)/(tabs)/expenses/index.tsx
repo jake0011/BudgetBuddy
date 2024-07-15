@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Input, Button as TamaguiButton } from "tamagui";
+import { Input, Spinner, Button as TamaguiButton } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
@@ -20,24 +20,11 @@ import {
 import CustomSelect from "@/components/global/CustomSelect";
 import {
   getExpenditureCategories,
+  getUserBudget,
   getUserExpenses,
 } from "@/services/expenditureService";
 import useSWR from "swr";
 import { useAuthStore } from "@/stores/auth";
-
-const dummyData = {
-  totalExpenses: "$1,500",
-  expenses: [
-    { id: 1, category: "Groceries", amount: 150.25, date: "2023-10-01" },
-    { id: 2, category: "Rent", amount: 600, date: "2023-10-01" },
-    { id: 3, category: "Utilities", amount: 100, date: "2023-10-05" },
-    { id: 4, category: "Dining", amount: 50, date: "2023-10-10" },
-  ],
-  savings: [
-    { id: 1, category: "Emergency Fund", amount: 200, date: "2023-10-01" },
-    { id: 2, category: "Vacation", amount: 300, date: "2023-10-05" },
-  ],
-};
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -62,10 +49,29 @@ const Expenses = () => {
   const savingsType = watch("savingsType");
   const user = useAuthStore((state) => state.user);
 
-  const fetcher = () => getUserExpenses(user.userId);
+  const fetcher = useCallback(async () => {
+    const [categories, expenses] = await Promise.all([
+      getExpenditureCategories(),
+      getUserExpenses(user.userId),
+    ]);
+    return { categories, expenses };
+  }, [user.userId]);
 
-  const { data, error } = useSWR(`/auth/v1/expenditure`, fetcher);
-  console.log(data);
+  const { data, error } = useSWR(`/expenditure/data`, fetcher);
+
+  const fetcher2 = useCallback(async () => {
+    const budget = await getUserBudget(user.userId);
+    return budget;
+  }, [user.userId]);
+  const { data: budgetData, error: budgetError } = useSWR(
+    `/budget/data`,
+    fetcher2
+  );
+
+  console.log(budgetData);
+
+  const categoriesData = data?.categories || [];
+  const expensesData = data?.expenses || [];
 
   const onSubmit = (data) => {
     console.log(data);
@@ -77,39 +83,83 @@ const Expenses = () => {
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
         <Text className={`text-white text-lg font-bold`}>{item.category}</Text>
-        <Text className="text-gray-400">Date: {item.date}</Text>
+        <Text className="text-gray-400 font-bold text-lg">
+          {item.createdAt.split("T")[0]}
+        </Text>
       </View>
       <Text className="text-white text-lg font-bold">${item.amount}</Text>
     </View>
   );
 
-  const totalExpensesAmount = [
-    ...dummyData.expenses,
-    ...dummyData.savings,
-  ].reduce((sum, expense) => sum + expense.amount, 0);
+  const categorizedExpenses = useMemo(() => {
+    const initialCategorizedExpenses = {
+      living: categoriesData
+        .filter((cat) => cat.categoriesId !== 7)
+        .map((cat) => ({ ...cat, expenses: [] })),
+      savings: { goals: [], general: [] },
+    };
 
-  const pieChartData = [
-    ...dummyData.expenses,
-    {
+    expensesData.forEach((expense) => {
+      if (expense.categoriesId === 7) {
+        if (expense.goalsId) {
+          initialCategorizedExpenses.savings.goals.push(expense);
+        } else {
+          initialCategorizedExpenses.savings.general.push(expense);
+        }
+      } else {
+        const category = initialCategorizedExpenses.living.find(
+          (cat) => cat.categoriesId === expense.categoriesId
+        );
+        if (category) {
+          category.expenses.push(expense);
+        }
+      }
+    });
+
+    return initialCategorizedExpenses;
+  }, [categoriesData, expensesData]);
+
+  const totalExpensesAmount = useMemo(
+    () => expensesData.reduce((sum, expense) => sum + expense.amount, 0) || 0,
+    [expensesData]
+  );
+
+  const pieChartData = useMemo(() => {
+    const livingExpensesData = categorizedExpenses.living.map(
+      (category, index) => {
+        const totalAmount = category.expenses.reduce(
+          (sum, expense) => sum + expense.amount,
+          0
+        );
+        return {
+          name: category.name,
+          amount: totalAmount,
+          color: predefinedColors[index % predefinedColors.length],
+          legendFontColor: "#FFF",
+          legendFontSize: 15,
+          percentage:
+            ((totalAmount / totalExpensesAmount) * 100).toFixed(2) + "%",
+        };
+      }
+    );
+
+    const savingsTotalAmount = categorizedExpenses.savings.goals
+      .concat(categorizedExpenses.savings.general)
+      .reduce((sum, expense) => sum + expense.amount, 0);
+
+    const savingsData = {
       name: "Savings",
-      amount: dummyData.savings.reduce(
-        (sum, expense) => sum + expense.amount,
-        0
-      ),
-    },
-  ].map((expense, index) => {
-    const isExpense = (exp): exp is { category: string; amount: number } =>
-      "category" in exp;
-    return {
-      name: isExpense(expense) ? expense.category : expense.name,
-      amount: expense.amount,
-      color: predefinedColors[index % predefinedColors.length],
+      amount: savingsTotalAmount,
+      color:
+        predefinedColors[livingExpensesData.length % predefinedColors.length],
       legendFontColor: "#FFF",
       legendFontSize: 15,
       percentage:
-        ((expense.amount / totalExpensesAmount) * 100).toFixed(2) + "%",
+        ((savingsTotalAmount / totalExpensesAmount) * 100).toFixed(2) + "%",
     };
-  });
+
+    return [...livingExpensesData, savingsData];
+  }, [categorizedExpenses, totalExpensesAmount]);
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -118,12 +168,14 @@ const Expenses = () => {
   ]);
 
   const [livingIndex, setLivingIndex] = useState(0);
-  const [livingRoutes] = useState([
-    { key: "groceries", title: "Groceries" },
-    { key: "rent", title: "Rent" },
-    { key: "utilities", title: "Utilities" },
-    { key: "dining", title: "Dining" },
-  ]);
+  const livingRoutes = useMemo(
+    () =>
+      categorizedExpenses.living.map((cat) => ({
+        key: cat.categoriesId.toString(),
+        title: cat.name,
+      })),
+    [categorizedExpenses.living]
+  );
 
   const [savingsIndex, setSavingsIndex] = useState(0);
   const [savingsRoutes] = useState([
@@ -132,45 +184,40 @@ const Expenses = () => {
   ]);
 
   const renderLivingExpensesScene = ({ route }) => {
-    const subcategories = {
-      groceries: dummyData.expenses.filter(
-        (item) => item.category === "Groceries"
-      ),
-      rent: dummyData.expenses.filter((item) => item.category === "Rent"),
-      utilities: dummyData.expenses.filter(
-        (item) => item.category === "Utilities"
-      ),
-      dining: dummyData.expenses.filter((item) => item.category === "Dining"),
-    };
-
+    const category = categorizedExpenses.living.find(
+      (cat) => cat.categoriesId.toString() === route.key
+    );
     return (
       <FlatList
-        data={subcategories[route.key]}
+        data={category.expenses}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.expendituresId.toString()}
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+        ListEmptyComponent={
+          <Text className="text-white text-2xl font-bold text-center">
+            No expenses
+          </Text>
+        }
       />
     );
   };
 
   const renderSavingsScene = ({ route }) => {
-    const subcategories = {
-      goals: dummyData.savings.filter(
-        (item) =>
-          item.category === "Emergency Fund" || item.category === "Vacation"
-      ),
-      general: dummyData.savings.filter(
-        (item) =>
-          item.category !== "Emergency Fund" && item.category !== "Vacation"
-      ),
-    };
-
+    const data =
+      route.key === "goals"
+        ? categorizedExpenses.savings.goals
+        : categorizedExpenses.savings.general;
     return (
       <FlatList
-        data={subcategories[route.key]}
+        data={data}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.expendituresId.toString()}
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+        ListEmptyComponent={
+          <Text className="text-white text-2xl font-bold text-center">
+            No savings
+          </Text>
+        }
       />
     );
   };
@@ -191,7 +238,7 @@ const Expenses = () => {
                 style={{ backgroundColor: "#1E2A3B" }}
                 labelStyle={{ color: "white" }}
                 scrollEnabled={true}
-                tabStyle={{ width: Dimensions.get("window").width / 3 }}
+                tabStyle={{ width: Dimensions.get("window").width / 2 }}
                 contentContainerStyle={{ flexGrow: 1 }}
               />
             )}
@@ -222,18 +269,32 @@ const Expenses = () => {
     }
   };
 
+  if (error)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Text className="text-white text-center">Failed to load data</Text>
+      </SafeAreaView>
+    );
+
+  if (!data)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Spinner size="large" color="white" />
+      </SafeAreaView>
+    );
+
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
         <View className="bg-[#1E2A3B] rounded-lg p-5 my-5 mx-5">
           <Text className="text-white text-lg mb-2">Total Expenses</Text>
           <Text className="text-white text-4xl font-bold">
-            {dummyData.totalExpenses}
+            ${totalExpensesAmount.toFixed(2)}
           </Text>
         </View>
         <PieChart
           data={pieChartData}
-          width={screenWidth - 40}
+          width={screenWidth - 20}
           height={220}
           chartConfig={{
             backgroundColor: "#1E2A3B",
@@ -311,12 +372,9 @@ const Expenses = () => {
                       value={value}
                       onValueChange={onChange}
                       placeholder="Select Subcategory"
-                      items={[
-                        { label: "Groceries", value: "Groceries" },
-                        { label: "Rent", value: "Rent" },
-                        { label: "Utilities", value: "Utilities" },
-                        { label: "Dining", value: "Dining" },
-                      ]}
+                      items={categoriesData
+                        ?.filter((cat) => cat.categoriesId !== 7)
+                        .map((cat) => ({ label: cat.name, value: cat.name }))}
                       label="Subcategory"
                     />
                   )}
