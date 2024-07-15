@@ -66,8 +66,30 @@ const Profile = () => {
               className="text-white text-base border-b border-gray-400"
               placeholder="Username"
               placeholderTextColor="gray"
-              defaultValue="JohnDoe"
+              defaultValue={user?.username}
             />
+          </View>
+          <View className="mb-5 flex flex-row gap-2 w-full">
+            <View className="w-[50%]">
+              <Text className="text-gray-200 text-lg font-bold">
+                First Name
+              </Text>
+              <TextInput
+                className="text-white text-base border-b border-gray-400"
+                placeholder="Email"
+                placeholderTextColor="gray"
+                defaultValue={user?.firstname}
+              />
+            </View>
+            <View className="w-[50%]">
+              <Text className="text-gray-200 text-lg font-bold">Last Name</Text>
+              <TextInput
+                className="text-white text-base border-b border-gray-400"
+                placeholder="Email"
+                placeholderTextColor="gray"
+                defaultValue={user?.lastname}
+              />
+            </View>
           </View>
           <View className="mb-5 flex gap-2">
             <Text className="text-gray-200 text-lg font-bold">Email</Text>
@@ -75,9 +97,10 @@ const Profile = () => {
               className="text-white text-base border-b border-gray-400"
               placeholder="Email"
               placeholderTextColor="gray"
-              defaultValue="johndoe@example.com"
+              defaultValue={user?.email}
             />
           </View>
+
           <View className="mb-5 flex gap-2">
             <Text className="text-gray-200 text-lg font-bold">Password</Text>
             <TextInput
@@ -85,6 +108,7 @@ const Profile = () => {
               placeholder="Password"
               placeholderTextColor="gray"
               secureTextEntry
+              defaultValue="***********"
             />
           </View>
         </View>

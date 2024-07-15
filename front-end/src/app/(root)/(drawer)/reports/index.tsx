@@ -203,39 +203,44 @@ const Expenses = () => (
 
 const Income = () => (
   <ScrollView style={{ padding: 20 }}>
-    <LineChart
-      data={{
-        labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-        datasets: [
-          {
-            data: [2000, 2100, 2500, 2200],
-            color: (opacity = 1) => `rgba(46, 204, 113, ${opacity})`,
-            strokeWidth: 2,
-          },
-        ],
-      }}
+    <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
+      <Text className="text-white font-bold text-lg mb-2">Total Income</Text>
+      <Text className="text-white text-4xl font-bold">
+        {dummyData.totalIncome}
+      </Text>
+    </View>
+    <PieChart
+      data={dummyData.incomeSources.map((source, index) => ({
+        name: source.name,
+        amount: source.amount,
+        color: predefinedColors[index % predefinedColors.length],
+        legendFontColor: "#FFF",
+        legendFontSize: 15,
+      }))}
       width={screenWidth - 40}
       height={220}
       chartConfig={{
         backgroundColor: "#1E2A3B",
         backgroundGradientFrom: "#1E2A3B",
         backgroundGradientTo: "#1E2A3B",
-        decimalPlaces: 2,
         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
         labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        style: {
-          borderRadius: 16,
-        },
-        propsForDots: {
-          r: "6",
-        },
+        decimalPlaces: 2,
       }}
-      bezier
-      style={{
-        marginVertical: 8,
-        borderRadius: 16,
-      }}
+      accessor={"amount"}
+      backgroundColor={"transparent"}
+      paddingLeft={"15"}
+      absolute
+      hasLegend={true}
+      center={[0, 0]}
     />
+    <View className="border-b border-gray-600 mb-5" />
+    {dummyData.incomeSources.map((source, index) => (
+      <View key={index} className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
+        <Text className="text-white text-lg font-bold">{source.name}</Text>
+        <Text className="text-gray-400">Amount: ${source.amount}</Text>
+      </View>
+    ))}
   </ScrollView>
 );
 
