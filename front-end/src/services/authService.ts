@@ -52,10 +52,13 @@ export const login = async (
     }
 
     setUser(data);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    axios.defaults.headers.common["userId"] = data.userId;
+    axios.defaults.headers.common["Authorization"] = `${token}`;
 
     return true;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
@@ -67,7 +70,8 @@ export const logout = async ({
 }) => {
   try {
     setUser(null);
-    axios.defaults.headers.common["Authorization"] = "";
+    delete axios.defaults.headers.common["userId"];
+    delete axios.defaults.headers.common["Authorization"];
     return true;
   } catch (error) {
     throw error;

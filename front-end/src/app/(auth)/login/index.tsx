@@ -9,7 +9,6 @@ import { LoginFormData, loginSchema } from "../../../helpers/validations";
 import { login } from "@/services/authService";
 import Toast from "react-native-toast-message";
 import { useAuthStore } from "@/stores/auth";
-import { MaterialIcons } from "@expo/vector-icons";
 
 const LoginScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -67,7 +66,7 @@ const LoginScreen = () => {
     } catch (error) {
       Toast.show({
         type: "error",
-        text1: error.response.data.error,
+        text1: error?.response?.data?.error || error.message,
         text1Style: {
           color: "red",
           fontSize: 16,

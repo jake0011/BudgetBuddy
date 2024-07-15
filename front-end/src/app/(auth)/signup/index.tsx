@@ -88,7 +88,7 @@ const SignupScreen = () => {
       Toast.show({
         type: "error",
 
-        text1: error.response?.data?.error || "Signup failed",
+        text1: error.response?.data?.error || error.message,
         text1Style: {
           color: "red",
 

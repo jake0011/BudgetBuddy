@@ -18,6 +18,12 @@ import {
   Portal,
 } from "react-native-paper";
 import CustomSelect from "@/components/global/CustomSelect";
+import {
+  getExpenditureCategories,
+  getUserExpenses,
+} from "@/services/expenditureService";
+import useSWR from "swr";
+import { useAuthStore } from "@/stores/auth";
 
 const dummyData = {
   totalExpenses: "$1,500",
@@ -42,6 +48,11 @@ const predefinedColors = [
   "#4BC0C0",
   "#9966FF",
   "#FF9F40",
+  "#8A2BE2",
+  "#FFA500",
+  "#00FF00",
+  "#FF00FF",
+  "#00FFFF",
 ];
 
 const Expenses = () => {
@@ -49,10 +60,15 @@ const Expenses = () => {
   const { control, handleSubmit, reset, watch } = useForm();
   const categoryType = watch("categoryType");
   const savingsType = watch("savingsType");
+  const user = useAuthStore((state) => state.user);
+
+  const fetcher = () => getUserExpenses(user.userId);
+
+  const { data, error } = useSWR(`/auth/v1/expenditure`, fetcher);
+  console.log(data);
 
   const onSubmit = (data) => {
     console.log(data);
-    // Handle form submission
     reset();
     setModalVisible(false);
   };
@@ -66,19 +82,6 @@ const Expenses = () => {
       <Text className="text-white text-lg font-bold">${item.amount}</Text>
     </View>
   );
-
-  // const renderItem = ({ item }) => (
-  //   <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
-  //     <View className="flex gap-1">
-  //       <Text className="text-white font-semibold text-base">Date:</Text>
-  //       <Text className="text-white font-bold text-lg"> {item.date}</Text>
-  //     </View>
-  //     <View className="flex gap-1">
-  //       <Text className="text-white font-semibold text-base">Amount:</Text>
-  //       <Text className="text-white font-bold text-lg"> ${item.amount}</Text>
-  //     </View>
-  //   </View>
-  // );
 
   const totalExpensesAmount = [
     ...dummyData.expenses,
