@@ -113,6 +113,25 @@ async function seed() {
     },
   ]);
 
+  const goalsRows = await db.select().from(goals);
+  const goalsIds = goalsRows.map((row) => row.goalsId);
+
+  await db.insert(goals).values([
+    {
+      title: "RTX 5080",
+      amount: 4000,
+      description: "Get this as soon as possible",
+      userId: userIds[3],
+    },
+    {
+      title: "RTX 4090 Ti",
+      amount: 16000,
+      description: "Get this as soon as possible",
+      percentageToGoal: 0,
+      userId: userIds[1],
+    },
+  ]);
+
   const categoriesRows = await db.select().from(categories);
   const categoriesIds = categoriesRows.map((row) => row.categoriesId);
 
@@ -136,7 +155,6 @@ async function seed() {
       userId: userIds[2],
       categoriesId: categoriesIds[7],
       monthOfTheYear: "June",
-      goalsId: 2,
       year: "2013",
     },
     {
@@ -153,59 +171,74 @@ async function seed() {
       amount: 34.3,
       type: "budget",
       categoriesId: categoriesIds[0],
+      monthOfTheYear: "December",
+      year: "2021",
       userId: userIds[0],
     },
     {
       amount: 34.53,
       type: "expenses",
-      categoriesId: categoriesIds[0],
+      categoriesId: categoriesIds[6],
+      monthOfTheYear: "April",
+      year: "2023",
       userId: userIds[0],
+      goalsId: goalsIds[0],
     },
     {
       amount: 34.3,
       type: "budget",
       categoriesId: categoriesIds[2],
+      monthOfTheYear: "October",
+      year: "2022",
       userId: userIds[1],
     },
     {
-      amount: 34.53,
+      amount: 134.53,
       type: "expenses",
       categoriesId: categoriesIds[3],
+      monthOfTheYear: "December",
+      year: "2021",
       userId: userIds[1],
     },
     {
-      amount: 4.53,
+      amount: 49.53,
       type: "expenses",
       categoriesId: categoriesIds[0],
+      monthOfTheYear: "February",
+      year: "2024",
       userId: userIds[2],
     },
     {
-      amount: 34.39,
+      amount: 394.39,
       type: "budget",
       categoriesId: categoriesIds[2],
       userId: userIds[2],
     },
     {
+      amount: 314.39,
+      type: "budget",
+      categoriesId: categoriesIds[6],
+      userId: userIds[2],
+      monthOfTheYear: "October",
+      year: "2023",
+      goalsId: goalsIds[1],
+    },
+    {
       amount: 77.53,
       type: "expenses",
       categoriesId: categoriesIds[3],
+      monthOfTheYear: "February",
+      year: "2024",
       userId: userIds[3],
     },
-  ]);
-
-  await db.insert(goals).values([
     {
-      title: "RTX 5080",
-      amount: 4000,
-      description: "Get this as soon as possible",
-      userId: 4,
-    },
-    {
-      title: "RTX 4090 Ti",
-      amount: 16000,
-      description: "Get this as soon as possible",
-      percentageToGoal: 0,
-      userId: 2,
+      amount: 894.42,
+      type: "expenses",
+      categoriesId: categoriesIds[6],
+      userId: userIds[2],
+      monthOfTheYear: "October",
+      year: "2023",
+      goalsId: goalsIds[1],
     },
   ]);
 }

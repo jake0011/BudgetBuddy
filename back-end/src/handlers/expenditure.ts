@@ -228,6 +228,11 @@ expenditureAuth.patch(
       } catch (err) {
         return c.json({ error: "An error occured, try again", message: err });
       }
+    } else {
+          return c.json(
+            { error: "Goal specified does not exist for user" },
+            404
+          );
     }
   }
 );
@@ -278,7 +283,7 @@ expenditureAuth.delete(
   }
 );
 
-expenditureAuth.get("/recent-budget", async (c) => {
+expenditureAuth.get("/budget/recent", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
     const expenditureRows = await db.query.expenditures.findMany({
@@ -300,7 +305,7 @@ expenditureAuth.get("/recent-budget", async (c) => {
   }
 });
 
-expenditureAuth.get("/recent-expenses", async (c) => {
+expenditureAuth.get("/expenses/recent", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
     const expenditureRows = await db.query.expenditures.findMany({
