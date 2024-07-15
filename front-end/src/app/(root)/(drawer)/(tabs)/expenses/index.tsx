@@ -24,6 +24,7 @@ import {
 } from "@/services/expenditureService";
 import useSWR from "swr";
 import { useAuthStore } from "@/stores/auth";
+import { getGoals } from "@/services/goalsService";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -49,17 +50,19 @@ const Expenses = () => {
   const user = useAuthStore((state) => state.user);
 
   const fetcher = useCallback(async () => {
-    const [categories, expenses] = await Promise.all([
+    const [categories, expenses, goals] = await Promise.all([
       getExpenditureCategories(),
       getUserExpenses(user?.userId),
+      getGoals(user?.userId),
     ]);
-    return { categories, expenses };
+    return { categories, expenses, goals };
   }, [user?.userId]);
 
   const { data, error } = useSWR(`/expenditure/data`, fetcher);
 
   const categoriesData = data?.categories || [];
   const expensesData = data?.expenses || [];
+  const goalsData = data?.goals || [];
 
   const onSubmit = (data) => {
     console.log(data);
@@ -70,7 +73,9 @@ const Expenses = () => {
   const renderItem = ({ item }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
-        <Text className={`text-white text-lg font-bold`}>{item.category}</Text>
+        {item.name && (
+          <Text className={`text-white text-lg font-bold`}>{item.name}</Text>
+        )}
         <Text className="text-gray-400 font-bold text-lg">
           {item.createdAt.split("T")[0]}
         </Text>
@@ -86,11 +91,18 @@ const Expenses = () => {
         .map((cat) => ({ ...cat, expenses: [] })),
       savings: { goals: [], general: [] },
     };
-
     expensesData.forEach((expense) => {
       if (expense.categoriesId === 7) {
         if (expense.goalsId) {
-          initialCategorizedExpenses.savings.goals.push(expense);
+          const goal = goalsData.find(
+            (goal) => goal.goalsId === expense.goalsId
+          );
+          if (goal) {
+            initialCategorizedExpenses.savings.goals.push({
+              ...expense,
+              name: goal.title,
+            });
+          }
         } else {
           initialCategorizedExpenses.savings.general.push(expense);
         }

@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Dimensions,
+  SectionList,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { Input, Spinner } from "tamagui";
@@ -22,6 +23,7 @@ import {
   getExpenditureCategories,
   getUserBudget,
 } from "@/services/expenditureService";
+import { getGoals } from "@/services/goalsService";
 import useSWR from "swr";
 import { useAuthStore } from "@/stores/auth";
 
@@ -49,17 +51,19 @@ const Expenses = () => {
   const user = useAuthStore((state) => state.user);
 
   const fetcher = useCallback(async () => {
-    const [categories, budget] = await Promise.all([
+    const [categories, budget, goals] = await Promise.all([
       getExpenditureCategories(),
       getUserBudget(user?.userId),
+      getGoals(user?.userId),
     ]);
-    return { categories, budget };
+    return { categories, budget, goals };
   }, [user?.userId]);
 
   const { data, error } = useSWR(`/expenditure/data`, fetcher);
 
   const categoriesData = data?.categories || [];
   const budgetData = data?.budget || [];
+  const goalsData = data?.goals || [];
 
   const onSubmit = (data) => {
     console.log(data);
@@ -72,7 +76,7 @@ const Expenses = () => {
       <View>
         <Text className={`text-white text-lg font-bold`}>{item?.name}</Text>
       </View>
-      <Text className="text-white text-lg font-bold">${item?.budgeted}</Text>
+      <Text className="text-white text-lg font-bold">${item?.amount}</Text>
     </View>
   );
 
@@ -80,42 +84,69 @@ const Expenses = () => {
     const initialCategorizedBudget = {
       living: categoriesData
         .filter((cat) => cat.categoriesId !== 7)
-        .map((cat) => ({ ...cat, budgeted: 0 })),
+        .map((cat) => ({ ...cat, amount: 0 })),
       savings: { goals: [], general: [] },
     };
 
     budgetData.forEach((budget) => {
       if (budget.categoriesId === 7) {
-        if (budget.savingsType === "goals") {
-          initialCategorizedBudget.savings.goals.push(budget);
+        if (budget.goalsId) {
+          const goal = goalsData.find(
+            (goal) => goal.goalsId === budget.goalsId
+          );
+          if (goal) {
+            const existingGoal = initialCategorizedBudget.savings.goals.find(
+              (g) => g.goalsId === goal.goalsId
+            );
+            if (existingGoal) {
+              existingGoal.amount += budget.amount;
+            } else {
+              initialCategorizedBudget.savings.goals.push({
+                ...goal,
+                name: goal.title,
+                amount: budget.amount,
+              });
+            }
+          }
         } else {
-          initialCategorizedBudget.savings.general.push(budget);
+          const existingGeneral = initialCategorizedBudget.savings.general.find(
+            (g) => g.name === (budget.title || "General")
+          );
+          if (existingGeneral) {
+            existingGeneral.amount += budget.amount;
+          } else {
+            initialCategorizedBudget.savings.general.push({
+              ...budget,
+              name: budget.title || "General",
+              amount: budget.amount,
+            });
+          }
         }
       } else {
         const category = initialCategorizedBudget.living.find(
           (cat) => cat.categoriesId === budget.categoriesId
         );
         if (category) {
-          category.budgeted += budget.budgeted;
+          category.amount += budget.amount;
         }
       }
     });
 
     return initialCategorizedBudget;
-  }, [categoriesData, budgetData]);
+  }, [categoriesData, budgetData, goalsData]);
 
   const totalBudgetAmount = useMemo(() => {
     return (
       categorizedBudget.living.reduce(
-        (sum, category) => sum + category.budgeted,
+        (sum, category) => sum + category.amount,
         0
       ) +
       categorizedBudget.savings.goals.reduce(
-        (sum, category) => sum + category.budgeted,
+        (sum, category) => sum + category.amount,
         0
       ) +
       categorizedBudget.savings.general.reduce(
-        (sum, category) => sum + category.budgeted,
+        (sum, category) => sum + category.amount,
         0
       )
     );
@@ -125,20 +156,20 @@ const Expenses = () => {
     const livingExpensesData = categorizedBudget.living.map(
       (category, index) => ({
         name: category.name,
-        amount: category.budgeted,
+        amount: category.amount,
         color: predefinedColors[index % predefinedColors.length],
         legendFontColor: "#FFF",
         legendFontSize: 15,
         percentage:
           totalBudgetAmount === 0
             ? "0.00%"
-            : ((category.budgeted / totalBudgetAmount) * 100).toFixed(2) + "%",
+            : ((category.amount / totalBudgetAmount) * 100).toFixed(2) + "%",
       })
     );
 
     const savingsTotalAmount = categorizedBudget.savings.goals
       .concat(categorizedBudget.savings.general)
-      .reduce((sum, category) => sum + category.budgeted, 0);
+      .reduce((sum, category) => sum + category.amount, 0);
 
     const savingsData = {
       name: "Savings",
@@ -162,6 +193,21 @@ const Expenses = () => {
     { key: "savings", title: "Savings" },
   ]);
 
+  const renderSectionHeader = ({ section: { title } }) => (
+    <Text className="text-gray-400 text-lg font-bold mb-6">{title}</Text>
+  );
+
+  const renderSectionFooter = ({ section }) => {
+    if (section.data.length === 0) {
+      return (
+        <Text className="text-white text-2xl font-bold text-center">
+          No budget
+        </Text>
+      );
+    }
+    return null;
+  };
+
   const renderScene = ({ route }) => {
     switch (route.key) {
       case "living":
@@ -169,7 +215,7 @@ const Expenses = () => {
           <FlatList
             data={categorizedBudget.living}
             renderItem={renderItem}
-            keyExtractor={(item) => item.categoriesId.toString()}
+            keyExtractor={(item) => item?.categoriesId?.toString()}
             contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
             ListEmptyComponent={
               <Text className="text-white text-2xl font-bold text-center">
@@ -180,34 +226,19 @@ const Expenses = () => {
         );
       case "savings":
         return (
-          <View className="p-5">
-            <Text className="text-gray-400 text-lg font-bold mb-6">Goals</Text>
-            <FlatList
-              data={categorizedBudget.savings.goals}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={{ paddingBottom: 20 }}
-              ListEmptyComponent={
-                <Text className="text-white text-2xl font-bold text-center">
-                  No budget
-                </Text>
-              }
-            />
-            <Text className="text-gray-400 text-lg font-bold mb-6">
-              General
-            </Text>
-            <FlatList
-              data={categorizedBudget.savings.general}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={{ paddingBottom: 20 }}
-              ListEmptyComponent={
-                <Text className="text-white text-2xl font-bold text-center">
-                  No budget
-                </Text>
-              }
-            />
-          </View>
+          <SectionList
+            sections={[
+              { title: "Goals", data: categorizedBudget.savings.goals },
+              { title: "General", data: categorizedBudget.savings.general },
+            ]}
+            renderItem={renderItem}
+            renderSectionHeader={renderSectionHeader}
+            renderSectionFooter={renderSectionFooter}
+            keyExtractor={(item, index) =>
+              item?.goalsId?.toString() || index.toString()
+            }
+            contentContainerStyle={{ padding: 20, paddingBottom: 150 }}
+          />
         );
       default:
         return null;
@@ -352,13 +383,10 @@ const Expenses = () => {
                           value={value}
                           onValueChange={onChange}
                           placeholder="Select Goal"
-                          items={[
-                            {
-                              label: "Emergency Fund",
-                              value: "Emergency Fund",
-                            },
-                            { label: "Vacation", value: "Vacation" },
-                          ]}
+                          items={goalsData.map((goal) => ({
+                            label: goal.title,
+                            value: goal.goalsId,
+                          }))}
                           label="Goal"
                         />
                       )}
@@ -382,7 +410,7 @@ const Expenses = () => {
               )}
               <Controller
                 control={control}
-                name="budgeted"
+                name="amount"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     placeholder="Budgeted Amount"
