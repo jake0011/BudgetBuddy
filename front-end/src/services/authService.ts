@@ -70,7 +70,8 @@ export const logout = async ({
 }) => {
   try {
     setUser(null);
-    delete axios.defaults.headers.common["Authorization"];
+    axios.defaults.headers.common["Authorization"] = "";
+    axios.defaults.headers.common["userId"] = "";
     return true;
   } catch (error) {
     throw error;

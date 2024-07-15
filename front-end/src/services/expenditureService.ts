@@ -11,6 +11,9 @@ export const getExpenditureCategories = async () => {
 
 export const getUserExpenses = async (userId: string) => {
   try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
     const response = await axios.get("/auth/v1/expenditure/expenses/all", {
       headers: {
         userId: userId,
@@ -25,6 +28,9 @@ export const getUserExpenses = async (userId: string) => {
 
 export const getUserBudget = async (userId: string) => {
   try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
     const response = await axios.get("/auth/v1/expenditure/budget/all", {
       headers: {
         userId: userId,

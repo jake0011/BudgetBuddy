@@ -51,10 +51,10 @@ const Expenses = () => {
   const fetcher = useCallback(async () => {
     const [categories, budget] = await Promise.all([
       getExpenditureCategories(),
-      getUserBudget(user.userId),
+      getUserBudget(user?.userId),
     ]);
     return { categories, budget };
-  }, [user.userId]);
+  }, [user?.userId]);
 
   const { data, error } = useSWR(`/expenditure/data`, fetcher);
 
@@ -130,7 +130,9 @@ const Expenses = () => {
         legendFontColor: "#FFF",
         legendFontSize: 15,
         percentage:
-          ((category.budgeted / totalBudgetAmount) * 100).toFixed(2) + "%",
+          totalBudgetAmount === 0
+            ? "0.00%"
+            : ((category.budgeted / totalBudgetAmount) * 100).toFixed(2) + "%",
       })
     );
 
@@ -146,7 +148,9 @@ const Expenses = () => {
       legendFontColor: "#FFF",
       legendFontSize: 15,
       percentage:
-        ((savingsTotalAmount / totalBudgetAmount) * 100).toFixed(2) + "%",
+        totalBudgetAmount === 0
+          ? "0.00%"
+          : ((savingsTotalAmount / totalBudgetAmount) * 100).toFixed(2) + "%",
     };
 
     return [...livingExpensesData, savingsData];
@@ -227,7 +231,7 @@ const Expenses = () => {
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
-        <View className="bg-[#1E2A3B] rounded-lg p-5 my-5 mx-5">
+        <View className="bg-[#1E2A3B] rounded-lg p-5 mt-5 mx-5">
           <Text className="text-white text-lg mb-2">Total Budget</Text>
           <Text className="text-white text-4xl font-bold">
             ${totalBudgetAmount.toFixed(2)}
@@ -236,7 +240,7 @@ const Expenses = () => {
         <PieChart
           data={pieChartData}
           width={screenWidth - 20}
-          height={220}
+          height={240}
           chartConfig={{
             backgroundColor: "#1E2A3B",
             backgroundGradientFrom: "#1E2A3B",
@@ -247,7 +251,7 @@ const Expenses = () => {
           }}
           accessor={"amount"}
           backgroundColor={"transparent"}
-          paddingLeft={"15"}
+          paddingLeft={"10"}
           absolute
           hasLegend={true}
           center={[0, 0]}
