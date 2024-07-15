@@ -45,5 +45,3 @@ export const incomes = pgTable("incomes", {
   }),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
-
-
