@@ -67,10 +67,15 @@ incomeAuth.post(
       return c.json({ error: "Invalid Input" }, 415);
     }
   }),
-
   async (c) => {
     const body = await c.req.json();
     const userId = Number(c.req.header("userId"));
+    const goalId = await db.query.goals.findFirst({
+      where: and(
+        eq(goals.userId, userId),
+        eq(goals.goalsId, body.goalsId)
+      ),
+    });
     try {
       //find out if there is a way to do this in your database by using some constraint and then catching an error code
       const incomeForMonth = await db.query.incomes.findFirst({
@@ -89,10 +94,6 @@ incomeAuth.post(
           400
         );
       } else {
-        const goalId = await db.query.goals.findFirst({
-          where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
-        });
-
         if (goalId) {
           if (body.categoriesId === 7) {
             await db.update(incomes).set({
@@ -116,8 +117,8 @@ incomeAuth.post(
         } else {
           return c.json({ error: "Goal specified does not exist for user" }, 404);
         } 
-        return c.json({ message: `Income added for user` }, 201);
       }
+      return c.json({ message: `Income added for user` }, 201);
     } catch (err) {
       return c.json({ message: "An error occured, try again", error: err });
   };   
