@@ -1,49 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   SafeAreaView,
   FlatList,
-  Modal,
   TouchableOpacity,
   Dimensions,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Input, Button as TamaguiButton } from "tamagui";
+import { Input, Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
-import { BlurView } from "expo-blur";
 import { ProgressBar } from "react-native-paper";
 import {
   Modal as PaperModal,
   Button as PaperButton,
   Portal,
-  Provider,
 } from "react-native-paper";
-
-const dummyData = {
-  totalGoals: 5,
-  goalsAchieved: 2,
-  goals: [
-    {
-      id: 1,
-      name: "Vacation",
-      target: 2000,
-      saved: 1500,
-    },
-    {
-      id: 2,
-      name: "New Car",
-      target: 10000,
-      saved: 3000,
-    },
-  ],
-};
+import { useAuthStore } from "@/stores/auth";
+import { getGoals } from "@/services/goalsService";
+import useSWR from "swr";
 
 const screenWidth = Dimensions.get("window").width;
 
 const Goals = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const { control, handleSubmit, reset } = useForm();
+  const user = useAuthStore((state) => state.user);
+
+  const fetcher = useCallback(async () => {
+    return await getGoals(user?.userId);
+  }, [user?.userId]);
+
+  const { data: goalsData, error, isLoading } = useSWR(`/goals/data`, fetcher);
 
   const onSubmit = (data) => {
     console.log(data);
@@ -53,13 +41,13 @@ const Goals = () => {
   };
 
   const renderItem = ({ item }) => {
-    const progress = item.saved / item.target;
+    const progress = item.percentageToGoal / 100;
     return (
       <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
         <View className="flex-row justify-between items-center">
-          <Text className="text-white text-lg font-bold">{item.name}</Text>
+          <Text className="text-white text-lg font-bold">{item.title}</Text>
           <Text className="text-white text-lg font-bold">
-            ${item.saved} / ${item.target}
+            ${item.amount * progress} / ${item.amount}
           </Text>
         </View>
         <ProgressBar
@@ -72,25 +60,39 @@ const Goals = () => {
     );
   };
 
+  if (error)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Text className="text-white text-center">Failed to load data</Text>
+      </SafeAreaView>
+    );
+
+  if (isLoading)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Spinner size="large" color="white" />
+      </SafeAreaView>
+    );
+
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
         <View className="bg-[#1E2A3B] rounded-lg p-5 my-5 mx-5">
           <Text className="text-white text-lg mb-2">Total Goals</Text>
           <Text className="text-white text-4xl font-bold">
-            {dummyData.totalGoals}
+            {goalsData.length}
           </Text>
         </View>
         <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 mx-5">
           <Text className="text-white text-lg mb-2">Goals Achieved</Text>
           <Text className="text-white text-4xl font-bold">
-            {dummyData.goalsAchieved}
+            {goalsData.filter((goal) => goal.isGoalReached).length}
           </Text>
         </View>
         <FlatList
-          data={dummyData.goals}
+          data={goalsData}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.goalsId.toString()}
           contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
         />
         <TouchableOpacity

@@ -59,7 +59,7 @@ const Expenses = () => {
     return { categories, budget, goals };
   }, [user?.userId]);
 
-  const { data, error } = useSWR(`/expenditure/data`, fetcher);
+  const { data, error, isLoading } = useSWR(`/expenditure/data`, fetcher);
 
   const categoriesData = data?.categories || [];
   const budgetData = data?.budget || [];
@@ -252,7 +252,7 @@ const Expenses = () => {
       </SafeAreaView>
     );
 
-  if (!data)
+  if (isLoading)
     return (
       <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
         <Spinner size="large" color="white" />
