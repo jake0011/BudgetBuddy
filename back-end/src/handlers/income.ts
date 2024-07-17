@@ -115,6 +115,22 @@ incomeAuth.patch(
     const body = await c.req.json();
 
     try {
+      const incomeForMonth = await db.query.incomes.findFirst({
+        where: and(
+          eq(incomes.userId, userId),
+          eq(incomes.year, body.year),
+          eq(incomes.monthOfTheYear, body.monthOfTheYear)
+        ),
+      });
+
+      if (incomeForMonth) {
+        return c.json(
+          {
+            error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
+          },
+          400
+        );
+      } else {
       await db.update(incomes).set({
           amount: body.amount,
           monthOfTheYear: body.monthOfTheYear,
@@ -127,20 +143,26 @@ incomeAuth.patch(
             eq(incomes.incomesId, body.incomesId)
           )
         );
-          
+      }
+      
       const incomeRow = await db.query.incomes.findFirst({
         where: and(
                 eq(incomes.userId, userId),
                 eq(incomes.incomesId, body.incomesId)
               )
       });
-      return c.json(
-        {
-        message: `Income updated successfully`,
-        data: incomeRow
-        },
-        201
-      );
+      
+      if (!incomeRow) {
+        return c.json({ error: "Nothing found"}, 404);
+      } else {
+        return c.json(
+          {
+            message: `Income updated successfully`,
+            data: incomeRow,
+          },
+          201
+        );
+      }
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
   }
