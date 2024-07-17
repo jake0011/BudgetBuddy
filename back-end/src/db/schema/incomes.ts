@@ -8,8 +8,6 @@ import {
   varchar
 } from "drizzle-orm/pg-core";
 import { users } from "./users"
-import { categories } from "./expenditures";
-import { goals } from "./goals";
 
 export const monthOfTheYearEnum = pgEnum("month", [
   "January",
@@ -37,11 +35,6 @@ export const incomes = pgTable("incomes", {
   userId: integer("userId")
     .references(() => users.userId, { onDelete: "cascade" })
     .notNull(),
-  categoriesId: integer("categoriesId")
-    .references(() => categories.categoriesId, { onDelete: "set default" })
-    .notNull(),
-  goalsId: integer("goalsId").references(() => goals.goalsId, {
-    onDelete: "set default",
-  }),
+  source: varchar("source", { length: 256 }),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });

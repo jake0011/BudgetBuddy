@@ -17,7 +17,7 @@ export const typeEnum = pgEnum("type", ["budget", "expenses"]);
 
 export const expenditures = pgTable("expenditures", {
   expendituresId: serial("expendituresId").primaryKey(),
-  amount: doublePrecision("amount").default(19.4),
+  amount: doublePrecision("amount").default(0.0),
   type: typeEnum("type"),
   monthOfTheYear: monthOfTheYearEnum("month"),
   year: varchar("year", { length: 256 }),

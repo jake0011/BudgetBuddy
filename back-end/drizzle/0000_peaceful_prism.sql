@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS "categories" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "expenditures" (
 	"expendituresId" serial PRIMARY KEY NOT NULL,
-	"amount" double precision DEFAULT 19.4,
+	"amount" double precision DEFAULT 0,
 	"type" "type",
 	"month" "month",
 	"year" varchar(256),
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS "goals" (
 	"description" varchar(1024),
 	"amount" double precision DEFAULT 0 NOT NULL,
 	"percentageToGoal" double precision DEFAULT 0,
-	"isGoalReached" boolean DEFAULT false,
-	"userId" integer,
+	"isGoalReached" boolean DEFAULT false NOT NULL,
+	"userId" integer NOT NULL,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "goals_title_unique" UNIQUE("title")
 );
@@ -46,8 +46,7 @@ CREATE TABLE IF NOT EXISTS "incomes" (
 	"month" "month",
 	"year" varchar(256),
 	"userId" integer NOT NULL,
-	"categoriesId" integer NOT NULL,
-	"goalsId" integer,
+	"source" varchar(256),
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -90,18 +89,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "incomes" ADD CONSTRAINT "incomes_userId_users_userId_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("userId") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "incomes" ADD CONSTRAINT "incomes_categoriesId_categories_categoriesId_fk" FOREIGN KEY ("categoriesId") REFERENCES "public"."categories"("categoriesId") ON DELETE set default ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "incomes" ADD CONSTRAINT "incomes_goalsId_goals_goalsId_fk" FOREIGN KEY ("goalsId") REFERENCES "public"."goals"("goalsId") ON DELETE set default ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
