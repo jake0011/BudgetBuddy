@@ -26,14 +26,14 @@ export const DATEVALUES = [
 
 const incomeSchema = z.object({
   amount: z.number(),
-  categoriesId: z.number(),
+  source: z.string(),
   monthOfTheYear: z.enum(DATEVALUES),
   year: z.number(),
 });
 
 const updateIncomeSchema = z.object({
   amount: z.number().optional(),
-  categoriesId: z.number().optional(),
+  source: z.string().optional(),
   monthOfTheYear: z.enum(DATEVALUES).optional(),
   year: z.number().optional(),
   incomesId: z.number(),
@@ -101,8 +101,7 @@ incomeAuth.post(
               userId: userId,
               monthOfTheYear: body.monthOfTheYear,
               year: body.year,
-              goalsId: goalId.goalsId,
-              categoriesId: body.categoriesId,
+              source: body.source,
             });
           } else {
             await db.update(incomes).set({
@@ -110,8 +109,7 @@ incomeAuth.post(
               userId: userId,
               monthOfTheYear: body.monthOfTheYear,
               year: body.year,
-              goalsId: null,
-              categoriesId: body.categoriesId,
+              source: body.source,
             });
           }
         } else {
@@ -133,56 +131,24 @@ incomeAuth.patch(
   }),
   async (c) => {
     const userId = Number(c.req.header("userId"));
+    const body = await c.req.json();
+
     try {
-      const body = await c.req.json();
-      const goalId = await db.query.goals.findFirst({
-        where: and(
-          eq(goals.userId, userId),
-          eq(goals.goalsId, body.goalsId)
-        )
-      });
-
-      if (goalId) {
-        if (body.categoriesId === 7) {
-          await db
-            .update(incomes)
-            .set({
-              amount: body.amount,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              categoriesId: body.categoriesId,
-              goalsId: goalId.goalsId,
-            })
-            .where(
-              and(
-                eq(incomes.userId, userId),
-                eq(incomes.incomesId, body.incomesId)
-              )
-            );
-        } else {
-          await db
-            .update(incomes)
-            .set({
-              amount: body.amount,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              categoriesId: body.categoriesId,
-              goalsId: null,
-            })
-            .where(
-              and(
-                eq(incomes.userId, userId),
-                eq(incomes.incomesId, body.incomesId)
-              )
-            );
-          }
-        } else {
-          return c.json(
-            { error: "Goal specified does not exist for user" },
-            404
-          );
-        }
-
+      await db
+        .update(incomes)
+        .set({
+          amount: body.amount,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          source: body.source,
+        })
+        .where(
+          and(
+            eq(incomes.userId, userId),
+            eq(incomes.incomesId, body.incomesId)
+          )
+        );
+          
       const incomeRow = await db.query.incomes.findFirst({
         where: and(
                 eq(incomes.userId, userId),

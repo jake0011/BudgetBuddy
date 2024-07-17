@@ -72,13 +72,19 @@ expenditureAuth.post(
   async (c) => {
     const body = await c.req.json();
     const userId = Number(c.req.header("userId"));
-    const goalId = await db.query.goals.findFirst({
-      where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
-    });
 
-    if (goalId) {
-      try {
-        if (body.categoriesId === 7) {
+    try {
+      if (body.categoriesId === 7) {
+        const goalId = await db.query.goals.findFirst({
+          where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
+        });
+
+        if (!goalId) {
+              return c.json(
+                { error: "Goal specified does not exist for user" },
+                404
+              );
+        } else {
           await db.update(expenditures).set({
             amount: body.amount,
             userId: userId,
@@ -88,26 +94,24 @@ expenditureAuth.post(
             goalsId: goalId.goalsId,
             categoriesId: body.categoriesId,
           });
-        } else {
-          await db.update(expenditures).set({
-            amount: body.amount,
-            userId: userId,
-            monthOfTheYear: body.monthOfTheYear,
-            year: body.year,
-            type: body.type,
-            goalsId: null,
-            categoriesId: body.categoriesId,
-          });
         }
-        return c.json({ message: `${body.type} added for user` }, 201);
-      } catch (err) {
-        return c.json({
-          message: "An error occured, try again",
-          error: err,
+      } else {
+        await db.update(expenditures).set({
+          amount: body.amount,
+          userId: userId,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          type: body.type,
+          goalsId: null,
+          categoriesId: body.categoriesId,
         });
       }
-    } else {
-      return c.json({ error: "Goal specified does not exist for user" }, 404);
+      return c.json({ message: `${body.type} added for user` }, 201);
+    } catch (err) {
+      return c.json({
+        message: "An error occured, try again",
+        error: err,
+      });
     }
   }
 );
@@ -163,16 +167,22 @@ expenditureAuth.patch(
   async (c) => {
     const userId = Number(c.req.header("userId"));
     const body = await c.req.json();
-    const goalId = await db.query.goals.findFirst({
-      where: and(
-        eq(goals.userId, userId),
-        eq(goals.goalsId, body.goalsId)
-      )
-    });
 
-    if (goalId) {
-      try {
-        if (body.categoriesId === 7) {
+    try {
+      if (body.categoriesId === 7) {
+        const goalId = await db.query.goals.findFirst({
+          where: and(
+            eq(goals.userId, userId),
+            eq(goals.goalsId, body.goalsId)
+          ),
+        });
+
+        if (!goalId) {
+          return c.json(
+            { error: "Goal specified does not exist for user" },
+            404
+          );
+        } else {
           await db
             .update(expenditures)
             .set({
@@ -189,50 +199,47 @@ expenditureAuth.patch(
                 eq(expenditures.expendituresId, body.expendituresId)
               )
             );
-        } else {
-          await db
-            .update(expenditures)
-            .set({
-              amount: body.amount,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              categoriesId: body.categoriesId,
-              goalsId: null,
-            })
-            .where(
-              and(
-                eq(expenditures.userId, userId),
-                eq(expenditures.type, body.type),
-                eq(expenditures.expendituresId, body.expendituresId)
-              )
-            );
-        }  
-        const expenditureRow = await db.query.expenditures.findFirst({
-          where: and(
-            eq(expenditures.userId, userId),
-            eq(expenditures.type, body.type),
-            eq(expenditures.expendituresId, body.expendituresId)
-          )
-        });
-        if (expenditureRow) {
-          return c.json(
-            {
-              message: `${body.type} updated successfully`,
-              data: expenditureRow,
-            },
-            201
-          );
-        } else {
-          return c.json({ error: "An error occured, check the type" }, 400);
         }
-      } catch (err) {
-        return c.json({ error: "An error occured, try again", message: err });
-      }
-    } else {
-          return c.json(
-            { error: "Goal specified does not exist for user" },
-            404
+      } else {
+        await db
+          .update(expenditures)
+          .set({
+            amount: body.amount,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            categoriesId: body.categoriesId,
+            goalsId: null,
+          })
+          .where(
+            and(
+              eq(expenditures.userId, userId),
+              eq(expenditures.type, body.type),
+              eq(expenditures.expendituresId, body.expendituresId)
+            )
           );
+      }  
+      
+      const expenditureRow = await db.query.expenditures.findFirst({
+        where: and(
+          eq(expenditures.userId, userId),
+          eq(expenditures.type, body.type),
+          eq(expenditures.expendituresId, body.expendituresId)
+        )
+      });
+
+      if (expenditureRow) {
+        return c.json(
+          {
+            message: `${body.type} updated successfully`,
+            data: expenditureRow,
+          },
+          201
+        );
+      } else {
+        return c.json({ error: "An error occured, check the type" }, 400);
+      }
+    } catch (err) {
+      return c.json({ error: "An error occured, try again", message: err });
     }
   }
 );
