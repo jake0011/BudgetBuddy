@@ -72,31 +72,25 @@ expenditureAuth.post(
   async (c) => {
     const body = await c.req.json();
     const userId = Number(c.req.header("userId"));
+    const goalId = await db.query.goals.findFirst({
+      where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
+    });
 
     try {
-      if (body.categoriesId === 7) {
-        const goalId = await db.query.goals.findFirst({
-          where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
+      if (body.categoriesId === 7 && goalId) {
+        await db.insert(expenditures).values({
+          amount: body.amount,
+          userId: userId,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          type: body.type,
+          goalsId: goalId.goalsId,
+          categoriesId: body.categoriesId,
         });
-
-        if (!goalId) {
-              return c.json(
-                { error: "Goal specified does not exist for user" },
-                404
-              );
-        } else {
-          await db.update(expenditures).set({
-            amount: body.amount,
-            userId: userId,
-            monthOfTheYear: body.monthOfTheYear,
-            year: body.year,
-            type: body.type,
-            goalsId: goalId.goalsId,
-            categoriesId: body.categoriesId,
-          });
-        }
+      } else if (body.categoriesId === 7 && body.goalsId && !goalId) {
+        return c.json({ error: "Goal specified does not exist for user" }, 404);
       } else {
-        await db.update(expenditures).set({
+        await db.insert(expenditures).values({
           amount: body.amount,
           userId: userId,
           monthOfTheYear: body.monthOfTheYear,
@@ -167,43 +161,32 @@ expenditureAuth.patch(
   async (c) => {
     const userId = Number(c.req.header("userId"));
     const body = await c.req.json();
+    const goalId = await db.query.goals.findFirst({
+      where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
+    });
 
     try {
-      if (body.categoriesId === 7) {
-        const goalId = await db.query.goals.findFirst({
-          where: and(
-            eq(goals.userId, userId),
-            eq(goals.goalsId, body.goalsId)
-          ),
-        });
-
-        if (!goalId) {
-          return c.json(
-            { error: "Goal specified does not exist for user" },
-            404
-          );
-        } else {
-          await db
-            .update(expenditures)
-            .set({
-              amount: body.amount,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              categoriesId: body.categoriesId,
-              goalsId: goalId.goalsId,
-            })
-            .where(
-              and(
-                eq(expenditures.userId, userId),
-                eq(expenditures.type, body.type),
-                eq(expenditures.expendituresId, body.expendituresId)
-              )
-            );
-        }
-      } else {
+      if (body.categoriesId === 7 && goalId) {
         await db
           .update(expenditures)
           .set({
+            amount: body.amount,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            categoriesId: body.categoriesId,
+            goalsId: body.goalsId,
+          })
+          .where(
+            and(
+              eq(expenditures.userId, userId),
+              eq(expenditures.type, body.type),
+              eq(expenditures.expendituresId, body.expendituresId)
+            )
+          ).returning();
+      } else if (body.categoriesId === 7 && body.goalsId && !goalId) {
+        return c.json({ error: "Goal specified does not exist for user" }, 404);
+      } else {
+        await db.update(expenditures).set({
             amount: body.amount,
             monthOfTheYear: body.monthOfTheYear,
             year: body.year,
@@ -218,7 +201,7 @@ expenditureAuth.patch(
             )
           );
       }  
-      
+
       const expenditureRow = await db.query.expenditures.findFirst({
         where: and(
           eq(expenditures.userId, userId),

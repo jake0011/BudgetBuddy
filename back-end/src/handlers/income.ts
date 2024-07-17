@@ -70,12 +70,7 @@ incomeAuth.post(
   async (c) => {
     const body = await c.req.json();
     const userId = Number(c.req.header("userId"));
-    const goalId = await db.query.goals.findFirst({
-      where: and(
-        eq(goals.userId, userId),
-        eq(goals.goalsId, body.goalsId)
-      ),
-    });
+
     try {
       //find out if there is a way to do this in your database by using some constraint and then catching an error code
       const incomeForMonth = await db.query.incomes.findFirst({
@@ -94,27 +89,13 @@ incomeAuth.post(
           400
         );
       } else {
-        if (goalId) {
-          if (body.categoriesId === 7) {
-            await db.update(incomes).set({
-              amount: body.amount,
-              userId: userId,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              source: body.source,
-            });
-          } else {
-            await db.update(incomes).set({
-              amount: body.amount,
-              userId: userId,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              source: body.source,
-            });
-          }
-        } else {
-          return c.json({ error: "Goal specified does not exist for user" }, 404);
-        } 
+        await db.insert(incomes).values({
+          amount: body.amount,
+          userId: userId,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          source: body.source,
+        });
       }
       return c.json({ message: `Income added for user` }, 201);
     } catch (err) {
@@ -134,9 +115,7 @@ incomeAuth.patch(
     const body = await c.req.json();
 
     try {
-      await db
-        .update(incomes)
-        .set({
+      await db.update(incomes).set({
           amount: body.amount,
           monthOfTheYear: body.monthOfTheYear,
           year: body.year,
