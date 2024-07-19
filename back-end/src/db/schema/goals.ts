@@ -16,8 +16,9 @@ export const goals = pgTable("goals", {
   description: varchar("description", { length: 1024 }),
   amount: doublePrecision("amount").default(0.0).notNull(),
   percentageToGoal: doublePrecision("percentageToGoal").default(0.0),
-  isGoalReached: boolean("isGoalReached").default(false),
+  isGoalReached: boolean("isGoalReached").default(false).notNull(),
   userId: integer("userId")
-    .references(() => users.userId, { onDelete: "cascade" }),
+    .references(() => users.userId, { onDelete: "cascade" })
+    .notNull(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });

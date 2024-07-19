@@ -76,38 +76,36 @@ expenditureAuth.post(
       where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
     });
 
-    if (goalId) {
-      try {
-        if (body.categoriesId === 7) {
-          await db.update(expenditures).set({
-            amount: body.amount,
-            userId: userId,
-            monthOfTheYear: body.monthOfTheYear,
-            year: body.year,
-            type: body.type,
-            goalsId: goalId.goalsId,
-            categoriesId: body.categoriesId,
-          });
-        } else {
-          await db.update(expenditures).set({
-            amount: body.amount,
-            userId: userId,
-            monthOfTheYear: body.monthOfTheYear,
-            year: body.year,
-            type: body.type,
-            goalsId: null,
-            categoriesId: body.categoriesId,
-          });
-        }
-        return c.json({ message: `${body.type} added for user` }, 201);
-      } catch (err) {
-        return c.json({
-          message: "An error occured, try again",
-          error: err,
+    try {
+      if (body.categoriesId === 7 && goalId) {
+        await db.insert(expenditures).values({
+          amount: body.amount,
+          userId: userId,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          type: body.type,
+          goalsId: goalId.goalsId,
+          categoriesId: body.categoriesId,
+        });
+      } else if (body.categoriesId === 7 && body.goalsId && !goalId) {
+        return c.json({ error: "Goal specified does not exist for user" }, 404);
+      } else {
+        await db.insert(expenditures).values({
+          amount: body.amount,
+          userId: userId,
+          monthOfTheYear: body.monthOfTheYear,
+          year: body.year,
+          type: body.type,
+          goalsId: null,
+          categoriesId: body.categoriesId,
         });
       }
-    } else {
-      return c.json({ error: "Goal specified does not exist for user" }, 404);
+      return c.json({ message: `${body.type} added for user` }, 201);
+    } catch (err) {
+      return c.json({
+        message: "An error occured, try again",
+        error: err,
+      });
     }
   }
 );
@@ -164,75 +162,67 @@ expenditureAuth.patch(
     const userId = Number(c.req.header("userId"));
     const body = await c.req.json();
     const goalId = await db.query.goals.findFirst({
-      where: and(
-        eq(goals.userId, userId),
-        eq(goals.goalsId, body.goalsId)
-      )
+      where: and(eq(goals.userId, userId), eq(goals.goalsId, body.goalsId)),
     });
 
-    if (goalId) {
-      try {
-        if (body.categoriesId === 7) {
-          await db
-            .update(expenditures)
-            .set({
-              amount: body.amount,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              categoriesId: body.categoriesId,
-              goalsId: goalId.goalsId,
-            })
-            .where(
-              and(
-                eq(expenditures.userId, userId),
-                eq(expenditures.type, body.type),
-                eq(expenditures.expendituresId, body.expendituresId)
-              )
-            );
-        } else {
-          await db
-            .update(expenditures)
-            .set({
-              amount: body.amount,
-              monthOfTheYear: body.monthOfTheYear,
-              year: body.year,
-              categoriesId: body.categoriesId,
-              goalsId: null,
-            })
-            .where(
-              and(
-                eq(expenditures.userId, userId),
-                eq(expenditures.type, body.type),
-                eq(expenditures.expendituresId, body.expendituresId)
-              )
-            );
-        }  
-        const expenditureRow = await db.query.expenditures.findFirst({
-          where: and(
-            eq(expenditures.userId, userId),
-            eq(expenditures.type, body.type),
-            eq(expenditures.expendituresId, body.expendituresId)
-          )
-        });
-        if (expenditureRow) {
-          return c.json(
-            {
-              message: `${body.type} updated successfully`,
-              data: expenditureRow,
-            },
-            201
+    try {
+      if (body.categoriesId === 7 && goalId) {
+        await db
+          .update(expenditures)
+          .set({
+            amount: body.amount,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            categoriesId: body.categoriesId,
+            goalsId: body.goalsId,
+          })
+          .where(
+            and(
+              eq(expenditures.userId, userId),
+              eq(expenditures.type, body.type),
+              eq(expenditures.expendituresId, body.expendituresId)
+            )
+          ).returning();
+      } else if (body.categoriesId === 7 && body.goalsId && !goalId) {
+        return c.json({ error: "Goal specified does not exist for user" }, 404);
+      } else {
+        await db.update(expenditures).set({
+            amount: body.amount,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            categoriesId: body.categoriesId,
+            goalsId: null,
+          })
+          .where(
+            and(
+              eq(expenditures.userId, userId),
+              eq(expenditures.type, body.type),
+              eq(expenditures.expendituresId, body.expendituresId)
+            )
           );
-        } else {
-          return c.json({ error: "An error occured, check the type" }, 400);
-        }
-      } catch (err) {
-        return c.json({ error: "An error occured, try again", message: err });
+      }  
+
+      const expenditureRow = await db.query.expenditures.findFirst({
+        where: and(
+          eq(expenditures.userId, userId),
+          eq(expenditures.type, body.type),
+          eq(expenditures.expendituresId, body.expendituresId)
+        )
+      });
+
+      if (expenditureRow) {
+        return c.json(
+          {
+            message: `${body.type} updated successfully`,
+            data: expenditureRow,
+          },
+          201
+        );
+      } else {
+        return c.json({ error: "An error occured, check the type" }, 400);
       }
-    } else {
-          return c.json(
-            { error: "Goal specified does not exist for user" },
-            404
-          );
+    } catch (err) {
+      return c.json({ error: "An error occured, try again", message: err });
     }
   }
 );
