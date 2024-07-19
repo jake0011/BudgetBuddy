@@ -1,50 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
   SafeAreaView,
   FlatList,
-  Modal,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Input, Button as TamaguiButton } from "tamagui";
+import { Input, Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
 import {
   Modal as PaperModal,
   Button as PaperButton,
   Portal,
-  Provider,
 } from "react-native-paper";
-
-const dummyData = {
-  totalIncome: "$3,200",
-  incomeSources: [
-    {
-      id: 1,
-      name: "Salary",
-      amount: 2000,
-      date: "1st of every month",
-      recurrence: "Monthly",
-    },
-    {
-      id: 2,
-      name: "Freelance",
-      amount: 1000,
-      date: "15th of every month",
-      recurrence: "Monthly",
-    },
-    {
-      id: 3,
-      name: "Investments",
-      amount: 200,
-      date: "20th of every month",
-      recurrence: "Monthly",
-    },
-  ],
-};
+import useSWR from "swr";
+import { getIncome } from "@/services/incomeService";
+import { useAuthStore } from "@/stores/auth";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -69,10 +43,16 @@ const predefinedColors = [
 const Income = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const { control, handleSubmit, reset } = useForm();
+  const user = useAuthStore((state) => state.user);
+
+  const fetcher = useCallback(async () => {
+    return await getIncome(user?.userId);
+  }, [user?.userId]);
+
+  const { data, error, isLoading } = useSWR(`/income/data`, fetcher);
 
   const onSubmit = (data) => {
     console.log(data);
-    // Handle form submission
     reset();
     setModalVisible(false);
   };
@@ -80,74 +60,86 @@ const Income = () => {
   const renderItem = ({ item }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
-        <Text className="text-white text-lg font-bold">{item.name}</Text>
-        <Text className="text-gray-400">Amount: ${item.amount}</Text>
-        <Text className="text-gray-400">Date: {item.date}</Text>
-        <Text className="text-gray-400">Recurrence: {item.recurrence}</Text>
+        <Text className="text-white text-lg font-bold">{item.source}</Text>
       </View>
       <Text className="text-white text-lg font-bold">${item.amount}</Text>
     </View>
   );
 
-  const data = [
-    { id: "header", type: "header" },
-    ...dummyData.incomeSources.map((source) => ({
-      ...source,
-      type: "incomeSource",
-    })),
-  ];
+  const pieChartData = useMemo(() => {
+    return (
+      data?.map((source, index) => ({
+        name: source.source,
+        amount: source.amount,
+        color: predefinedColors[index % predefinedColors.length],
+        legendFontColor: "#FFF",
+        legendFontSize: 15,
+      })) || []
+    );
+  }, [data]);
 
-  const pieChartData = dummyData.incomeSources.map((source, index) => ({
-    name: source.name,
-    amount: source.amount,
-    color: predefinedColors[index % predefinedColors.length],
-    legendFontColor: "#FFF",
-    legendFontSize: 15,
-  }));
+  const totalIncome = useMemo(() => {
+    return data?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  }, [data]);
+
+  if (error)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Text className="text-white text-center">Failed to load data</Text>
+      </SafeAreaView>
+    );
+
+  if (isLoading)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Spinner size="large" color="white" />
+      </SafeAreaView>
+    );
 
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
-        <FlatList
-          data={data}
-          renderItem={({ item }) => {
-            if (item.type === "header") {
-              return (
-                <View className="mb-5">
-                  <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
-                    <Text className="text-white text-lg mb-2">
-                      Total Income
-                    </Text>
-                    <Text className="text-white text-4xl font-bold">
-                      {dummyData.totalIncome}
-                    </Text>
-                  </View>
-                  <PieChart
-                    data={pieChartData}
-                    width={screenWidth - 40}
-                    height={220}
-                    chartConfig={{
-                      backgroundColor: "#1E2A3B",
-                      backgroundGradientFrom: "#1E2A3B",
-                      backgroundGradientTo: "#1E2A3B",
-                      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                      labelColor: (opacity = 1) =>
-                        `rgba(255, 255, 255, ${opacity})`,
-                    }}
-                    accessor={"amount"}
-                    backgroundColor={"transparent"}
-                    paddingLeft={"15"}
-                    absolute
-                  />
-                  <View className="border-b border-gray-600 mb-5" />
-                </View>
-              );
-            }
-            return renderItem({ item });
-          }}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
-        />
+        <View className="bg-[#1E2A3B] rounded-lg p-5 mt-5 mx-5">
+          <Text className="text-white text-lg mb-2">Total Income</Text>
+          <Text className="text-white text-4xl font-bold">
+            ${totalIncome.toFixed(2)}
+          </Text>
+        </View>
+        {data && data.length > 0 ? (
+          <>
+            <PieChart
+              data={pieChartData}
+              width={screenWidth - 20}
+              height={240}
+              chartConfig={{
+                backgroundColor: "#1E2A3B",
+                backgroundGradientFrom: "#1E2A3B",
+                backgroundGradientTo: "#1E2A3B",
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                decimalPlaces: 2,
+              }}
+              accessor={"amount"}
+              backgroundColor={"transparent"}
+              paddingLeft={"10"}
+              absolute
+              hasLegend={true}
+              center={[0, 0]}
+            />
+            <FlatList
+              data={data}
+              renderItem={({ item }) => renderItem({ item })}
+              keyExtractor={(item) => item.incomesId.toString()}
+              contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+            />
+          </>
+        ) : (
+          <View className="h-[50%] flex items-center justify-center">
+            <Text className="text-white text-2xl font-bold text-center mt-5">
+              No income for this month
+            </Text>
+          </View>
+        )}
 
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
@@ -171,7 +163,7 @@ const Income = () => {
               <Text className="text-white text-lg mb-5">Add Income Source</Text>
               <Controller
                 control={control}
-                name="name"
+                name="source"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     placeholder="Source Name"
@@ -197,10 +189,10 @@ const Income = () => {
               />
               <Controller
                 control={control}
-                name="date"
+                name="monthOfTheYear"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
-                    placeholder="Date Received"
+                    placeholder="Month"
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
@@ -210,10 +202,10 @@ const Income = () => {
               />
               <Controller
                 control={control}
-                name="recurrence"
+                name="year"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
-                    placeholder="Recurrence"
+                    placeholder="Year"
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}

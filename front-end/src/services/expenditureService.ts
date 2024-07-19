@@ -41,3 +41,20 @@ export const getUserBudget = async (userId: string) => {
     throw error;
   }
 };
+
+export const getUserRecentExpenses = async (userId: string) => {
+  try {
+    const response = await axios.get("/auth/v1/expenditure/expenses/recent", {
+      headers: {
+        userId: userId,
+      },
+    });
+
+    const filteredExpenses = response.data.data.filter(
+      (expense) => expense.goals !== null
+    );
+    return filteredExpenses;
+  } catch (error) {
+    throw error;
+  }
+};
