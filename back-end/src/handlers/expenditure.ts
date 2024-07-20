@@ -151,7 +151,57 @@ expenditureAuth.get("/budget/all", async (c) => {
   }
 });
 
-expenditureAuth.patch(
+// req param does not work
+// expenditureAuth.get("/budget/:year", async (c) => {
+//   const userId = Number(c.req.header("userId"));
+//   const year = c.req.param("year");
+//   console.log(year, userId);
+
+//   try {
+//     const expenseRows = await db.query.expenditures.findMany({
+//       where: and(
+//         eq(expenditures.userId, userId),
+//         eq(expenditures.type, "budget"),
+//         eq(expenditures.year, year)
+//       ),
+//       orderBy: [desc(expenditures.monthOfTheYear)]
+//     });
+
+//     if (expenseRows) {
+//       return c.json({ data: expenseRows }, 201);
+//     } else {
+//       return c.json({ message: "Nothing found" }, 404);
+//     }
+//   } catch (err) {
+//     return c.json({ message: "An error occured, try again", error: err });
+//   }
+// });
+
+// expenditureAuth.get("/expenses/:year", async (c) => {
+//   const userId = Number(c.req.header("userId"));
+//   const year = c.req.param("year");
+
+//   try {
+//     const expenseRows = await db.query.expenditures.findMany({
+//       where: and(
+//         eq(expenditures.userId, userId),
+//         eq(expenditures.type, "expenses"),
+//         eq(expenditures.year, year)
+//       ),
+//       orderBy: [desc(expenditures.monthOfTheYear)]
+//     });
+
+//     if (expenseRows) {
+//       return c.json({ data: expenseRows }, 201);
+//     } else {
+//       return c.json({ message: "Nothing found" }, 404);
+//     }
+//   } catch (err) {
+//     return c.json({ message: "An error occured, try again", error: err });
+//   }
+// });
+
+expenditureAuth.put(
   "/update",
   zValidator("json", updateExpenditureSchema, (result, c) => {
     if (!result.success) {
