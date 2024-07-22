@@ -35,6 +35,41 @@ const updateExpenditureSchema = z.object({
 const deleteExpenditureSchema = z.object({
   expendituresId: z.number(),
 });
+const expenditureGetByYearAndMonth = z.object({
+  monthOfTheYear: z.enum(DATEVALUES),
+  type: z.enum(VALUES),
+});
+//this was made post because there is a body being sent with the request
+expenditureAuth.post(
+  "/month",
+  zValidator("json", expenditureGetByYearAndMonth, (result, c) => {
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    const body = await c.req.json();
+
+    const userId = Number(c.req.header("userId"));
+    try {
+      const expenditureRows = await db.query.expenditures.findMany({
+        where: and(
+          eq(expenditures.userId, userId),
+          eq(expenditures.year, body.year),
+          eq(expenditures.monthOfTheYear, body.monthOfTheYear),
+          eq(expenditures.type, body.type),
+        ),
+      });
+      if (expenditureRows) {
+        return c.json({ data: expenditureRows }, 201);
+      } else {
+        return c.json({ message: "Nothing found" }, 404);
+      }
+    } catch (err) {
+      return c.json({ message: "An error occured, try again", error: err });
+    }
+  },
+);
 
 expenditure.get("/categories", async (c) => {
   try {
@@ -107,7 +142,7 @@ expenditureAuth.post(
         error: err,
       });
     }
-  }
+  },
 );
 
 expenditureAuth.get("/expenses/all", async (c) => {
@@ -116,7 +151,7 @@ expenditureAuth.get("/expenses/all", async (c) => {
     const expenseRows = await db.query.expenditures.findMany({
       where: or(
         eq(expenditures.userId, userId),
-        eq(expenditures.type, "expenses")
+        eq(expenditures.type, "expenses"),
       ),
     });
 
@@ -137,7 +172,7 @@ expenditureAuth.get("/budget/all", async (c) => {
     const expenseRows = await db.query.expenditures.findMany({
       where: or(
         eq(expenditures.userId, userId),
-        eq(expenditures.type, "budget")
+        eq(expenditures.type, "budget"),
       ),
     });
 
@@ -180,13 +215,16 @@ expenditureAuth.patch(
             and(
               eq(expenditures.userId, userId),
               eq(expenditures.type, body.type),
-              eq(expenditures.expendituresId, body.expendituresId)
-            )
-          ).returning();
+              eq(expenditures.expendituresId, body.expendituresId),
+            ),
+          )
+          .returning();
       } else if (body.categoriesId === 7 && body.goalsId && !goalId) {
         return c.json({ error: "Goal specified does not exist for user" }, 404);
       } else {
-        await db.update(expenditures).set({
+        await db
+          .update(expenditures)
+          .set({
             amount: body.amount,
             monthOfTheYear: body.monthOfTheYear,
             year: body.year,
@@ -197,17 +235,17 @@ expenditureAuth.patch(
             and(
               eq(expenditures.userId, userId),
               eq(expenditures.type, body.type),
-              eq(expenditures.expendituresId, body.expendituresId)
-            )
+              eq(expenditures.expendituresId, body.expendituresId),
+            ),
           );
-      }  
+      }
 
       const expenditureRow = await db.query.expenditures.findFirst({
         where: and(
           eq(expenditures.userId, userId),
           eq(expenditures.type, body.type),
-          eq(expenditures.expendituresId, body.expendituresId)
-        )
+          eq(expenditures.expendituresId, body.expendituresId),
+        ),
       });
 
       if (expenditureRow) {
@@ -216,7 +254,7 @@ expenditureAuth.patch(
             message: `${body.type} updated successfully`,
             data: expenditureRow,
           },
-          201
+          201,
         );
       } else {
         return c.json({ error: "An error occured, check the type" }, 400);
@@ -224,7 +262,7 @@ expenditureAuth.patch(
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
     }
-  }
+  },
 );
 
 interface deletedExpenditure {
@@ -253,24 +291,28 @@ expenditureAuth.delete(
       return c.json({ error: "No expenditure specified" }, 400);
     } else {
       try {
-        const expenditureRow: deletedExpenditure[] = await db.delete(expenditures)
+        const expenditureRow: deletedExpenditure[] = await db
+          .delete(expenditures)
           .where(eq(expenditures.expendituresId, body.expendituresId))
-          .returning({ expendituresId: expenditures.expendituresId, expendituresType: expenditures.type });
+          .returning({
+            expendituresId: expenditures.expendituresId,
+            expendituresType: expenditures.type,
+          });
 
         return c.json(
           {
             message: `${expenditureRow[0].expendituresType} ${expenditureRow[0].expendituresId} deleted successfully`,
           },
-          404
+          404,
         );
       } catch (err: any) {
         return c.json(
           { error: "Expenditure does not exist", message: err },
-          404
+          404,
         );
       }
     }
-  }
+  },
 );
 
 expenditureAuth.get("/budget/recent", async (c) => {
@@ -279,7 +321,7 @@ expenditureAuth.get("/budget/recent", async (c) => {
     const expenditureRows = await db.query.expenditures.findMany({
       where: and(
         eq(expenditures.userId, userId),
-        eq(expenditures.type, "budget")
+        eq(expenditures.type, "budget"),
       ),
       limit: 15,
       orderBy: [asc(expenditures.createdAt)],
