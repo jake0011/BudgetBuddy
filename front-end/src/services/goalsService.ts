@@ -15,3 +15,27 @@ export const getGoals = async (userId: string) => {
     throw error;
   }
 };
+
+export const addGoal = async (
+  userId: string,
+  title: string,
+  amount: number
+) => {
+  try {
+    const response = await axios.post(
+      "/auth/v1/goal/add",
+      {
+        title,
+        amount,
+      },
+      {
+        headers: {
+          userId: userId,
+        },
+      }
+    );
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
