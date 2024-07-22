@@ -64,9 +64,9 @@ const Budget = () => {
       categoryType: "",
       category: "",
       amount: "",
+      goal: "",
     },
   });
-  const categoryType = watch("categoryType");
   const user = useAuthStore((state) => state.user);
   const tabDate = useDateStore((state) => state.tabDate);
 
@@ -91,13 +91,17 @@ const Budget = () => {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
+      const selectedCategory = categoriesData.find(
+        (cat) => cat.name === data.category
+      );
+
       const response = await addExpenditure(user?.userId, {
         amount: data.amount,
         month: tabDate.month,
         year: tabDate.year,
         type: "budget",
-        categoriesId: categoriesData.find((cat) => cat.name === data.category)
-          ?.categoriesId,
+        categoriesId: selectedCategory?.categoriesId || 7,
+        goalsId: data.goal || null,
       });
       Toast.show({
         type: "success",
@@ -372,24 +376,64 @@ const Budget = () => {
           control={control}
           errors={errors}
           inputs={[
+            { name: "amount", placeholder: "Amount", keyboardType: "numeric" },
+          ]}
+          selects={[
             {
               name: "categoryType",
-              placeholder: "Category Type",
-              keyboardType: "ascii-capable",
+              placeholder: "Select Category Type",
+              items: [
+                { label: "Living Expenses", value: "living" },
+                { label: "Savings", value: "savings" },
+              ],
+              label: "Category Type",
+              watch: watch,
             },
             {
               name: "category",
-              placeholder: "Category",
-              keyboardType: "ascii-capable",
+              placeholder: "Select Subcategory",
+              items: categoriesData
+                .filter((cat) => cat.categoriesId !== 7)
+                .map((cat) => ({ label: cat.name, value: cat.name })),
+              label: "Subcategory",
+              dependentOn: "categoryType",
+              dependentItems: {
+                living: categoriesData
+                  .filter((cat) => cat.categoriesId !== 7)
+                  .map((cat) => ({ label: cat.name, value: cat.name })),
+                savings: [
+                  { label: "Goals", value: "goals" },
+                  { label: "General", value: "general" },
+                ],
+              },
+              watch: watch,
             },
-            { name: "amount", placeholder: "Amount", keyboardType: "numeric" },
+            {
+              name: "goal",
+              placeholder: "Select Goal",
+              items: goalsData.map((goal) => ({
+                label: goal.title,
+                value: goal.goalsId,
+              })),
+              label: "Goal",
+              dependentOn: "category",
+              dependentItems: {
+                goals: goalsData.map((goal) => ({
+                  label: goal.title,
+                  value: goal.goalsId,
+                })),
+              },
+              watch: watch,
+            },
           ]}
           buttons={[
             { label: "Save", color: "blue", onPress: handleSubmit(onSubmit) },
             {
               label: "Cancel",
               color: "red",
-              onPress: () => setModalVisible(false),
+              onPress: () => {
+                setModalVisible(false), reset();
+              },
             },
           ]}
           loading={loading}

@@ -51,7 +51,7 @@ export const getUserBudget = async (
     }
     const monthOfTheYear = getMonthName(month);
     const response = await axios.post(
-      "/auth/v1/expenditure/budget/all",
+      "/auth/v1/expenditure/month",
       { monthOfTheYear, year, type: "budget" },
       {
         headers: {

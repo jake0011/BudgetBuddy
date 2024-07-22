@@ -46,7 +46,6 @@ const expenseSchema = z.object({
   categoryType: z.string().min(1, "Category type is required"),
   category: z.string().min(1, "Category is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
-  goal: z.number().optional(),
 });
 
 const Expenses = () => {
@@ -115,7 +114,6 @@ const Expenses = () => {
       });
       mutate();
     } catch (error) {
-      console.log(error);
       Toast.show({
         type: "error",
         text1: error.response?.data?.error || error.message,
