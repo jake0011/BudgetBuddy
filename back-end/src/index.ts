@@ -15,7 +15,7 @@ app.use("/auth/*", async (c, next) => {
   try {
     const decodedPayload = await verify(
       c.req.header("Authorization") || "header",
-      process.env?.JWT_SECRET_KEY || "mySecretKey"
+      process.env?.JWT_SECRET_KEY || "mySecretKey",
     );
     //INFO: I used the headers because there is no known way for me to access
     //the request parameters over here

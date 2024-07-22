@@ -110,22 +110,22 @@ incomeAuth.post(
 
     try {
       //find out if there is a way to do this in your database by using some constraint and then catching an error code
-      const incomeForMonth = await db.query.incomes.findFirst({
-        where: and(
-          eq(incomes.userId, userId),
-          eq(incomes.year, body.year),
-          eq(incomes.monthOfTheYear, body.monthOfTheYear),
-        ),
-      });
-
-      if (incomeForMonth) {
-        return c.json(
-          {
-            error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
-          },
-          400,
-        );
-      } else {
+      // const incomeForMonth = await db.query.incomes.findFirst({
+      //   where: and(
+      //     eq(incomes.userId, userId),
+      //     eq(incomes.year, body.year),
+      //     eq(incomes.monthOfTheYear, body.monthOfTheYear),
+      //   ),
+      // });
+      //
+      // if (incomeForMonth) {
+      //   return c.json(
+      //     {
+      //       error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
+      //     },
+      //     400,
+      //   );
+      // } else {
         await db.insert(incomes).values({
           amount: body.amount,
           userId: userId,
@@ -133,7 +133,7 @@ incomeAuth.post(
           year: body.year,
           source: body.source,
         });
-      }
+      // }
       return c.json({ message: `Income added for user` }, 201);
     } catch (err) {
       return c.json({ message: "An error occured, try again", error: err });
