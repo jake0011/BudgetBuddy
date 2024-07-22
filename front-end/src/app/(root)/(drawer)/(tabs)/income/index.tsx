@@ -149,7 +149,12 @@ const Income = () => {
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
-        <View className="bg-[#1E2A3B] rounded-lg p-5 mt-5 mx-5">
+        <View
+          className="bg-[#1E2A3B] rounded-lg p-5 mx-5"
+          style={{
+            marginTop: 20,
+          }}
+        >
           <Text className="text-white text-lg mb-2">Total Income</Text>
           <Text className="text-white text-4xl font-bold">
             ${totalIncome.toFixed(2)}
