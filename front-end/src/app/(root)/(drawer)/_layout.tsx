@@ -43,7 +43,7 @@ export default function DrawerLayout() {
                 onPress={() => {
                   router.navigate("(drawer)");
                 }}
-                style={{ marginLeft: 2 }}
+                className="ml-2"
               />
             ),
             headerRight: () => (
