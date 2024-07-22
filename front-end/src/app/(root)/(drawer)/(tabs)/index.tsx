@@ -6,6 +6,7 @@ import useSWR from "swr";
 import { useAuthStore } from "@/stores/auth";
 import { getSummaryData } from "@/services/incomeService";
 import { Spinner } from "tamagui";
+import { useDateStore } from "@/stores/date";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -19,12 +20,16 @@ const tips = [
 const Dashboard = () => {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const user = useAuthStore((state) => state.user);
+  const tabDate = useDateStore((state) => state.tabDate);
 
   const fetcher = useCallback(async () => {
-    return await getSummaryData(user?.userId);
+    return await getSummaryData(user?.userId, tabDate.month, tabDate.year);
   }, [user?.userId]);
 
-  const { data, error, isLoading } = useSWR(`/summary/data`, fetcher);
+  const { data, error, isLoading } = useSWR(
+    `/summary/data/${tabDate.month}/${tabDate.year}`,
+    fetcher
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {

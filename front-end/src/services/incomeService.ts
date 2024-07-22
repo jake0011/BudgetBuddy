@@ -5,33 +5,83 @@ import {
   getUserRecentExpenses,
 } from "@/services/expenditureService";
 import { getGoals } from "@/services/goalsService";
+import { getMonthName } from "@/helpers/monthConverter";
 
-export const getIncome = async (userId: string) => {
+export const getIncome = async (
+  userId: string,
+  month: number,
+  year: number
+) => {
+  const monthOfTheYear = getMonthName(month);
   try {
-    const response = await axios.get("/auth/v1/income/all", {
-      headers: {
-        userId,
+    const response = await axios.post(
+      "/auth/v1/income/month",
+      {
+        monthOfTheYear,
+        year,
       },
-    });
+      {
+        headers: {
+          userId,
+        },
+      }
+    );
 
     return response.data.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const addIncome = async (
+  userId: string,
+  month: number,
+  year: number,
+  amount: number,
+  source: string
+) => {
+  try {
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+    const monthOfTheYear = getMonthName(month);
+    const response = await axios.post(
+      "/auth/v1/income/add",
+      {
+        source,
+        amount,
+        monthOfTheYear,
+        year,
+      },
+      {
+        headers: {
+          userId,
+        },
+      }
+    );
+
+    return response.data.message;
   } catch (error) {
     throw error;
   }
 };
 
-export const getSummaryData = async (userId: string) => {
+export const getSummaryData = async (
+  userId: string,
+  month: number,
+  year: number
+) => {
   try {
     const [income, expenses, recentExpenses, goals, categories] =
       await Promise.all([
-        getIncome(userId),
-        getUserExpenses(userId),
+        getIncome(userId, month, year),
+        getUserExpenses(userId, month, year),
         getUserRecentExpenses(userId),
         getGoals(userId),
         getExpenditureCategories(),
       ]);
 
-    // Map categories to recent expenses
     const recentExpensesWithNames = recentExpenses.map((expense) => {
       const category = categories.find(
         (cat) => cat.categoriesId === expense.categoriesId
@@ -53,16 +103,19 @@ export const getSummaryData = async (userId: string) => {
   }
 };
 
-export const getReportData = async (userId: string) => {
+export const getReportData = async (
+  userId: string,
+  month: number,
+  year: number
+) => {
   try {
     const [income, expenses, goals, categories] = await Promise.all([
-      getIncome(userId),
-      getUserExpenses(userId),
+      getIncome(userId, month, year),
+      getUserExpenses(userId, month, year),
       getGoals(userId),
       getExpenditureCategories(),
     ]);
 
-    // Sum expenses by category
     const expensesByCategory = expenses.reduce((acc, expense) => {
       const category = categories.find(
         (cat) => cat.categoriesId === expense.categoriesId
@@ -83,7 +136,6 @@ export const getReportData = async (userId: string) => {
       return acc;
     }, {});
 
-    // Convert expensesByCategory to an array
     const expensesArray = Object.values(expensesByCategory);
 
     return {

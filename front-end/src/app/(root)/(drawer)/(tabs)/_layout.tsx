@@ -4,12 +4,13 @@ import { Tabs, usePathname } from "expo-router";
 import React, { useState } from "react";
 import { View, Image } from "react-native";
 import CustomDatePicker from "@/components/global/CustomDatePicker";
+import { useDateStore } from "@/stores/date";
 
 export default function TabsLayout() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const setTabDate = useDateStore((state) => state.setTabDate);
 
   const handleDateChange = (date: Date) => {
-    setSelectedDate(date);
+    setTabDate(date.getMonth(), date.getFullYear());
   };
 
   return (

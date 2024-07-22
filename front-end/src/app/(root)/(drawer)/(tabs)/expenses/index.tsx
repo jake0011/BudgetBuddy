@@ -25,6 +25,7 @@ import {
 import useSWR from "swr";
 import { useAuthStore } from "@/stores/auth";
 import { getGoals } from "@/services/goalsService";
+import { useDateStore } from "@/stores/date";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -48,11 +49,12 @@ const Expenses = () => {
   const categoryType = watch("categoryType");
   const savingsType = watch("savingsType");
   const user = useAuthStore((state) => state.user);
+  const tabDate = useDateStore((state) => state.tabDate);
 
   const fetcher = useCallback(async () => {
     const [categories, expenses, goals] = await Promise.all([
       getExpenditureCategories(),
-      getUserExpenses(user?.userId),
+      getUserExpenses(user?.userId, tabDate.month, tabDate.year),
       getGoals(user?.userId),
     ]);
     return { categories, expenses, goals };
@@ -290,7 +292,7 @@ const Expenses = () => {
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
-        <View className="bg-[#1E2A3B] rounded-lg p-5 mt-5 mx-5">
+        <View className="bg-[#1E2A3B] rounded-lg p-5 mt-6 mx-5">
           <Text className="text-white text-lg mb-2">Total Expenses</Text>
           <Text className="text-white text-4xl font-bold">
             ${totalExpensesAmount.toFixed(2)}

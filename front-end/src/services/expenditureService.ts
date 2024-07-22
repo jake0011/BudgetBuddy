@@ -1,3 +1,4 @@
+import { getMonthName } from "@/helpers/monthConverter";
 import axios from "@/utils/axios";
 
 export const getExpenditureCategories = async () => {
@@ -9,16 +10,29 @@ export const getExpenditureCategories = async () => {
   }
 };
 
-export const getUserExpenses = async (userId: string) => {
+export const getUserExpenses = async (
+  userId: string,
+  month: number,
+  year: number
+) => {
   try {
     if (!userId) {
       throw new Error("User ID is required");
     }
-    const response = await axios.get("/auth/v1/expenditure/expenses/all", {
-      headers: {
-        userId: userId,
+    const monthOfTheYear = getMonthName(month);
+    const response = await axios.post(
+      "/auth/v1/expenditure/month",
+      {
+        monthOfTheYear,
+        year,
+        type: "expenses",
       },
-    });
+      {
+        headers: {
+          userId: userId,
+        },
+      }
+    );
     return response.data.data;
   } catch (error) {
     console.error(error);
@@ -26,16 +40,25 @@ export const getUserExpenses = async (userId: string) => {
   }
 };
 
-export const getUserBudget = async (userId: string) => {
+export const getUserBudget = async (
+  userId: string,
+  month: number,
+  year: number
+) => {
   try {
     if (!userId) {
       throw new Error("User ID is required");
     }
-    const response = await axios.get("/auth/v1/expenditure/budget/all", {
-      headers: {
-        userId: userId,
-      },
-    });
+    const monthOfTheYear = getMonthName(month);
+    const response = await axios.post(
+      "/auth/v1/expenditure/budget/all",
+      { monthOfTheYear, year, type: "budget" },
+      {
+        headers: {
+          userId: userId,
+        },
+      }
+    );
     return response.data.data;
   } catch (error) {
     throw error;

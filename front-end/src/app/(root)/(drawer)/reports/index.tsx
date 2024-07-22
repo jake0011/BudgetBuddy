@@ -15,6 +15,7 @@ import useSWR from "swr";
 import { useAuthStore } from "@/stores/auth";
 import { getReportData } from "@/services/incomeService";
 import { Spinner } from "tamagui";
+import { useDateStore } from "@/stores/date";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -89,44 +90,54 @@ const Expenses = ({ data }) => {
 
   return (
     <ScrollView style={{ padding: 20 }}>
-      <PieChart
-        data={filteredExpenses.map((expense, index) => ({
-          name: expense.categoryName,
-          amount: expense.amount,
-          color: predefinedColors[index % predefinedColors.length],
-          legendFontColor: "#FFF",
-          legendFontSize: 15,
-        }))}
-        width={screenWidth - 40}
-        height={220}
-        chartConfig={{
-          backgroundColor: "#1E2A3B",
-          backgroundGradientFrom: "#1E2A3B",
-          backgroundGradientTo: "#1E2A3B",
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          decimalPlaces: 2,
-        }}
-        accessor={"amount"}
-        backgroundColor={"transparent"}
-        paddingLeft={"15"}
-        absolute
-        hasLegend={true}
-        center={[0, 0]}
-      />
-      {filteredExpenses.map((expense, index) => (
-        <View
-          key={index}
-          className="bg-[#1E2A3B] flex flex-row justify-between rounded-lg p-5 mb-5"
-        >
-          <Text className="text-white text-lg font-bold">
-            {expense.categoryName}
-          </Text>
-          <Text className="text-gray-200 font-semibold">
-            GHS {expense.amount}
+      {filteredExpenses.length > 0 ? (
+        <>
+          <PieChart
+            data={filteredExpenses.map((expense, index) => ({
+              name: expense.categoryName,
+              amount: expense.amount,
+              color: predefinedColors[index % predefinedColors.length],
+              legendFontColor: "#FFF",
+              legendFontSize: 15,
+            }))}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={{
+              backgroundColor: "#1E2A3B",
+              backgroundGradientFrom: "#1E2A3B",
+              backgroundGradientTo: "#1E2A3B",
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              decimalPlaces: 2,
+            }}
+            accessor={"amount"}
+            backgroundColor={"transparent"}
+            paddingLeft={"15"}
+            absolute
+            hasLegend={true}
+            center={[0, 0]}
+          />
+          {filteredExpenses.map((expense, index) => (
+            <View
+              key={index}
+              className="bg-[#1E2A3B] flex flex-row justify-between rounded-lg p-5 mb-5"
+            >
+              <Text className="text-white text-lg font-bold">
+                {expense.categoryName}
+              </Text>
+              <Text className="text-gray-200 font-semibold">
+                GHS {expense.amount}
+              </Text>
+            </View>
+          ))}
+        </>
+      ) : (
+        <View className="h-[70vh] flex items-center justify-center">
+          <Text className="text-white text-2xl font-bold text-center mt-5">
+            No expenses for this month
           </Text>
         </View>
-      ))}
+      )}
     </ScrollView>
   );
 };
@@ -225,9 +236,11 @@ const Savings = ({ data }) => {
           </View>
         ))
       ) : (
-        <Text className="text-white text-lg font-bold">
-          No savings expenses
-        </Text>
+        <View className="h-[70vh] flex items-center justify-center">
+          <Text className="text-white text-2xl font-bold text-center mt-5">
+            No savings expenses
+          </Text>
+        </View>
       )}
     </ScrollView>
   );
@@ -243,10 +256,11 @@ const Reports = () => {
   ]);
 
   const user = useAuthStore((state) => state.user);
+  const drawerDate = useDateStore((state) => state.drawerDate);
 
   const fetcher = useCallback(async () => {
-    return await getReportData(user?.userId);
-  }, [user?.userId]);
+    return await getReportData(user?.userId, drawerDate.month, drawerDate.year);
+  }, [user?.userId, drawerDate.month, drawerDate.year]);
 
   const { data, error, isLoading } = useSWR(`/report/data`, fetcher);
 
