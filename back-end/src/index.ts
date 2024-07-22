@@ -21,7 +21,7 @@ app.use("/auth/*", async (c, next) => {
     //the request parameters over here
 
     //consider remomving this when in production and application is actually working
-    console.log(decodedPayload.exp);
+    // console.log(decodedPayload.exp);
 
     if (!Number(c.req.header("userId"))) {
       return c.json({ error: "No userId specified in request headers" }, 403);

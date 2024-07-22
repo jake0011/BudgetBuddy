@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { incomes } from "../db/schema/incomes.ts";
 import { db } from "../db/db";
-import { goals } from "../db/schema/goals.ts";
+// import { goals } from "../db/schema/goals.ts";
 
 export const income = new Hono().basePath("v1/income");
 export const incomeAuth = new Hono().basePath("auth/v1/income");
@@ -43,6 +43,43 @@ const deleteIncomeSchema = z.object({
   incomesId: z.number(),
 });
 
+const inputForIncome = z.object({
+  monthOfTheYear: z.enum(DATEVALUES),
+  year: z.number(),
+});
+//this was made post because there is a body being sent with the request
+incomeAuth.post(
+  "/month",
+  zValidator("json", inputForIncome, (result, c) => {
+    
+    if (!result.success) {
+      return c.json({ error: "Invalid Input" }, 415);
+    }
+  }),
+  async (c) => {
+    
+    const body = await c.req.json();
+    
+    const userId = Number(c.req.header("userId"));
+    try {
+      const incomeRows = await db.query.incomes.findMany({
+        where: and(
+          eq(incomes.userId, userId),
+          eq(incomes.year, body.year),
+          eq(incomes.monthOfTheYear, body.monthOfTheYear),
+        ),
+      });
+      if (incomeRows) {
+        return c.json({ data: incomeRows }, 201);
+      } else {
+        return c.json({ message: "Nothing found" }, 404);
+      }
+    } catch (err) {
+      return c.json({ message: "An error occured, try again", error: err });
+    }
+  },
+);
+
 incomeAuth.get("/all", async (c) => {
   const userId = Number(c.req.header("userId"));
   try {
@@ -77,7 +114,7 @@ incomeAuth.post(
         where: and(
           eq(incomes.userId, userId),
           eq(incomes.year, body.year),
-          eq(incomes.monthOfTheYear, body.monthOfTheYear)
+          eq(incomes.monthOfTheYear, body.monthOfTheYear),
         ),
       });
 
@@ -86,7 +123,7 @@ incomeAuth.post(
           {
             error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
           },
-          400
+          400,
         );
       } else {
         await db.insert(incomes).values({
@@ -100,8 +137,9 @@ incomeAuth.post(
       return c.json({ message: `Income added for user` }, 201);
     } catch (err) {
       return c.json({ message: "An error occured, try again", error: err });
-  };   
-});
+    }
+  },
+);
 
 incomeAuth.patch(
   "/update",
@@ -119,7 +157,7 @@ incomeAuth.patch(
         where: and(
           eq(incomes.userId, userId),
           eq(incomes.year, body.year),
-          eq(incomes.monthOfTheYear, body.monthOfTheYear)
+          eq(incomes.monthOfTheYear, body.monthOfTheYear),
         ),
       });
 
@@ -128,45 +166,48 @@ incomeAuth.patch(
           {
             error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
           },
-          400
+          400,
         );
       } else {
-      await db.update(incomes).set({
-          amount: body.amount,
-          monthOfTheYear: body.monthOfTheYear,
-          year: body.year,
-          source: body.source,
-        })
-        .where(
-          and(
-            eq(incomes.userId, userId),
-            eq(incomes.incomesId, body.incomesId)
-          )
-        );
+        await db
+          .update(incomes)
+          .set({
+            amount: body.amount,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            source: body.source,
+          })
+          .where(
+            and(
+              eq(incomes.userId, userId),
+              eq(incomes.incomesId, body.incomesId),
+            ),
+          );
       }
-      
+
       const incomeRow = await db.query.incomes.findFirst({
         where: and(
-                eq(incomes.userId, userId),
-                eq(incomes.incomesId, body.incomesId)
-              )
+          eq(incomes.userId, userId),
+          eq(incomes.incomesId, body.incomesId),
+        ),
       });
-      
+
       if (!incomeRow) {
-        return c.json({ error: "Nothing found"}, 404);
+        return c.json({ error: "Nothing found" }, 404);
       } else {
         return c.json(
           {
             message: `Income updated successfully`,
             data: incomeRow,
           },
-          201
+          201,
         );
       }
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
-  }
-});
+    }
+  },
+);
 
 interface deletedIncome {
   incomeId: number;
@@ -202,11 +243,11 @@ incomeAuth.delete(
           {
             message: `Income ${deletedIncomeRow[0].incomeId} deleted successfully`,
           },
-          404
+          404,
         );
       } catch (err: any) {
         return c.json({ error: "Income does not exist", message: err }, 404);
       }
     }
-  }
+  },
 );
