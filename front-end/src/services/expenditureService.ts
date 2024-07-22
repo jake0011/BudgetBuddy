@@ -81,3 +81,41 @@ export const getUserRecentExpenses = async (userId: string) => {
     throw error;
   }
 };
+
+export const addExpenditure = async (
+  userId: string,
+  expenditureData: {
+    amount: number;
+    month: number;
+    year: number;
+    type: string;
+    categoriesId: number;
+    goalsId?: number;
+  }
+) => {
+  try {
+    const monthOfTheYear = getMonthName(expenditureData.month);
+
+    const response = await axios.post(
+      "/auth/v1/expenditure/add",
+      {
+        amount: expenditureData.amount,
+        monthOfTheYear,
+        year: expenditureData.year,
+        type: expenditureData.type,
+        categoriesId: expenditureData.categoriesId,
+        ...(expenditureData.goalsId !== null && {
+          goalsId: expenditureData.goalsId,
+        }),
+      },
+      {
+        headers: {
+          userId: userId,
+        },
+      }
+    );
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};

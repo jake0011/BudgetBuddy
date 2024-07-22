@@ -16,12 +16,16 @@ interface SelectProps {
   placeholder: string;
   items: { label: string; value: any }[];
   label: string;
+  dependentOn?: string;
+  dependentItems?: { [key: string]: { label: string; value: any }[] };
+  watch?: any; // Add watch as an optional prop
 }
 
 interface ButtonProps {
   label: string;
   color: string;
   onPress?: () => void;
+  loading?: boolean;
 }
 
 interface CustomModalProps {
@@ -72,16 +76,20 @@ const CustomModal: React.FC<CustomModalProps> = ({
                 <View className="w-full flex-col gap-2 justify-start">
                   <TextInput
                     keyboardType={input.keyboardType}
-                    label={input.placeholder}
+                    placeholder={input.placeholder}
                     onBlur={onBlur}
-                    onChangeText={(text) => {
-                      if (input.keyboardType === "numeric") {
-                        onChange(parseFloat(text) || 0);
-                      } else {
-                        onChange(text);
-                      }
-                    }}
-                    value={value}
+                    onChangeText={(text) =>
+                      onChange(
+                        input.keyboardType === "numeric" && text !== ""
+                          ? parseFloat(text)
+                          : text
+                      )
+                    }
+                    value={
+                      value !== undefined && value !== null
+                        ? value.toString()
+                        : ""
+                    }
                     error={!!errors[input.name]}
                     outlineColor="gray"
                     style={{ height: 45 }}
@@ -96,22 +104,41 @@ const CustomModal: React.FC<CustomModalProps> = ({
               )}
             />
           ))}
-          {selects.map((select, index) => (
-            <Controller
-              key={index}
-              control={control}
-              name={select.name}
-              render={({ field: { onChange, value } }) => (
-                <CustomSelect
-                  value={value}
-                  onValueChange={onChange}
-                  placeholder={select.placeholder}
-                  items={select.items}
-                  label={select.label}
-                />
-              )}
-            />
-          ))}
+          {selects.map((select, index) => {
+            const dependentValue = select.dependentOn
+              ? select.watch?.(select.dependentOn)
+              : null;
+            const items = dependentValue
+              ? select.dependentItems?.[dependentValue] || []
+              : select.items;
+
+            if (select.dependentOn && !dependentValue) return null;
+            if (select.name === "goal" && dependentValue !== "goals")
+              return null; // Specific check for "goals"
+            return (
+              <Controller
+                key={index}
+                control={control}
+                name={select.name}
+                render={({ field: { onChange, value } }) => (
+                  <View className="w-full flex-col gap-2 justify-start">
+                    <CustomSelect
+                      value={value}
+                      onValueChange={onChange}
+                      placeholder={select.placeholder}
+                      items={items}
+                      label={select.label}
+                    />
+                    {errors[select.name] && (
+                      <Text className="text-red-500">
+                        {errors[select.name]?.message?.toString()}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              />
+            );
+          })}
           <View className="flex-row justify-between">
             {buttons.map((button, index) => (
               <TouchableOpacity

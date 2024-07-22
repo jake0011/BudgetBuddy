@@ -8,25 +8,24 @@ import {
   Dimensions,
   SectionList,
 } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { Input, Spinner } from "tamagui";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import {
-  Modal as PaperModal,
-  Button as PaperButton,
-  Portal,
-} from "react-native-paper";
-import CustomSelect from "@/components/global/CustomSelect";
+import useSWR from "swr";
 import {
   getExpenditureCategories,
   getUserBudget,
+  addExpenditure,
 } from "@/services/expenditureService";
-import { getGoals } from "@/services/goalsService";
-import useSWR from "swr";
 import { useAuthStore } from "@/stores/auth";
 import { useDateStore } from "@/stores/date";
+import CustomModal from "@/components/global/CustomModal";
+import Toast from "react-native-toast-message";
+import { TabBar, TabView } from "react-native-tab-view";
+import { getGoals } from "@/services/goalsService";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -44,11 +43,30 @@ const predefinedColors = [
   "#00FFFF",
 ];
 
-const Expenses = () => {
+const budgetSchema = z.object({
+  categoryType: z.string().min(1, "Category type is required"),
+  category: z.string().min(1, "Category is required"),
+  amount: z.number().min(0.01, "Amount must be greater than 0"),
+});
+
+const Budget = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const { control, handleSubmit, reset, watch } = useForm();
+  const [loading, setLoading] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(budgetSchema),
+    defaultValues: {
+      categoryType: "",
+      category: "",
+      amount: "",
+    },
+  });
   const categoryType = watch("categoryType");
-  const savingsType = watch("savingsType");
   const user = useAuthStore((state) => state.user);
   const tabDate = useDateStore((state) => state.tabDate);
 
@@ -59,21 +77,56 @@ const Expenses = () => {
       getGoals(user?.userId),
     ]);
     return { categories, budget, goals };
-  }, [user?.userId]);
+  }, [user?.userId, tabDate.month, tabDate.year]);
 
-  const { data, error, isLoading } = useSWR(`/expenditure/data`, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(
+    `/expenditure/data`,
+    fetcher
+  );
 
   const categoriesData = data?.categories || [];
   const budgetData = data?.budget || [];
   const goalsData = data?.goals || [];
 
-  const onSubmit = (data) => {
-    console.log(data);
-    reset();
-    setModalVisible(false);
+  const onSubmit = async (data: any) => {
+    setLoading(true);
+    try {
+      const response = await addExpenditure(user?.userId, {
+        amount: data.amount,
+        month: tabDate.month,
+        year: tabDate.year,
+        type: "budget",
+        categoriesId: categoriesData.find((cat) => cat.name === data.category)
+          ?.categoriesId,
+      });
+      Toast.show({
+        type: "success",
+        text1: response,
+        text1Style: {
+          color: "green",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+      mutate();
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+      reset();
+      setModalVisible(false);
+    }
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: any }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
         <Text className={`text-white text-lg font-bold`}>{item?.name}</Text>
@@ -136,7 +189,6 @@ const Expenses = () => {
 
     return initialCategorizedBudget;
   }, [categoriesData, budgetData, goalsData]);
-
   const totalBudgetAmount = useMemo(() => {
     return (
       categorizedBudget.living.reduce(
@@ -312,137 +364,39 @@ const Expenses = () => {
         >
           <Plus color="white" size={28} />
         </TouchableOpacity>
-        <Portal>
-          <PaperModal
-            visible={modalVisible}
-            onDismiss={() => setModalVisible(false)}
-            contentContainerStyle={{
-              backgroundColor: "#1E2A3B",
-              padding: 20,
-              margin: 20,
-              borderRadius: 10,
-            }}
-          >
-            <View className="flex gap-4 rounded-lg p-5 w-11/12">
-              <Text className="text-white text-lg mb-5">Add Budget</Text>
-              <Controller
-                control={control}
-                name="categoryType"
-                render={({ field: { onChange, value } }) => (
-                  <CustomSelect
-                    value={value}
-                    onValueChange={onChange}
-                    placeholder="Select Category Type"
-                    items={[
-                      { label: "Living Expenses", value: "living" },
-                      { label: "Savings", value: "savings" },
-                    ]}
-                    label="Category Type"
-                  />
-                )}
-              />
-              {categoryType === "living" && (
-                <Controller
-                  control={control}
-                  name="category"
-                  render={({ field: { onChange, value } }) => (
-                    <CustomSelect
-                      value={value}
-                      onValueChange={onChange}
-                      placeholder="Select Subcategory"
-                      items={categoriesData
-                        ?.filter((cat) => cat.categoriesId !== 7)
-                        .map((cat) => ({ label: cat.name, value: cat.name }))}
-                      label="Subcategory"
-                    />
-                  )}
-                />
-              )}
-              {categoryType === "savings" && (
-                <>
-                  <Controller
-                    control={control}
-                    name="savingsType"
-                    render={({ field: { onChange, value } }) => (
-                      <CustomSelect
-                        value={value}
-                        onValueChange={onChange}
-                        placeholder="Select Savings Type"
-                        items={[
-                          { label: "Goals", value: "goals" },
-                          { label: "General", value: "general" },
-                        ]}
-                        label="Savings Type"
-                      />
-                    )}
-                  />
-                  {savingsType === "goals" && (
-                    <Controller
-                      control={control}
-                      name="goal"
-                      render={({ field: { onChange, value } }) => (
-                        <CustomSelect
-                          value={value}
-                          onValueChange={onChange}
-                          placeholder="Select Goal"
-                          items={goalsData.map((goal) => ({
-                            label: goal.title,
-                            value: goal.goalsId,
-                          }))}
-                          label="Goal"
-                        />
-                      )}
-                    />
-                  )}
-                  {savingsType === "general" && (
-                    <Controller
-                      control={control}
-                      name="generalSavings"
-                      render={({ field: { onChange, value } }) => (
-                        <Input
-                          placeholder="General Savings"
-                          onChangeText={onChange}
-                          value={value}
-                          className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                        />
-                      )}
-                    />
-                  )}
-                </>
-              )}
-              <Controller
-                control={control}
-                name="amount"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Budgeted Amount"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                  />
-                )}
-              />
-              <PaperButton
-                mode="contained"
-                onPress={handleSubmit(onSubmit)}
-                className="bg-blue-500 text-white p-2 rounded-lg mb-4"
-              >
-                Save
-              </PaperButton>
-              <PaperButton
-                mode="contained"
-                onPress={() => setModalVisible(false)}
-                className="bg-red-500 text-white p-2 rounded-lg"
-              >
-                Cancel
-              </PaperButton>
-            </View>
-          </PaperModal>
-        </Portal>
+
+        <CustomModal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          title="Add Budget"
+          control={control}
+          errors={errors}
+          inputs={[
+            {
+              name: "categoryType",
+              placeholder: "Category Type",
+              keyboardType: "ascii-capable",
+            },
+            {
+              name: "category",
+              placeholder: "Category",
+              keyboardType: "ascii-capable",
+            },
+            { name: "amount", placeholder: "Amount", keyboardType: "numeric" },
+          ]}
+          buttons={[
+            { label: "Save", color: "blue", onPress: handleSubmit(onSubmit) },
+            {
+              label: "Cancel",
+              color: "red",
+              onPress: () => setModalVisible(false),
+            },
+          ]}
+          loading={loading}
+        />
       </SafeAreaView>
     </>
   );
 };
 
-export default Expenses;
+export default Budget;
