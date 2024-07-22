@@ -52,3 +52,46 @@ export const getSummaryData = async (userId: string) => {
     throw error;
   }
 };
+
+export const getReportData = async (userId: string) => {
+  try {
+    const [income, expenses, goals, categories] = await Promise.all([
+      getIncome(userId),
+      getUserExpenses(userId),
+      getGoals(userId),
+      getExpenditureCategories(),
+    ]);
+
+    // Sum expenses by category
+    const expensesByCategory = expenses.reduce((acc, expense) => {
+      const category = categories.find(
+        (cat) => cat.categoriesId === expense.categoriesId
+      );
+      const categoryName = category ? category.name : "Unknown";
+
+      if (!acc[categoryName]) {
+        acc[categoryName] = {
+          categoryName,
+          amount: 0,
+          expenses: [],
+        };
+      }
+
+      acc[categoryName].amount += expense.amount;
+      acc[categoryName].expenses.push(expense);
+
+      return acc;
+    }, {});
+
+    // Convert expensesByCategory to an array
+    const expensesArray = Object.values(expensesByCategory);
+
+    return {
+      income,
+      expenses: expensesArray,
+      goals,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
