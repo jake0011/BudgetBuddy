@@ -311,7 +311,7 @@ expenditureAuth.delete(
           {
             message: `${expenditureRow[0].expendituresType} ${expenditureRow[0].expendituresId} deleted successfully`,
           },
-          404
+          201
         );
       } catch (err: any) {
         return c.json(

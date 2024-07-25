@@ -196,7 +196,7 @@ userAuth.delete("/deleteAccount", async (c) => {
         {
           message: `User ${deletedUsername[0].username} deleted successfully`,
         },
-        404,
+        201
       );
     } catch (err: any) {
       return c.json({ error: "User does not exist", message: err }, 404);

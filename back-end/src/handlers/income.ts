@@ -115,36 +115,38 @@ incomeAuth.patch(
     const body = await c.req.json();
 
     try {
-      const incomeForMonth = await db.query.incomes.findFirst({
-        where: and(
-          eq(incomes.userId, userId),
-          eq(incomes.year, body.year),
-          eq(incomes.monthOfTheYear, body.monthOfTheYear)
-        ),
-      });
+      // const incomeForMonth = await db.query.incomes.findFirst({
+      //   where: and(
+      //     eq(incomes.userId, userId),
+      //     eq(incomes.year, body.year),
+      //     eq(incomes.monthOfTheYear, body.monthOfTheYear),
+      //   ),
+      // });
 
-      if (incomeForMonth) {
-        return c.json(
-          {
-            error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
-          },
-          400
-        );
-      } else {
-      await db.update(incomes).set({
-          amount: body.amount,
-          monthOfTheYear: body.monthOfTheYear,
-          year: body.year,
-          source: body.source,
-        })
-        .where(
-          and(
-            eq(incomes.userId, userId),
-            eq(incomes.incomesId, body.incomesId)
-          )
-        );
-      }
-      
+      // if (incomeForMonth) {
+      //   return c.json(
+      //     {
+      //       error: `Income already exists for month ${body.monthOfTheYear} in ${body.year}`,
+      //     },
+      //     400,
+      //   );
+      // } else {
+        await db
+          .update(incomes)
+          .set({
+            amount: body.amount,
+            monthOfTheYear: body.monthOfTheYear,
+            year: body.year,
+            source: body.source,
+          })
+          .where(
+            and(
+              eq(incomes.userId, userId),
+              eq(incomes.incomesId, body.incomesId),
+            ),
+          );
+      // }
+
       const incomeRow = await db.query.incomes.findFirst({
         where: and(
                 eq(incomes.userId, userId),
@@ -202,7 +204,7 @@ incomeAuth.delete(
           {
             message: `Income ${deletedIncomeRow[0].incomeId} deleted successfully`,
           },
-          404
+          201,
         );
       } catch (err: any) {
         return c.json({ error: "Income does not exist", message: err }, 404);

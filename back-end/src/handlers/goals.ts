@@ -143,7 +143,7 @@ goalAuth.delete(
           {
             message: `Goal '${goalRow[0].title}' deleted successfully`,
           },
-          404
+          201
         );
       } catch (err: any) {
         return c.json(
