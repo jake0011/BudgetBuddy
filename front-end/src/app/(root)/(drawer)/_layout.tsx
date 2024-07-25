@@ -5,11 +5,14 @@ import CustomDrawerContent from "@/components/layout/CustomDrawerContent";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import CustomDatePicker from "@/components/global/CustomDatePicker";
+import { useDateStore } from "@/stores/date";
 
 export default function DrawerLayout() {
   const router = useRouter();
+  const setDrawerDate = useDateStore((state) => state.setDrawerDate);
+
   const handleDateChange = (date: Date) => {
-    // Handle date change
+    setDrawerDate(date.getMonth(), date.getFullYear());
   };
 
   return (
@@ -43,7 +46,7 @@ export default function DrawerLayout() {
                 onPress={() => {
                   router.navigate("(drawer)");
                 }}
-                style={{ marginLeft: 2 }}
+                className="ml-2"
               />
             ),
             headerRight: () => (

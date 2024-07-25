@@ -7,20 +7,23 @@ import {
 import { View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Avatar, Separator } from "tamagui";
-import { Button } from "react-native-paper";
 import { usePathname } from "expo-router";
+import { useAuthStore } from "@/stores/auth";
 
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const pathname = usePathname();
+  const user = useAuthStore((state) => state.user);
 
   return (
     <View style={{ flex: 1 }}>
       <DrawerContentScrollView {...props} className="h-[500px] bg-[#161E2B]">
         <View className="items-center my-5">
           <MaterialIcons name="account-circle" size={100} color="white" />
-          <Text className="text-white mt-2 text-lg">Sarps Boateng</Text>
-          <Text className="text-white mt-2 text-lg">
-            sarpsboateng@gmail.com
+          <Text className="text-white mt-2 text-2xl font-bold">
+            {user?.firstname} {user?.lastname}
+          </Text>
+          <Text className="text-white mt-2 text-lg font-bold">
+            {user?.email}
           </Text>
         </View>
 

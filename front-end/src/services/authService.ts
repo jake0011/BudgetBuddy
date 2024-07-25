@@ -1,3 +1,4 @@
+import { UserType } from "@/types/UserType";
 import axios from "@/utils/axios";
 
 interface SignUpProps {
@@ -37,7 +38,7 @@ export const signUp = async ({
 
 export const login = async (
   { username, password }: LoginProps,
-  setUser: (user: any) => void
+  setUser: (user: UserType) => void
 ) => {
   try {
     const response = await axios.post("/v1/user/signin", {
@@ -51,7 +52,9 @@ export const login = async (
     }
 
     setUser(data);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    axios.defaults.headers.common["userId"] = data.userId;
+    axios.defaults.headers.common["Authorization"] = `${token}`;
 
     return true;
   } catch (error) {
@@ -59,10 +62,15 @@ export const login = async (
   }
 };
 
-export const logout = async ({ setUser }: { setUser: (user: any) => void }) => {
+export const logout = async ({
+  setUser,
+}: {
+  setUser: (user: UserType) => void;
+}) => {
   try {
     setUser(null);
     axios.defaults.headers.common["Authorization"] = "";
+    axios.defaults.headers.common["userId"] = "";
     return true;
   } catch (error) {
     throw error;

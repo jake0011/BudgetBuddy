@@ -1,50 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
   SafeAreaView,
   FlatList,
-  Modal,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { Input, Button as TamaguiButton } from "tamagui";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
+import useSWR from "swr";
 import {
-  Modal as PaperModal,
-  Button as PaperButton,
-  Portal,
-  Provider,
-} from "react-native-paper";
-
-const dummyData = {
-  totalIncome: "$3,200",
-  incomeSources: [
-    {
-      id: 1,
-      name: "Salary",
-      amount: 2000,
-      date: "1st of every month",
-      recurrence: "Monthly",
-    },
-    {
-      id: 2,
-      name: "Freelance",
-      amount: 1000,
-      date: "15th of every month",
-      recurrence: "Monthly",
-    },
-    {
-      id: 3,
-      name: "Investments",
-      amount: 200,
-      date: "20th of every month",
-      recurrence: "Monthly",
-    },
-  ],
-};
+  addIncome,
+  getIncome,
+  updateIncome,
+  deleteIncome,
+} from "@/services/incomeService";
+import { useAuthStore } from "@/stores/auth";
+import { useDateStore } from "@/stores/date";
+import CustomModal from "@/components/global/CustomModal";
+import CustomAlert from "@/components/global/CustomAlert";
+import Toast from "react-native-toast-message";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -66,178 +46,300 @@ const predefinedColors = [
   "#33FF8C",
 ];
 
+const incomeSchema = z.object({
+  source: z.string().min(1, "Source is required"),
+  amount: z.number().min(0.01, "Amount must be a number"),
+});
+
 const Income = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const { control, handleSubmit, reset } = useForm();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentIncome, setCurrentIncome] = useState(null);
+  const [incomeToDelete, setIncomeToDelete] = useState(null);
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // Handle form submission
-    reset();
-    setModalVisible(false);
+  const user = useAuthStore((state) => state.user);
+  const tabDate = useDateStore((state) => state.tabDate);
+
+  const fetcher = useCallback(async () => {
+    return await getIncome(user?.userId, tabDate.month, tabDate.year);
+  }, [user?.userId, tabDate.month, tabDate.year]);
+
+  const { data, error, isLoading, mutate } = useSWR(`/income/data`, fetcher);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(incomeSchema),
+    defaultValues: {
+      source: "",
+      amount: "",
+    },
+  });
+
+  const onSubmit = async (data: any) => {
+    setLoading(true);
+    try {
+      if (currentIncome) {
+        const response = await updateIncome(
+          user?.userId,
+          currentIncome.incomesId,
+          data.amount,
+          data.source,
+          tabDate.month,
+          tabDate.year
+        );
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      } else {
+        const response = await addIncome(
+          user?.userId,
+          tabDate.month,
+          tabDate.year,
+          data.amount,
+          data.source
+        );
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+      reset();
+      setModalVisible(false);
+      setCurrentIncome(null);
+      mutate();
+    }
   };
 
-  const renderItem = ({ item }) => (
+  const handleEdit = (income: any) => {
+    setCurrentIncome(income);
+    setModalVisible(true);
+    reset({
+      source: income.source,
+      amount: income.amount,
+    });
+  };
+
+  const handleModalDismiss = () => {
+    setModalVisible(false);
+    setCurrentIncome(null);
+    reset({
+      source: "",
+      amount: "",
+    });
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      const response = await deleteIncome(
+        user?.userId,
+        incomeToDelete.incomesId
+      );
+      Toast.show({
+        type: "success",
+        text1: response,
+        text1Style: {
+          color: "green",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+      setAlertVisible(false);
+      setIncomeToDelete(null);
+      mutate();
+    }
+  };
+
+  const handleDeletePress = (income: any) => {
+    setIncomeToDelete(income);
+    setAlertVisible(true);
+  };
+
+  const renderItem = ({ item }: { item: any }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
-        <Text className="text-white text-lg font-bold">{item.name}</Text>
-        <Text className="text-gray-400">Amount: ${item.amount}</Text>
-        <Text className="text-gray-400">Date: {item.date}</Text>
-        <Text className="text-gray-400">Recurrence: {item.recurrence}</Text>
+        <Text className="text-white text-lg font-bold">{item.source}</Text>
       </View>
-      <Text className="text-white text-lg font-bold">${item.amount}</Text>
+      <Text className="text-white text-lg font-bold">GHS {item.amount}</Text>
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <TouchableOpacity onPress={() => handleEdit(item)}>
+          <Text className="text-blue-500">Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDeletePress(item)}>
+          <Text className="text-red-500">Delete</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
-  const data = [
-    { id: "header", type: "header" },
-    ...dummyData.incomeSources.map((source) => ({
-      ...source,
-      type: "incomeSource",
-    })),
-  ];
+  const pieChartData = useMemo(() => {
+    return (
+      data?.map((source: any, index: number) => ({
+        name: source.source,
+        amount: source.amount,
+        color: predefinedColors[index % predefinedColors.length],
+        legendFontColor: "#FFF",
+        legendFontSize: 15,
+      })) || []
+    );
+  }, [data]);
 
-  const pieChartData = dummyData.incomeSources.map((source, index) => ({
-    name: source.name,
-    amount: source.amount,
-    color: predefinedColors[index % predefinedColors.length],
-    legendFontColor: "#FFF",
-    legendFontSize: 15,
-  }));
+  const totalIncome = useMemo(() => {
+    return data?.reduce((sum: number, item: any) => sum + item.amount, 0) || 0;
+  }, [data]);
+
+  if (error)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Text className="text-white text-center">Failed to load data</Text>
+      </SafeAreaView>
+    );
+
+  if (isLoading)
+    return (
+      <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
+        <Spinner size="large" color="white" />
+      </SafeAreaView>
+    );
 
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
-        <FlatList
-          data={data}
-          renderItem={({ item }) => {
-            if (item.type === "header") {
-              return (
-                <View className="mb-5">
-                  <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
-                    <Text className="text-white text-lg mb-2">
-                      Total Income
-                    </Text>
-                    <Text className="text-white text-4xl font-bold">
-                      {dummyData.totalIncome}
-                    </Text>
-                  </View>
-                  <PieChart
-                    data={pieChartData}
-                    width={screenWidth - 40}
-                    height={220}
-                    chartConfig={{
-                      backgroundColor: "#1E2A3B",
-                      backgroundGradientFrom: "#1E2A3B",
-                      backgroundGradientTo: "#1E2A3B",
-                      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                      labelColor: (opacity = 1) =>
-                        `rgba(255, 255, 255, ${opacity})`,
-                    }}
-                    accessor={"amount"}
-                    backgroundColor={"transparent"}
-                    paddingLeft={"15"}
-                    absolute
-                  />
-                  <View className="border-b border-gray-600 mb-5" />
-                </View>
-              );
-            }
-            return renderItem({ item });
+        <View
+          className="bg-[#1E2A3B] rounded-lg p-5 mx-5"
+          style={{
+            marginTop: 20,
           }}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
-        />
+        >
+          <Text className="text-white text-lg mb-2">Total Income</Text>
+          <Text className="text-white text-4xl font-bold">
+            GHS {totalIncome.toFixed(2)}
+          </Text>
+        </View>
+        {data && data.length > 0 ? (
+          <>
+            <PieChart
+              data={pieChartData}
+              width={screenWidth - 20}
+              height={240}
+              chartConfig={{
+                backgroundColor: "#1E2A3B",
+                backgroundGradientFrom: "#1E2A3B",
+                backgroundGradientTo: "#1E2A3B",
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                decimalPlaces: 2,
+              }}
+              accessor={"amount"}
+              backgroundColor={"transparent"}
+              paddingLeft={"10"}
+              absolute
+              hasLegend={true}
+              center={[0, 0]}
+            />
+            <FlatList
+              data={data}
+              renderItem={({ item }) => renderItem({ item })}
+              keyExtractor={(item: any) => item.incomesId.toString()}
+              contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+            />
+          </>
+        ) : (
+          <View className="h-[60vh] flex items-center justify-center">
+            <Text className="text-white text-2xl font-bold text-center mt-5">
+              No income for this month
+            </Text>
+          </View>
+        )}
 
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            setCurrentIncome(null);
+            setModalVisible(true);
+          }}
           className="absolute bottom-32 right-10 bg-blue-500 p-4 rounded-full shadow-lg"
         >
           <Plus color="white" size={28} />
         </TouchableOpacity>
 
-        <Portal>
-          <PaperModal
-            visible={modalVisible}
-            onDismiss={() => setModalVisible(false)}
-            contentContainerStyle={{
-              backgroundColor: "#1E2A3B",
-              padding: 20,
-              margin: 20,
-              borderRadius: 10,
-            }}
-          >
-            <View className="flex gap-4 rounded-lg p-5 w-11/12">
-              <Text className="text-white text-lg mb-5">Add Income Source</Text>
-              <Controller
-                control={control}
-                name="name"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Source Name"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="amount"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Amount"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="date"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Date Received"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="recurrence"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Recurrence"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    className="bg-gray-700 text-white mb-4 p-2 rounded-lg"
-                  />
-                )}
-              />
-              <PaperButton
-                mode="contained"
-                onPress={handleSubmit(onSubmit)}
-                className="bg-blue-500 text-white p-2 rounded-lg mb-4"
-              >
-                Save
-              </PaperButton>
-              <PaperButton
-                mode="contained"
-                onPress={() => setModalVisible(false)}
-                className="bg-red-500 text-white p-2 rounded-lg"
-              >
-                Cancel
-              </PaperButton>
-            </View>
-          </PaperModal>
-        </Portal>
+        <CustomModal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          title={currentIncome ? "Update Income Source" : "Add Income Source"}
+          control={control}
+          errors={errors}
+          reset={reset}
+          inputs={[
+            {
+              name: "source",
+              placeholder: "Source Name",
+              keyboardType: "ascii-capable",
+              defaultValue: currentIncome?.source,
+            },
+            {
+              name: "amount",
+              placeholder: "Amount",
+              keyboardType: "numeric",
+              defaultValue: currentIncome?.amount,
+            },
+          ]}
+          buttons={[
+            { label: "Save", color: "blue", onPress: handleSubmit(onSubmit) },
+            {
+              label: "Cancel",
+              color: "red",
+              onPress: handleModalDismiss,
+            },
+          ]}
+          loading={loading}
+        />
+        <CustomAlert
+          visible={alertVisible}
+          onDismiss={() => setAlertVisible(false)}
+          onConfirm={handleDelete}
+          message="Are you sure you want to delete this income?"
+          loading={loading}
+        />
       </SafeAreaView>
     </>
   );

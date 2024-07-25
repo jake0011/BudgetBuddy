@@ -16,6 +16,7 @@ import Toast from "react-native-toast-message";
 const Profile = () => {
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const setUser = useAuthStore((state) => state.setUser);
+  const user = useAuthStore((state) => state.user);
 
   const Logout = async () => {
     try {
@@ -45,8 +46,13 @@ const Profile = () => {
         <View className="flex-row items-center mb-5">
           <MaterialIcons name="account-circle" size={100} color="white" />
           <View className="ml-5">
-            <Text className="text-white text-2xl font-bold">John Doe</Text>
-            <Text className="text-gray-400 text-lg">johndoe@example.com</Text>
+            <Text className="text-white text-2xl font-bold">
+              {user?.firstname} {user?.lastname}
+            </Text>
+            <Text className="text-gray-200  text-xl font-bold">
+              {user?.username}
+            </Text>
+            <Text className="text-gray-400 text-lg">{user?.email}</Text>
           </View>
         </View>
 
@@ -60,8 +66,30 @@ const Profile = () => {
               className="text-white text-base border-b border-gray-400"
               placeholder="Username"
               placeholderTextColor="gray"
-              defaultValue="JohnDoe"
+              defaultValue={user?.username}
             />
+          </View>
+          <View className="mb-5 flex flex-row gap-2 w-full">
+            <View className="w-[50%]">
+              <Text className="text-gray-200 text-lg font-bold">
+                First Name
+              </Text>
+              <TextInput
+                className="text-white text-base border-b border-gray-400"
+                placeholder="Email"
+                placeholderTextColor="gray"
+                defaultValue={user?.firstname}
+              />
+            </View>
+            <View className="w-[50%]">
+              <Text className="text-gray-200 text-lg font-bold">Last Name</Text>
+              <TextInput
+                className="text-white text-base border-b border-gray-400"
+                placeholder="Email"
+                placeholderTextColor="gray"
+                defaultValue={user?.lastname}
+              />
+            </View>
           </View>
           <View className="mb-5 flex gap-2">
             <Text className="text-gray-200 text-lg font-bold">Email</Text>
@@ -69,9 +97,10 @@ const Profile = () => {
               className="text-white text-base border-b border-gray-400"
               placeholder="Email"
               placeholderTextColor="gray"
-              defaultValue="johndoe@example.com"
+              defaultValue={user?.email}
             />
           </View>
+
           <View className="mb-5 flex gap-2">
             <Text className="text-gray-200 text-lg font-bold">Password</Text>
             <TextInput
@@ -79,6 +108,7 @@ const Profile = () => {
               placeholder="Password"
               placeholderTextColor="gray"
               secureTextEntry
+              defaultValue="***********"
             />
           </View>
         </View>
