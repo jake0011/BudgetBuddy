@@ -380,6 +380,7 @@ const Budget = () => {
           title="Add Budget"
           control={control}
           errors={errors}
+          reset={reset}
           inputs={[
             { name: "amount", placeholder: "Amount", keyboardType: "numeric" },
           ]}

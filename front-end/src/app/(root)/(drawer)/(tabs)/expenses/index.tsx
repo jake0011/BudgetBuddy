@@ -18,6 +18,8 @@ import {
   getExpenditureCategories,
   getUserExpenses,
   addExpenditure,
+  updateExpenditure,
+  deleteExpenditure,
 } from "@/services/expenditureService";
 import { useAuthStore } from "@/stores/auth";
 import { useDateStore } from "@/stores/date";
@@ -25,6 +27,7 @@ import CustomModal from "@/components/global/CustomModal";
 import Toast from "react-native-toast-message";
 import { TabBar, TabView } from "react-native-tab-view";
 import { getGoals } from "@/services/goalsService";
+import CustomAlert from "@/components/global/CustomAlert";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -50,7 +53,10 @@ const expenseSchema = z.object({
 
 const Expenses = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentExpense, setCurrentExpense] = useState(null);
+  const [expenseToDelete, setExpenseToDelete] = useState(null);
   const {
     control,
     handleSubmit,
@@ -88,21 +94,35 @@ const Expenses = () => {
   const expensesData = data?.expenses || [];
   const goalsData = data?.goals || [];
 
-  const onSubmit = async (data: any) => {
+  const handleModalDismiss = () => {
+    setModalVisible(false);
+    reset({
+      categoryType: null,
+      category: null,
+      amount: null,
+      goal: null,
+    });
+    setCurrentExpense(null);
+  };
+
+  const handleEdit = (expense) => {
+    setCurrentExpense(expense);
+    setModalVisible(true);
+    reset({
+      categoryType: expense.type,
+      category: expense.category,
+      amount: expense.amount,
+      goal: expense.goal,
+    });
+  };
+
+  const handleDelete = async () => {
     setLoading(true);
     try {
-      const selectedCategory = categoriesData.find(
-        (cat) => cat.name === data.category
+      const response = await deleteExpenditure(
+        user?.userId,
+        expenseToDelete.expendituresId
       );
-
-      const response = await addExpenditure(user?.userId, {
-        amount: data.amount,
-        month: tabDate.month,
-        year: tabDate.year,
-        type: "expenses",
-        categoriesId: selectedCategory?.categoriesId || 7,
-        goalsId: data.goal || null,
-      });
       Toast.show({
         type: "success",
         text1: response,
@@ -112,6 +132,77 @@ const Expenses = () => {
           textAlign: "center",
         },
       });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+      setAlertVisible(false);
+      setExpenseToDelete(null);
+      mutate();
+    }
+  };
+
+  const handleDeletePress = (expense) => {
+    setExpenseToDelete(expense);
+    setAlertVisible(true);
+  };
+
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const selectedCategory = categoriesData.find(
+        (cat) => cat.name === data.category
+      );
+
+      if (currentExpense) {
+        const response = await updateExpenditure(
+          user?.userId,
+          currentExpense.expenditureId,
+          {
+            amount: data.amount,
+            month: tabDate.month,
+            year: tabDate.year,
+            type: "expenses",
+            categoriesId: selectedCategory?.categoriesId || 7,
+            goalsId: data.goal || null,
+          }
+        );
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      } else {
+        const response = await addExpenditure(user?.userId, {
+          amount: data.amount,
+          month: tabDate.month,
+          year: tabDate.year,
+          type: "expenses",
+          categoriesId: selectedCategory?.categoriesId || 7,
+          goalsId: data.goal || null,
+        });
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      }
       mutate();
     } catch (error) {
       Toast.show({
@@ -125,20 +216,29 @@ const Expenses = () => {
       });
     } finally {
       setLoading(false);
-      reset();
-      setModalVisible(false);
+      handleModalDismiss();
     }
   };
 
   const renderItem = ({ item }: { item: any }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
-        <Text className="text-white text-lg font-bold">{item.name}</Text>
+        {item.name && (
+          <Text className={`text-white text-lg font-bold`}>{item.name}</Text>
+        )}
         <Text className="text-gray-400 font-bold text-lg">
           {item.createdAt.split("T")[0]}
         </Text>
       </View>
       <Text className="text-white text-lg font-bold">${item.amount}</Text>
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <TouchableOpacity onPress={() => handleEdit(item)}>
+          <Text className="text-blue-500">Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDeletePress(item)}>
+          <Text className="text-red-500">Delete</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -403,10 +503,11 @@ const Expenses = () => {
         </TouchableOpacity>
         <CustomModal
           visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          title="Add Expense"
+          onDismiss={handleModalDismiss}
+          title={currentExpense ? "Update Expense" : "Add Expense"}
           control={control}
           errors={errors}
+          reset={reset}
           inputs={[
             { name: "amount", placeholder: "Amount", keyboardType: "numeric" },
           ]}
@@ -463,11 +564,16 @@ const Expenses = () => {
             {
               label: "Cancel",
               color: "red",
-              onPress: () => {
-                setModalVisible(false), reset();
-              },
+              onPress: handleModalDismiss,
             },
           ]}
+          loading={loading}
+        />
+        <CustomAlert
+          visible={alertVisible}
+          onDismiss={() => setAlertVisible(false)}
+          onConfirm={handleDelete}
+          message="Are you sure you want to delete this expense?"
           loading={loading}
         />
       </SafeAreaView>

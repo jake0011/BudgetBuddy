@@ -12,14 +12,23 @@ import { Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { ProgressBar } from "react-native-paper";
 import { useAuthStore } from "@/stores/auth";
-import { getGoals, addGoal } from "@/services/goalsService";
+import {
+  getGoals,
+  addGoal,
+  updateGoal,
+  deleteGoals,
+} from "@/services/goalsService";
 import useSWR from "swr";
 import CustomModal from "@/components/global/CustomModal";
 import Toast from "react-native-toast-message";
+import CustomAlert from "@/components/global/CustomAlert";
 
 const Goals = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentGoal, setCurrentGoal] = useState(null);
+  const [goalToDelete, setGoalToDelete] = useState(null);
   const {
     control,
     handleSubmit,
@@ -44,10 +53,76 @@ const Goals = () => {
     mutate,
   } = useSWR(`/goals/data`, fetcher);
 
+  const handleModalDismiss = () => {
+    setModalVisible(false);
+    reset({
+      title: null,
+      amount: null,
+    });
+    setCurrentGoal(null);
+  };
+
+  const handleEdit = (goal) => {
+    setCurrentGoal(goal);
+    setModalVisible(true);
+    reset({
+      title: goal.title,
+      amount: goal.amount,
+    });
+  };
+
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const response = await addGoal(user?.userId, data.title, data.amount);
+      if (currentGoal) {
+        const response = await updateGoal(
+          user?.userId,
+          currentGoal.goalsId,
+          data.title,
+          data.amount
+        );
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      } else {
+        const response = await addGoal(user?.userId, data.title, data.amount);
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      }
+      mutate();
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+      handleModalDismiss();
+    }
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      const response = await deleteGoals(user?.userId, goalToDelete.goalsId);
       Toast.show({
         type: "success",
         text1: response,
@@ -69,29 +144,46 @@ const Goals = () => {
       });
     } finally {
       setLoading(false);
-      reset();
-      setModalVisible(false);
+      setAlertVisible(false);
+      setGoalToDelete(null);
       mutate();
     }
+  };
+
+  const handleDeletePress = (goal) => {
+    setGoalToDelete(goal);
+    setAlertVisible(true);
   };
 
   const renderItem = ({ item }) => {
     const progress = item.percentageToGoal / 100;
     return (
-      <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
-        <View className="flex-row justify-between items-center">
-          <Text className="text-white text-lg font-bold">{item.title}</Text>
-          <Text className="text-white text-lg font-bold">
-            GHS {item.amount * progress} / GHS {item.amount}
-          </Text>
+      <TouchableOpacity onPress={() => handleEdit(item)}>
+        <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
+          <View className="flex-row justify-between items-center">
+            <Text className="text-white text-lg font-bold">{item.title}</Text>
+            <Text className="text-white text-lg font-bold">
+              GHS {item.amount * progress} / GHS {item.amount}
+            </Text>
+          </View>
+          <ProgressBar
+            progress={progress}
+            color="#36A2EB"
+            style={{ marginTop: 10 }}
+          />
+          <View className="flex-row justify-between items-center mt-1">
+            <Text className="text-[#3498db] text-base">{progress * 100}%</Text>
+            <View className="flex-row gap-2">
+              <TouchableOpacity onPress={() => handleEdit(item)}>
+                <Text className="text-blue-500">Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDeletePress(item)}>
+                <Text className="text-red-500">Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-        <ProgressBar
-          progress={progress}
-          color="#36A2EB"
-          style={{ marginTop: 10 }}
-        />
-        <Text className="text-[#3498db] text-base mt-1">{progress * 100}%</Text>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -143,10 +235,11 @@ const Goals = () => {
         </TouchableOpacity>
         <CustomModal
           visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          title="Add Goal"
+          onDismiss={handleModalDismiss}
+          title={currentGoal ? "Update Goal" : "Add Goal"}
           control={control}
           errors={errors}
+          reset={reset}
           inputs={[
             {
               name: "title",
@@ -164,9 +257,16 @@ const Goals = () => {
             {
               label: "Cancel",
               color: "red",
-              onPress: () => setModalVisible(false),
+              onPress: handleModalDismiss,
             },
           ]}
+          loading={loading}
+        />
+        <CustomAlert
+          visible={alertVisible}
+          onDismiss={() => setAlertVisible(false)}
+          onConfirm={handleDelete}
+          message="Are you sure you want to delete this goal?"
           loading={loading}
         />
       </SafeAreaView>

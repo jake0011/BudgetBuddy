@@ -14,10 +14,16 @@ import { Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
 import useSWR from "swr";
-import { addIncome, getIncome } from "@/services/incomeService";
+import {
+  addIncome,
+  getIncome,
+  updateIncome,
+  deleteIncome,
+} from "@/services/incomeService";
 import { useAuthStore } from "@/stores/auth";
 import { useDateStore } from "@/stores/date";
 import CustomModal from "@/components/global/CustomModal";
+import CustomAlert from "@/components/global/CustomAlert";
 import Toast from "react-native-toast-message";
 
 const screenWidth = Dimensions.get("window").width;
@@ -47,7 +53,20 @@ const incomeSchema = z.object({
 
 const Income = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setloading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentIncome, setCurrentIncome] = useState(null);
+  const [incomeToDelete, setIncomeToDelete] = useState(null);
+
+  const user = useAuthStore((state) => state.user);
+  const tabDate = useDateStore((state) => state.tabDate);
+
+  const fetcher = useCallback(async () => {
+    return await getIncome(user?.userId, tabDate.month, tabDate.year);
+  }, [user?.userId, tabDate.month, tabDate.year]);
+
+  const { data, error, isLoading, mutate } = useSWR(`/income/data`, fetcher);
+
   const {
     control,
     handleSubmit,
@@ -60,24 +79,89 @@ const Income = () => {
       amount: "",
     },
   });
-  const user = useAuthStore((state) => state.user);
-  const tabDate = useDateStore((state) => state.tabDate);
-
-  const fetcher = useCallback(async () => {
-    return await getIncome(user?.userId, tabDate.month, tabDate.year);
-  }, [user?.userId, tabDate.month, tabDate.year]);
-
-  const { data, error, isLoading, mutate } = useSWR(`/income/data`, fetcher);
 
   const onSubmit = async (data: any) => {
-    setloading(true);
+    setLoading(true);
     try {
-      const response = await addIncome(
+      if (currentIncome) {
+        const response = await updateIncome(
+          user?.userId,
+          currentIncome.incomesId,
+          data.amount,
+          data.source,
+          tabDate.month,
+          tabDate.year
+        );
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      } else {
+        const response = await addIncome(
+          user?.userId,
+          tabDate.month,
+          tabDate.year,
+          data.amount,
+          data.source
+        );
+        Toast.show({
+          type: "success",
+          text1: response,
+          text1Style: {
+            color: "green",
+            fontSize: 16,
+            textAlign: "center",
+          },
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+      reset();
+      setModalVisible(false);
+      setCurrentIncome(null);
+      mutate();
+    }
+  };
+
+  const handleEdit = (income: any) => {
+    setCurrentIncome(income);
+    setModalVisible(true);
+    reset({
+      source: income.source,
+      amount: income.amount,
+    });
+  };
+
+  const handleModalDismiss = () => {
+    setModalVisible(false);
+    setCurrentIncome(null);
+    reset({
+      source: "",
+      amount: "",
+    });
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      const response = await deleteIncome(
         user?.userId,
-        tabDate.month,
-        tabDate.year,
-        data.amount,
-        data.source
+        incomeToDelete.incomesId
       );
       Toast.show({
         type: "success",
@@ -94,17 +178,21 @@ const Income = () => {
         text1: error.response?.data?.error || error.message,
         text1Style: {
           color: "red",
-
           fontSize: 16,
           textAlign: "center",
         },
       });
     } finally {
-      setloading(false);
-      reset();
-      setModalVisible(false);
+      setLoading(false);
+      setAlertVisible(false);
+      setIncomeToDelete(null);
       mutate();
     }
+  };
+
+  const handleDeletePress = (income: any) => {
+    setIncomeToDelete(income);
+    setAlertVisible(true);
   };
 
   const renderItem = ({ item }: { item: any }) => (
@@ -112,7 +200,15 @@ const Income = () => {
       <View>
         <Text className="text-white text-lg font-bold">{item.source}</Text>
       </View>
-      <Text className="text-white text-lg font-bold">${item.amount}</Text>
+      <Text className="text-white text-lg font-bold">GHS {item.amount}</Text>
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <TouchableOpacity onPress={() => handleEdit(item)}>
+          <Text className="text-blue-500">Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDeletePress(item)}>
+          <Text className="text-red-500">Delete</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -157,7 +253,7 @@ const Income = () => {
         >
           <Text className="text-white text-lg mb-2">Total Income</Text>
           <Text className="text-white text-4xl font-bold">
-            ${totalIncome.toFixed(2)}
+            GHS {totalIncome.toFixed(2)}
           </Text>
         </View>
         {data && data.length > 0 ? (
@@ -189,7 +285,7 @@ const Income = () => {
             />
           </>
         ) : (
-          <View className="h-[50%] flex items-center justify-center">
+          <View className="h-[60vh] flex items-center justify-center">
             <Text className="text-white text-2xl font-bold text-center mt-5">
               No income for this month
             </Text>
@@ -197,7 +293,10 @@ const Income = () => {
         )}
 
         <TouchableOpacity
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            setCurrentIncome(null);
+            setModalVisible(true);
+          }}
           className="absolute bottom-32 right-10 bg-blue-500 p-4 rounded-full shadow-lg"
         >
           <Plus color="white" size={28} />
@@ -206,25 +305,39 @@ const Income = () => {
         <CustomModal
           visible={modalVisible}
           onDismiss={() => setModalVisible(false)}
-          title="Add Income Source"
+          title={currentIncome ? "Update Income Source" : "Add Income Source"}
           control={control}
           errors={errors}
+          reset={reset}
           inputs={[
             {
               name: "source",
               placeholder: "Source Name",
               keyboardType: "ascii-capable",
+              defaultValue: currentIncome?.source,
             },
-            { name: "amount", placeholder: "Amount", keyboardType: "numeric" },
+            {
+              name: "amount",
+              placeholder: "Amount",
+              keyboardType: "numeric",
+              defaultValue: currentIncome?.amount,
+            },
           ]}
           buttons={[
             { label: "Save", color: "blue", onPress: handleSubmit(onSubmit) },
             {
               label: "Cancel",
               color: "red",
-              onPress: () => setModalVisible(false),
+              onPress: handleModalDismiss,
             },
           ]}
+          loading={loading}
+        />
+        <CustomAlert
+          visible={alertVisible}
+          onDismiss={() => setAlertVisible(false)}
+          onConfirm={handleDelete}
+          message="Are you sure you want to delete this income?"
           loading={loading}
         />
       </SafeAreaView>

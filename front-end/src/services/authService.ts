@@ -58,7 +58,6 @@ export const login = async (
 
     return true;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };

@@ -119,3 +119,60 @@ export const addExpenditure = async (
     throw error;
   }
 };
+
+export const updateExpenditure = async (
+  userId: string,
+  expenditureId: number,
+  expenditureData: {
+    amount: number;
+    categoriesId: number;
+    goalsId?: number;
+    month: number;
+    year: number;
+    type: string;
+  }
+) => {
+  try {
+    const monthOfTheYear = getMonthName(expenditureData.month);
+    const response = await axios.put(
+      `/auth/v1/expenditure/update`,
+      {
+        expenditureId,
+        amount: expenditureData.amount,
+        monthOfTheYear,
+        year: expenditureData.year,
+        categoriesId: expenditureData.categoriesId,
+        ...(expenditureData.goalsId !== null && {
+          goalsId: expenditureData.goalsId,
+        }),
+      },
+      {
+        headers: {
+          userId: userId,
+        },
+      }
+    );
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteExpenditure = async (
+  userId: string,
+  expendituresId: number
+) => {
+  try {
+    const response = await axios.delete("/auth/v1/expenditure/delete", {
+      data: {
+        expendituresId,
+      },
+      headers: {
+        userId: userId,
+      },
+    });
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -29,7 +29,6 @@ export const getIncome = async (
 
     return response.data.data;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
@@ -51,6 +50,38 @@ export const addIncome = async (
       {
         source,
         amount,
+        monthOfTheYear,
+        year,
+      },
+      {
+        headers: {
+          userId,
+        },
+      }
+    );
+
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateIncome = async (
+  userId: string,
+  incomesId: string,
+  amount: number,
+  source: string,
+  month: number,
+  year: number
+) => {
+  try {
+    const monthOfTheYear = getMonthName(month);
+    const response = await axios.patch(
+      `/auth/v1/income/update`,
+      {
+        incomesId,
+        amount,
+        source,
         monthOfTheYear,
         year,
       },
@@ -144,6 +175,24 @@ export const getReportData = async (
       goals,
     };
   } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteIncome = async (userId: string, incomesId: string) => {
+  try {
+    const response = await axios.delete(`/auth/v1/income/delete`, {
+      headers: {
+        userId: userId,
+      },
+      data: {
+        incomesId,
+      },
+    });
+
+    return response.data.message;
+  } catch (error) {
+    console.log(error);
     throw error;
   }
 };

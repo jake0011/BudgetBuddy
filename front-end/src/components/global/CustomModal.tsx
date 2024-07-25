@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Portal, Modal as PaperModal, TextInput } from "react-native-paper";
 import { Controller } from "react-hook-form";
@@ -9,6 +9,7 @@ interface InputProps {
   name: string;
   placeholder: string;
   keyboardType?: "numeric" | "ascii-capable";
+  defaultValue?: any;
 }
 
 interface SelectProps {
@@ -18,7 +19,7 @@ interface SelectProps {
   label: string;
   dependentOn?: string;
   dependentItems?: { [key: string]: { label: string; value: any }[] };
-  watch?: any; // Add watch as an optional prop
+  watch?: any;
 }
 
 interface ButtonProps {
@@ -33,6 +34,7 @@ interface CustomModalProps {
   onDismiss: () => void;
   title: string;
   control: any;
+  reset: any;
   errors: any;
   inputs: InputProps[];
   selects?: SelectProps[];
@@ -50,7 +52,17 @@ const CustomModal: React.FC<CustomModalProps> = ({
   selects = [],
   buttons,
   loading = false,
+  reset,
 }) => {
+  useEffect(() => {
+    if (!visible) {
+      const resetValues = inputs.reduce((acc, input) => {
+        acc[input.name] = null;
+        return acc;
+      }, {});
+      reset(resetValues);
+    }
+  }, [visible, reset]);
   return (
     <Portal>
       <PaperModal
@@ -72,6 +84,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
               key={index}
               control={control}
               name={input.name}
+              defaultValue={input.defaultValue || ""}
               render={({ field: { onChange, onBlur, value } }) => (
                 <View className="w-full flex-col gap-2 justify-start">
                   <TextInput
