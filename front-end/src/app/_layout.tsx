@@ -10,6 +10,8 @@ import { useFonts } from "expo-font";
 import { StatusBar, View } from "react-native";
 import { Provider } from "react-native-paper";
 import Toast from "react-native-toast-message";
+import swrConfig from "@/utils/swrConfig";
+import { SWRConfig } from "swr";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -67,11 +69,13 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <Provider>
-      <TamaguiProvider config={tamaguiConfig}>
-        <StackLayout />
-        <Toast />
-      </TamaguiProvider>
-    </Provider>
+    <SWRConfig value={swrConfig}>
+      <Provider>
+        <TamaguiProvider config={tamaguiConfig}>
+          <StackLayout />
+          <Toast />
+        </TamaguiProvider>
+      </Provider>
+    </SWRConfig>
   );
 }
