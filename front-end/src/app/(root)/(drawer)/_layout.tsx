@@ -7,10 +7,14 @@ import { useRouter } from "expo-router";
 import CustomDatePicker from "@/components/global/CustomDatePicker";
 import { useDateStore } from "@/stores/date";
 
+// This component defines the layout for the drawer navigation
 export default function DrawerLayout() {
+  // Get the router object to navigate programmatically
   const router = useRouter();
+  // Get the function to set the date in the date store
   const setDrawerDate = useDateStore((state) => state.setDrawerDate);
 
+  // Handle date change from the custom date picker
   const handleDateChange = (date: Date) => {
     setDrawerDate(date.getMonth(), date.getFullYear());
   };
@@ -20,24 +24,25 @@ export default function DrawerLayout() {
       <Drawer
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
-          drawerActiveTintColor: "#fff",
-          drawerInactiveTintColor: "#ccc",
+          drawerActiveTintColor: "#fff", // Active drawer item text color
+          drawerInactiveTintColor: "#ccc", // Inactive drawer item text color
           drawerStyle: {
-            backgroundColor: "#161E2B",
+            backgroundColor: "#161E2B", // Drawer background color
           },
           headerStyle: {
-            backgroundColor: "#161E2B",
+            backgroundColor: "#161E2B", // Header background color
           },
-          headerTintColor: "#fff",
-          headerShown: false,
+          headerTintColor: "#fff", // Header text color
+          headerShown: false, // Hide the header for all screens
         }}
       >
+        {/* Define the screens for the drawer navigation */}
         <Drawer.Screen
           name="reports/index"
           options={{
-            headerShown: true,
+            headerShown: true, // Show the header for this screen
             title: "Reports",
-            headerTitleAlign: "center",
+            headerTitleAlign: "center", // Center align the header title
             headerLeft: () => (
               <MaterialIcons
                 name="arrow-back"
@@ -56,16 +61,16 @@ export default function DrawerLayout() {
               />
             ),
             sceneContainerStyle: {
-              backgroundColor: "#161E2B",
+              backgroundColor: "#161E2B", // Screen background color
             },
           }}
         />
         <Drawer.Screen
           name="settings/index"
           options={{
-            headerShown: true,
+            headerShown: true, // Show the header for this screen
             title: "Settings",
-            headerTitleAlign: "center",
+            headerTitleAlign: "center", // Center align the header title
             headerLeft: () => (
               <MaterialIcons
                 name="arrow-back"

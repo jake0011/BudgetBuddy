@@ -26,8 +26,10 @@ import CustomModal from "@/components/global/CustomModal";
 import CustomAlert from "@/components/global/CustomAlert";
 import Toast from "react-native-toast-message";
 
+// Get the screen width of the device
 const screenWidth = Dimensions.get("window").width;
 
+// Predefined colors for the pie chart
 const predefinedColors = [
   "#FF6384",
   "#36A2EB",
@@ -46,27 +48,33 @@ const predefinedColors = [
   "#33FF8C",
 ];
 
+// Schema for form validation using Zod
 const incomeSchema = z.object({
   source: z.string().min(1, "Source is required"),
   amount: z.number().min(0.01, "Amount must be a number"),
 });
 
 const Income = () => {
+  // State variables for modal visibility, loading state, and current income
   const [modalVisible, setModalVisible] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentIncome, setCurrentIncome] = useState(null);
   const [incomeToDelete, setIncomeToDelete] = useState(null);
 
+  // Get user and date information from stores
   const user = useAuthStore((state) => state.user);
   const tabDate = useDateStore((state) => state.tabDate);
 
+  // Function to fetch income data based on user ID and date
   const fetcher = useCallback(async () => {
     return await getIncome(user?.userId, tabDate.month, tabDate.year);
   }, [user?.userId, tabDate.month, tabDate.year]);
 
+  // Use SWR to fetch data and handle loading and error states
   const { data, error, isLoading, mutate } = useSWR(`/income/data`, fetcher);
 
+  // Initialize form handling using react-hook-form and Zod for validation
   const {
     control,
     handleSubmit,
@@ -80,10 +88,12 @@ const Income = () => {
     },
   });
 
+  // Function to handle form submission for adding or updating income
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
       if (currentIncome) {
+        // Update existing income
         const response = await updateIncome(
           user?.userId,
           currentIncome.incomesId,
@@ -102,6 +112,7 @@ const Income = () => {
           },
         });
       } else {
+        // Add new income
         const response = await addIncome(
           user?.userId,
           tabDate.month,
@@ -138,6 +149,7 @@ const Income = () => {
     }
   };
 
+  // Function to handle editing an income entry
   const handleEdit = (income: any) => {
     setCurrentIncome(income);
     setModalVisible(true);
@@ -147,6 +159,7 @@ const Income = () => {
     });
   };
 
+  // Function to handle dismissing the modal
   const handleModalDismiss = () => {
     setModalVisible(false);
     setCurrentIncome(null);
@@ -156,6 +169,7 @@ const Income = () => {
     });
   };
 
+  // Function to handle deleting an income entry
   const handleDelete = async () => {
     setLoading(true);
     try {
@@ -190,11 +204,13 @@ const Income = () => {
     }
   };
 
+  // Function to handle pressing the delete button
   const handleDeletePress = (income: any) => {
     setIncomeToDelete(income);
     setAlertVisible(true);
   };
 
+  // Function to render each income item in the list
   const renderItem = ({ item }: { item: any }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
@@ -212,6 +228,7 @@ const Income = () => {
     </View>
   );
 
+  // Memoized data for the pie chart
   const pieChartData = useMemo(() => {
     return (
       data?.map((source: any, index: number) => ({
@@ -224,10 +241,12 @@ const Income = () => {
     );
   }, [data]);
 
+  // Memoized calculation of total income
   const totalIncome = useMemo(() => {
     return data?.reduce((sum: number, item: any) => sum + item.amount, 0) || 0;
   }, [data]);
 
+  // If there's an error, display an error message
   if (error)
     return (
       <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
@@ -235,6 +254,7 @@ const Income = () => {
       </SafeAreaView>
     );
 
+  // If data is loading, display a loading spinner
   if (isLoading)
     return (
       <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
@@ -242,9 +262,11 @@ const Income = () => {
       </SafeAreaView>
     );
 
+  // Main render of the income screen
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
+        {/* Container for the total income display */}
         <View
           className="bg-[#1E2A3B] rounded-lg p-5 mx-5"
           style={{
@@ -258,6 +280,7 @@ const Income = () => {
         </View>
         {data && data.length > 0 ? (
           <>
+            {/* Pie chart to display income distribution */}
             <PieChart
               data={pieChartData}
               width={screenWidth - 20}
@@ -277,6 +300,7 @@ const Income = () => {
               hasLegend={true}
               center={[0, 0]}
             />
+            {/* List of income items */}
             <FlatList
               data={data}
               renderItem={({ item }) => renderItem({ item })}
@@ -285,6 +309,7 @@ const Income = () => {
             />
           </>
         ) : (
+          // Display message if no income data is available
           <View className="h-[60vh] flex items-center justify-center">
             <Text className="text-white text-2xl font-bold text-center mt-5">
               No income for this month
@@ -292,6 +317,7 @@ const Income = () => {
           </View>
         )}
 
+        {/* Button to add new income */}
         <TouchableOpacity
           onPress={() => {
             setCurrentIncome(null);
@@ -302,6 +328,7 @@ const Income = () => {
           <Plus color="white" size={28} />
         </TouchableOpacity>
 
+        {/* Modal for adding or updating income */}
         <CustomModal
           visible={modalVisible}
           onDismiss={() => setModalVisible(false)}
@@ -333,6 +360,7 @@ const Income = () => {
           ]}
           loading={loading}
         />
+        {/* Alert for confirming income deletion */}
         <CustomAlert
           visible={alertVisible}
           onDismiss={() => setAlertVisible(false)}

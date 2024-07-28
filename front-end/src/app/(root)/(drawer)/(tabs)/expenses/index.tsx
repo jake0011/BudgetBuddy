@@ -29,8 +29,10 @@ import { TabBar, TabView } from "react-native-tab-view";
 import { getGoals } from "@/services/goalsService";
 import CustomAlert from "@/components/global/CustomAlert";
 
+// Get the screen width of the device
 const screenWidth = Dimensions.get("window").width;
 
+// Predefined colors for the pie chart
 const predefinedColors = [
   "#FF6384",
   "#36A2EB",
@@ -45,6 +47,7 @@ const predefinedColors = [
   "#00FFFF",
 ];
 
+// Schema for form validation using Zod
 const expenseSchema = z.object({
   categoryType: z.string().min(1, "Category type is required"),
   category: z.string().min(1, "Category is required"),
@@ -52,11 +55,14 @@ const expenseSchema = z.object({
 });
 
 const Expenses = () => {
+  // State variables for modal visibility, alert visibility, loading state, current expense, and expense to delete
   const [modalVisible, setModalVisible] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentExpense, setCurrentExpense] = useState(null);
   const [expenseToDelete, setExpenseToDelete] = useState(null);
+
+  // Initialize form handling using react-hook-form
   const {
     control,
     handleSubmit,
@@ -73,9 +79,11 @@ const Expenses = () => {
     },
   });
 
+  // Get user and date information from stores
   const user = useAuthStore((state) => state.user);
   const tabDate = useDateStore((state) => state.tabDate);
 
+  // Function to fetch expenditure categories, user expenses, and goals
   const fetcher = useCallback(async () => {
     const [categories, expenses, goals] = await Promise.all([
       getExpenditureCategories(),
@@ -85,15 +93,18 @@ const Expenses = () => {
     return { categories, expenses, goals };
   }, [user?.userId, tabDate.month, tabDate.year]);
 
+  // Use SWR to fetch data and handle loading and error states
   const { data, error, isLoading, mutate } = useSWR(
     `/expenditure/data`,
     fetcher
   );
 
+  // Extract categories, expenses, and goals data from the fetched data
   const categoriesData = data?.categories || [];
   const expensesData = data?.expenses || [];
   const goalsData = data?.goals || [];
 
+  // Function to handle modal dismissal
   const handleModalDismiss = () => {
     setModalVisible(false);
     reset({
@@ -105,6 +116,7 @@ const Expenses = () => {
     setCurrentExpense(null);
   };
 
+  // Function to handle editing an expense
   const handleEdit = (expense) => {
     setCurrentExpense(expense);
     setModalVisible(true);
@@ -116,45 +128,7 @@ const Expenses = () => {
     });
   };
 
-  const handleDelete = async () => {
-    setLoading(true);
-    try {
-      const response = await deleteExpenditure(
-        user?.userId,
-        expenseToDelete.expendituresId
-      );
-      Toast.show({
-        type: "success",
-        text1: response,
-        text1Style: {
-          color: "green",
-          fontSize: 16,
-          textAlign: "center",
-        },
-      });
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: error.response?.data?.error || error.message,
-        text1Style: {
-          color: "red",
-          fontSize: 16,
-          textAlign: "center",
-        },
-      });
-    } finally {
-      setLoading(false);
-      setAlertVisible(false);
-      setExpenseToDelete(null);
-      mutate();
-    }
-  };
-
-  const handleDeletePress = (expense) => {
-    setExpenseToDelete(expense);
-    setAlertVisible(true);
-  };
-
+  // Function to handle form submission for adding or updating an expense
   const onSubmit = async (data) => {
     setLoading(true);
     try {
@@ -163,6 +137,7 @@ const Expenses = () => {
       );
 
       if (currentExpense) {
+        // Update existing expense
         const response = await updateExpenditure(
           user?.userId,
           currentExpense.expenditureId,
@@ -185,6 +160,7 @@ const Expenses = () => {
           },
         });
       } else {
+        // Add new expense
         const response = await addExpenditure(user?.userId, {
           amount: data.amount,
           month: tabDate.month,
@@ -220,6 +196,48 @@ const Expenses = () => {
     }
   };
 
+  // Function to handle deleting an expense
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      const response = await deleteExpenditure(
+        user?.userId,
+        expenseToDelete.expendituresId
+      );
+      Toast.show({
+        type: "success",
+        text1: response,
+        text1Style: {
+          color: "green",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.error || error.message,
+        text1Style: {
+          color: "red",
+          fontSize: 16,
+          textAlign: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+      setAlertVisible(false);
+      setExpenseToDelete(null);
+      mutate();
+    }
+  };
+
+  // Function to handle delete button press
+  const handleDeletePress = (expense) => {
+    setExpenseToDelete(expense);
+    setAlertVisible(true);
+  };
+
+  // Function to render each expense item
   const renderItem = ({ item }: { item: any }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5 flex-row justify-between items-center">
       <View>
@@ -242,6 +260,7 @@ const Expenses = () => {
     </View>
   );
 
+  // Memoized categorized expenses data
   const categorizedExpenses = useMemo(() => {
     const initialCategorizedExpenses = {
       living: categoriesData
@@ -277,11 +296,13 @@ const Expenses = () => {
     return initialCategorizedExpenses;
   }, [categoriesData, expensesData]);
 
+  // Memoized total expenses amount
   const totalExpensesAmount = useMemo(
     () => expensesData.reduce((sum, expense) => sum + expense.amount, 0) || 0,
     [expensesData]
   );
 
+  // Memoized pie chart data
   const pieChartData = useMemo(() => {
     const livingExpensesData = categorizedExpenses.living.map(
       (category, index) => {
@@ -323,6 +344,7 @@ const Expenses = () => {
     return [...livingExpensesData, savingsData];
   }, [categorizedExpenses, totalExpensesAmount]);
 
+  // State variables for tab navigation
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "living", title: "Living Expenses" },
@@ -345,6 +367,7 @@ const Expenses = () => {
     { key: "general", title: "General" },
   ]);
 
+  // Function to render living expenses scene
   const renderLivingExpensesScene = ({ route }) => {
     const category = categorizedExpenses.living.find(
       (cat) => cat.categoriesId.toString() === route.key
@@ -364,6 +387,7 @@ const Expenses = () => {
     );
   };
 
+  // Function to render savings scene
   const renderSavingsScene = ({ route }) => {
     const data =
       route.key === "goals"
@@ -384,6 +408,7 @@ const Expenses = () => {
     );
   };
 
+  // Function to render the main scene based on the selected tab
   const renderScene = ({ route }) => {
     switch (route.key) {
       case "living":
@@ -431,6 +456,7 @@ const Expenses = () => {
     }
   };
 
+  // If there's an error, display an error message
   if (error)
     return (
       <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
@@ -438,6 +464,7 @@ const Expenses = () => {
       </SafeAreaView>
     );
 
+  // If data is loading, display a loading spinner
   if (isLoading)
     return (
       <SafeAreaView className="flex bg-[#161E2B] h-screen justify-center items-center">
@@ -445,9 +472,11 @@ const Expenses = () => {
       </SafeAreaView>
     );
 
+  // Main render of the expenses screen
   return (
     <>
       <SafeAreaView className="flex-1 bg-[#161E2B]">
+        {/* Container for total expenses display */}
         <View
           className="bg-[#1E2A3B] rounded-lg p-5 mx-5"
           style={{
@@ -459,6 +488,7 @@ const Expenses = () => {
             ${totalExpensesAmount.toFixed(2)}
           </Text>
         </View>
+        {/* Pie chart for expenses distribution */}
         <PieChart
           data={pieChartData}
           width={screenWidth - 20}
@@ -478,6 +508,7 @@ const Expenses = () => {
           hasLegend={true}
           center={[0, 0]}
         />
+        {/* Tab view for living expenses and savings */}
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
@@ -495,12 +526,14 @@ const Expenses = () => {
             />
           )}
         />
+        {/* Button to add a new expense */}
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
           className="absolute bottom-32 right-10 bg-blue-500 p-4 rounded-full shadow-lg"
         >
           <Plus color="white" size={28} />
         </TouchableOpacity>
+        {/* Modal for adding or updating an expense */}
         <CustomModal
           visible={modalVisible}
           onDismiss={handleModalDismiss}
@@ -509,54 +542,29 @@ const Expenses = () => {
           errors={errors}
           reset={reset}
           inputs={[
-            { name: "amount", placeholder: "Amount", keyboardType: "numeric" },
-          ]}
-          selects={[
             {
               name: "categoryType",
-              placeholder: "Select Category Type",
-              items: [
-                { label: "Living Expenses", value: "living" },
-                { label: "Savings", value: "savings" },
-              ],
-              label: "Category Type",
-              watch: watch,
+              placeholder: "Category Type",
+              keyboardType: "ascii-capable",
+              defaultValue: currentExpense?.categoryType,
             },
             {
               name: "category",
-              placeholder: "Select Subcategory",
-              items: categoriesData
-                .filter((cat) => cat.categoriesId !== 7)
-                .map((cat) => ({ label: cat.name, value: cat.name })),
-              label: "Subcategory",
-              dependentOn: "categoryType",
-              dependentItems: {
-                living: categoriesData
-                  .filter((cat) => cat.categoriesId !== 7)
-                  .map((cat) => ({ label: cat.name, value: cat.name })),
-                savings: [
-                  { label: "Goals", value: "goals" },
-                  { label: "General", value: "general" },
-                ],
-              },
-              watch: watch,
+              placeholder: "Category",
+              keyboardType: "ascii-capable",
+              defaultValue: currentExpense?.category,
+            },
+            {
+              name: "amount",
+              placeholder: "Amount",
+              keyboardType: "numeric",
+              defaultValue: currentExpense?.amount,
             },
             {
               name: "goal",
-              placeholder: "Select Goal",
-              items: goalsData.map((goal) => ({
-                label: goal.title,
-                value: goal.goalsId,
-              })),
-              label: "Goal",
-              dependentOn: "category",
-              dependentItems: {
-                goals: goalsData.map((goal) => ({
-                  label: goal.title,
-                  value: goal.goalsId,
-                })),
-              },
-              watch: watch,
+              placeholder: "Goal",
+              keyboardType: "ascii-capable",
+              defaultValue: currentExpense?.goal,
             },
           ]}
           buttons={[
@@ -569,6 +577,7 @@ const Expenses = () => {
           ]}
           loading={loading}
         />
+        {/* Alert for confirming expense deletion */}
         <CustomAlert
           visible={alertVisible}
           onDismiss={() => setAlertVisible(false)}

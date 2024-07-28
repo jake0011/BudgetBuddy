@@ -6,9 +6,12 @@ import { View, Image } from "react-native";
 import CustomDatePicker from "@/components/global/CustomDatePicker";
 import { useDateStore } from "@/stores/date";
 
+// This component defines the layout for the tab navigation within the drawer
 export default function TabsLayout() {
+  // Get the function to set the date in the date store
   const setTabDate = useDateStore((state) => state.setTabDate);
 
+  // Handle date change from the custom date picker
   const handleDateChange = (date: Date) => {
     setTabDate(date.getMonth(), date.getFullYear());
   };
@@ -16,15 +19,14 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: "white",
-        // headerShown: false,
-        headerTintColor: "white",
+        tabBarActiveTintColor: "white", // Active tab text color
+        headerTintColor: "white", // Header text color
         headerStyle: {
-          backgroundColor: "#161E2B",
+          backgroundColor: "#161E2B", // Header background color
         },
-        headerTitleAlign: "center",
+        headerTitleAlign: "center", // Center align the header title
         headerLeft: () => {
-          return <DrawerToggleButton tintColor="white" />;
+          return <DrawerToggleButton tintColor="white" />; // Drawer toggle button
         },
         headerTitle: () => (
           <Image
@@ -39,15 +41,14 @@ export default function TabsLayout() {
             showTimePicker={false}
           />
         ),
-        tabBarInactiveTintColor: "gray",
-        tabBarHideOnKeyboard: true,
-        tabBarAccessibilityLabel: "Home",
+        tabBarInactiveTintColor: "gray", // Inactive tab text color
+        tabBarHideOnKeyboard: true, // Hide tab bar when keyboard is shown
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: "bold",
         },
         tabBarStyle: {
-          display: usePathname() === "example" ? "none" : "flex",
+          display: usePathname() === "example" ? "none" : "flex", // Hide tab bar on specific route
           position: "absolute",
           elevation: 0,
           borderTopLeftRadius: 20,
@@ -82,6 +83,7 @@ export default function TabsLayout() {
         },
       })}
     >
+      {/* Define the screens for the tab navigation */}
       <Tabs.Screen
         name="index"
         options={{

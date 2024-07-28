@@ -1,6 +1,7 @@
-import { UserType } from "@/types/UserType";
-import axios from "@/utils/axios";
+import { UserType } from "@/types/UserType"; // Importing UserType type
+import axios from "@/utils/axios"; // Importing axios instance
 
+// Interface for sign-up properties
 interface SignUpProps {
   username: string;
   firstname: string;
@@ -9,11 +10,13 @@ interface SignUpProps {
   email: string;
 }
 
+// Interface for login properties
 interface LoginProps {
   username: string;
   password: string;
 }
 
+// Function to sign up a new user
 export const signUp = async ({
   username,
   firstname,
@@ -30,12 +33,13 @@ export const signUp = async ({
       email,
     });
 
-    return response.data;
+    return response.data; // Return the response data
   } catch (error) {
-    throw error;
+    throw error; // Throw error if request fails
   }
 };
 
+// Function to log in a user
 export const login = async (
   { username, password }: LoginProps,
   setUser: (user: UserType, token?: string) => void
@@ -48,40 +52,44 @@ export const login = async (
     const { token, data } = response.data;
 
     if (!token) {
-      throw new Error("No token provided");
+      throw new Error("No token provided"); // Throw error if no token is provided
     }
 
-    setUser({ ...data, token });
+    setUser({ ...data, token }); // Set the user data with the token
 
+    // Set default headers for axios
     axios.defaults.headers.common["userId"] = data.userId;
     axios.defaults.headers.common["Authorization"] = `${token}`;
 
-    return true;
+    return true; // Return true if login is successful
   } catch (error) {
-    throw error;
+    throw error; // Throw error if request fails
   }
 };
 
+// Function to log out a user
 export const logout = async ({
   setUser,
 }: {
   setUser: (user: UserType) => void;
 }) => {
   try {
-    setUser(null);
+    setUser(null); // Clear the user data
+    // Clear default headers for axios
     axios.defaults.headers.common["Authorization"] = "";
     axios.defaults.headers.common["userId"] = "";
-    return true;
+    return true; // Return true if logout is successful
   } catch (error) {
-    throw error;
+    throw error; // Throw error if request fails
   }
 };
 
+// Function to update user data
 export const updateUser = async (user: UserType) => {
   try {
     const response = await axios.put("/v1/user/update", user);
-    return response.data.data;
+    return response.data.data; // Return the updated user data
   } catch (error) {
-    throw error;
+    throw error; // Throw error if request fails
   }
 };

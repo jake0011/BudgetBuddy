@@ -1,19 +1,19 @@
-import React, { Fragment, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import React, { Fragment, useState } from "react"; // Importing React and hooks for state management
+import { Link, useRouter } from "expo-router"; // Importing Link and useRouter from expo-router for navigation
 import {
   View,
   Text,
   TouchableOpacity,
   SafeAreaView,
   Image,
-} from "react-native";
-import SafeAreaViewAndroid from "@/components/global/SafeAreaViewAndroid";
-import { useAuthStore } from "@/stores/auth";
+} from "react-native"; // Importing components from react-native for UI
+import SafeAreaViewAndroid from "@/components/global/SafeAreaViewAndroid"; // Importing custom SafeAreaView for Android
+import { useAuthStore } from "@/stores/auth"; // Importing useAuthStore for state management
 
 const OnboardingScreen = () => {
-  const [activeScreenIndex, setActiveScreenIndex] = useState(0);
-  const setOnBoarded = useAuthStore((state) => state.setOnBoarded);
-  const router = useRouter();
+  const [activeScreenIndex, setActiveScreenIndex] = useState(0); // State to track the current onboarding screen
+  const setOnBoarded = useAuthStore((state) => state.setOnBoarded); // Function to set the onboarding status in the global state
+  const router = useRouter(); // Hook for navigation
 
   const onboardingScreens = [
     {
@@ -46,38 +46,41 @@ const OnboardingScreen = () => {
         "Sign up or log in now to start managing your finances with BudgetBuddy.",
       image: require("../../../../assets/images/getStarted.png"),
     },
-  ];
+  ]; // Array of onboarding screens with title, description, and image
 
-  const currentScreen = onboardingScreens[activeScreenIndex];
+  const currentScreen = onboardingScreens[activeScreenIndex]; // Get the current onboarding screen
 
   const handleOnboardingComplete = () => {
-    setOnBoarded(true);
-    router.replace("/login");
+    setOnBoarded(true); // Set onboarding status to true
+    router.replace("/login"); // Navigate to the login page
   };
 
   const onSkip = () => {
-    handleOnboardingComplete();
+    handleOnboardingComplete(); // Skip onboarding and complete it
   };
 
   const onNext = () => {
     const nextIndex = activeScreenIndex + 1;
     if (nextIndex < onboardingScreens.length) {
-      setActiveScreenIndex(nextIndex);
+      setActiveScreenIndex(nextIndex); // Move to the next onboarding screen
     }
   };
 
   const onBack = () => {
     const nextIndex = activeScreenIndex - 1;
     if (nextIndex >= 0) {
-      setActiveScreenIndex(nextIndex);
+      setActiveScreenIndex(nextIndex); // Move to the previous onboarding screen
     }
   };
 
   return (
     <Fragment>
       <SafeAreaView style={SafeAreaViewAndroid.AndroidSafeArea}>
+        {/* Safe area view for Android */}
         <View className="h-1/2 flex">
+          {/* Container for the top half of the screen */}
           <View className="flex flex-row justify-between mx-4">
+            {/* Container for back and skip buttons */}
             {activeScreenIndex === 0 ? (
               <TouchableOpacity
                 className="p-2 rounded-2xl  justify-start"
@@ -91,13 +94,14 @@ const OnboardingScreen = () => {
                 <Text className="text-white font-bold">Back</Text>
               </TouchableOpacity>
             )}
-
+            {/* Back button */}
             <TouchableOpacity
               className="p-2 px-4 rounded-2xl my-4 bg-gray-900"
               onPress={onSkip}
             >
               <Text className="text-white font-bold">Skip</Text>
             </TouchableOpacity>
+            {/* Skip button */}
           </View>
           <View className="items-center">
             <Image
@@ -106,8 +110,10 @@ const OnboardingScreen = () => {
               resizeMode="cover"
             />
           </View>
+          {/* Display current onboarding screen image */}
         </View>
         <View className="h-1/2 p-6 color-white">
+          {/* Container for the bottom half of the screen */}
           <View className="items-center justify-center h-1/2 color-white">
             <Text className="text-2xl text-center font-bold mb-2 color-white">
               {currentScreen.title}
@@ -116,7 +122,7 @@ const OnboardingScreen = () => {
               {currentScreen.description}
             </Text>
           </View>
-
+          {/* Display current onboarding screen title and description */}
           <View className="flex-col items-center justify-center h-1/2 color-white">
             {activeScreenIndex < onboardingScreens.length - 1 ? (
               <TouchableOpacity
@@ -148,7 +154,7 @@ const OnboardingScreen = () => {
               </TouchableOpacity>
             )}
           </View>
-
+          {/* Display Next or Get Started button based on the current screen */}
           <View className="flex flex-row items-center justify-center pt-2">
             {onboardingScreens.map((screen, index) => (
               <View
@@ -159,10 +165,11 @@ const OnboardingScreen = () => {
               />
             ))}
           </View>
+          {/* Display indicators for onboarding screens */}
         </View>
       </SafeAreaView>
     </Fragment>
   );
 };
 
-export default OnboardingScreen;
+export default OnboardingScreen; // Exporting the OnboardingScreen component

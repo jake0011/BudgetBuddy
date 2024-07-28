@@ -1,13 +1,11 @@
-"use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { Image, Keyboard, Text, View } from "react-native";
-import { TextInput } from "react-native-paper";
-import { Button, Input } from "tamagui";
-import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod"; // Importing zodResolver for form validation
+import { useLocalSearchParams, useRouter } from "expo-router"; // Importing hooks for navigation and search params
+import React, { useEffect, useState } from "react"; // Importing React and hooks for state and lifecycle management
+import { Controller, useForm } from "react-hook-form"; // Importing useForm and Controller from react-hook-form for form handling
+import { Image, Keyboard, Text, View } from "react-native"; // Importing components from react-native for UI
+import { TextInput } from "react-native-paper"; // Importing TextInput from react-native-paper for input fields
+import { Button } from "tamagui"; // Importing Button from tamagui for buttons
+import * as z from "zod"; // Importing zod for schema validation
 
 export const schema = z
   .object({
@@ -20,48 +18,56 @@ export const schema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  }); // Defining schema for password and confirm password validation
 
-export type formData = z.infer<typeof schema>;
+export type formData = z.infer<typeof schema>; // Defining type for form data based on schema
 
 const ResetPasswordScreen = () => {
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false); // State to track if the keyboard is visible
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // State to toggle confirm password visibility
 
   useEffect(() => {
+    // Effect to handle keyboard visibility
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
-      () => setKeyboardVisible(true)
+      () => setKeyboardVisible(true) // Set keyboardVisible to true when keyboard is shown
     );
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
-      () => setKeyboardVisible(false)
+      () => setKeyboardVisible(false) // Set keyboardVisible to false when keyboard is hidden
     );
 
     return () => {
+      // Cleanup listeners on component unmount
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
   }, []);
+
   const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<formData>({ resolver: zodResolver(schema) });
-  const router = useRouter();
-  const searchParams = useLocalSearchParams();
-  const email = "";
+    control, // Control object for form handling
+    handleSubmit, // Function to handle form submission
+    formState: { errors }, // Object containing form errors
+  } = useForm<formData>({ resolver: zodResolver(schema) }); // Initializing form with zod schema resolver
+  const router = useRouter(); // Hook for navigation
+  const searchParams = useLocalSearchParams(); // Hook to get search params
+  const email = ""; // Placeholder for email, can be retrieved from searchParams if needed
 
   const onSubmit = async (data: formData) => {
+    // Function to handle form submission
     try {
-      console.log(data);
-    } catch (error) {}
+      console.log(data); // Log form data to console
+    } catch (error) {
+      // Handle error
+    }
   };
 
   return (
     <View className="flex-1 justify-center p-8 items-center">
+      {/* Main container with flex layout */}
       <View className="w-full mb-4 justify-center items-center">
+        {/* Container for logo and title */}
         {!keyboardVisible && (
           <Image
             source={require("../../../../assets/logo.png")}
@@ -69,9 +75,12 @@ const ResetPasswordScreen = () => {
             className="rounded-full w-60 h-52 object-contain object-center"
           />
         )}
+        {/* Display logo if keyboard is not visible */}
         <Text className="text-4xl font-bold text-white">Reset Password</Text>
+        {/* Title */}
       </View>
       <View className="flex-col gap-6 w-full">
+        {/* Container for form fields */}
         <Controller
           control={control}
           name="password"
@@ -99,6 +108,7 @@ const ResetPasswordScreen = () => {
             </View>
           )}
         />
+        {/* Password field with toggle visibility and validation */}
         <Controller
           control={control}
           name="confirmPassword"
@@ -128,10 +138,12 @@ const ResetPasswordScreen = () => {
             </View>
           )}
         />
+        {/* Confirm password field with toggle visibility and validation */}
         <Button onPress={handleSubmit(onSubmit)}>Reset Password</Button>
+        {/* Reset Password button */}
       </View>
     </View>
   );
 };
 
-export default ResetPasswordScreen;
+export default ResetPasswordScreen; // Exporting the ResetPasswordScreen component
