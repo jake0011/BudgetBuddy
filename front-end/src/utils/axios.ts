@@ -8,6 +8,13 @@ const url = process.env.BACKEND_URL;
 axios.defaults.baseURL = url;
 axios.defaults.withCredentials = true;
 
+(async () => {
+  const token = useAuthStore.getState().user?.token;
+  if (token) {
+    axios.defaults.headers.common["Authorization"] = `${token}`;
+  }
+})();
+
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {

@@ -38,7 +38,7 @@ export const signUp = async ({
 
 export const login = async (
   { username, password }: LoginProps,
-  setUser: (user: UserType) => void
+  setUser: (user: UserType, token?: string) => void
 ) => {
   try {
     const response = await axios.post("/v1/user/signin", {
@@ -51,7 +51,7 @@ export const login = async (
       throw new Error("No token provided");
     }
 
-    setUser(data);
+    setUser({ ...data, token });
 
     axios.defaults.headers.common["userId"] = data.userId;
     axios.defaults.headers.common["Authorization"] = `${token}`;
@@ -72,6 +72,15 @@ export const logout = async ({
     axios.defaults.headers.common["Authorization"] = "";
     axios.defaults.headers.common["userId"] = "";
     return true;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateUser = async (user: UserType) => {
+  try {
+    const response = await axios.put("/v1/user/update", user);
+    return response.data.data;
   } catch (error) {
     throw error;
   }

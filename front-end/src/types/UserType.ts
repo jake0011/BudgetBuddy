@@ -5,4 +5,5 @@ export type UserType = {
   middlename?: string;
   lastname: string;
   email: string;
+  token: string;
 };

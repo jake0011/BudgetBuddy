@@ -12,6 +12,7 @@ import { Provider } from "react-native-paper";
 import Toast from "react-native-toast-message";
 import swrConfig from "@/utils/swrConfig";
 import { SWRConfig } from "swr";
+import axios from "@/utils/axios";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,10 +20,6 @@ const StackLayout = () => {
   const user = useAuthStore((state) => state.user);
   const segments = useSegments();
   const router = useRouter();
-
-  useEffect(() => {
-    setTimeout(SplashScreen.hideAsync, 1500);
-  }, []);
 
   useEffect(() => {
     const inAuthGroup = segments[0] === "(root)";
@@ -54,20 +51,31 @@ export default function RootLayout() {
     InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
   });
   const [appIsReady, setAppIsReady] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const prepareApp = async () => {
       if (fontsLoaded) {
+        if (user?.token) {
+          axios.defaults.headers.common["Authorization"] = `${user.token}`;
+        }
         setAppIsReady(true);
       }
     };
 
     prepareApp();
-  }, [fontsLoaded]);
+  }, [fontsLoaded, user]);
+
+  useEffect(() => {
+    if (appIsReady) {
+      SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
 
   if (!appIsReady) {
     return null;
   }
+
   return (
     <SWRConfig value={swrConfig}>
       <Provider>

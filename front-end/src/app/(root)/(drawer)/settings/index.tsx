@@ -70,7 +70,7 @@ const Profile = () => {
             />
           </View>
           <View className="mb-5 flex flex-row gap-2 w-full">
-            <View className="w-[50%]">
+            <View className="flex-1">
               <Text className="text-gray-200 text-lg font-bold">
                 First Name
               </Text>
@@ -81,7 +81,7 @@ const Profile = () => {
                 defaultValue={user?.firstname}
               />
             </View>
-            <View className="w-[50%]">
+            <View className="flex-1">
               <Text className="text-gray-200 text-lg font-bold">Last Name</Text>
               <TextInput
                 className="text-white text-base border-b border-gray-400"
