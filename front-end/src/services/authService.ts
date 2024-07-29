@@ -87,7 +87,7 @@ export const logout = async ({
 // Function to update user data
 export const updateUser = async (user: UserType) => {
   try {
-    const response = await axios.put("/v1/user/update", user);
+    const response = await axios.patch("/v1/user/update", user);
     return response.data.data; // Return the updated user data
   } catch (error) {
     throw error; // Throw error if request fails

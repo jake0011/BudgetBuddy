@@ -45,15 +45,15 @@ export const addGoal = async (
 // Function to update an existing goal for a specific user
 export const updateGoal = async (
   userId: string,
-  goalId: number,
+  goalsId: number,
   title: string,
   amount: number
 ) => {
   try {
-    const response = await axios.put(
+    const response = await axios.patch(
       "/auth/v1/goal/update",
       {
-        goalId,
+        goalsId,
         title,
         amount,
       },
