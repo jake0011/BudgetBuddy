@@ -48,11 +48,28 @@ const predefinedColors = [
 ];
 
 // Schema for form validation using Zod
-const expenseSchema = z.object({
-  categoryType: z.string().min(1, "Category type is required"),
-  category: z.string().min(1, "Category is required"),
-  amount: z.number().min(0.01, "Amount must be greater than 0"),
-});
+const expenseSchema = z
+  .object({
+    categoryType: z.string().min(1, "Category type is required"),
+    category: z.string().min(1, "Category is required"),
+    amount: z.number().min(0.01, "Amount must be greater than 0"),
+    goal: z.number().optional(),
+  })
+  .refine(
+    (data) => {
+      if (
+        data.category === "goals" &&
+        (data.goal === undefined || data.goal === null)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Goal is required when category is 'goals'",
+      path: ["goal"],
+    }
+  );
 
 const Expenses = () => {
   // State variables for modal visibility, alert visibility, loading state, current expense, and expense to delete
@@ -248,7 +265,7 @@ const Expenses = () => {
           {item.createdAt.split("T")[0]}
         </Text>
       </View>
-      <Text className="text-white text-lg font-bold">${item.amount}</Text>
+      <Text className="text-white text-lg font-bold">GHS {item.amount}</Text>
       <View style={{ flexDirection: "row", gap: 10 }}>
         <TouchableOpacity onPress={() => handleEdit(item)}>
           <Text className="text-blue-500">Edit</Text>
@@ -485,7 +502,7 @@ const Expenses = () => {
         >
           <Text className="text-white text-lg mb-2">Total Expenses</Text>
           <Text className="text-white text-4xl font-bold">
-            ${totalExpensesAmount.toFixed(2)}
+            GHS {totalExpensesAmount.toFixed(2)}
           </Text>
         </View>
         {/* Pie chart for expenses distribution */}
@@ -543,28 +560,58 @@ const Expenses = () => {
           reset={reset}
           inputs={[
             {
-              name: "categoryType",
-              placeholder: "Category Type",
-              keyboardType: "ascii-capable",
-              defaultValue: currentExpense?.categoryType,
-            },
-            {
-              name: "category",
-              placeholder: "Category",
-              keyboardType: "ascii-capable",
-              defaultValue: currentExpense?.category,
-            },
-            {
               name: "amount",
               placeholder: "Amount",
               keyboardType: "numeric",
               defaultValue: currentExpense?.amount,
             },
+          ]}
+          selects={[
+            {
+              name: "categoryType",
+              placeholder: "Select Category Type",
+              items: [
+                { label: "Living Expenses", value: "living" },
+                { label: "Savings", value: "savings" },
+              ],
+              label: "Category Type",
+              watch: watch,
+            },
+            {
+              name: "category",
+              placeholder: "Select Subcategory",
+              items: categoriesData
+                .filter((cat) => cat.categoriesId !== 7)
+                .map((cat) => ({ label: cat.name, value: cat.name })),
+              label: "Subcategory",
+              dependentOn: "categoryType",
+              dependentItems: {
+                living: categoriesData
+                  .filter((cat) => cat.categoriesId !== 7)
+                  .map((cat) => ({ label: cat.name, value: cat.name })),
+                savings: [
+                  { label: "Goals", value: "goals" },
+                  { label: "General", value: "general" },
+                ],
+              },
+              watch: watch,
+            },
             {
               name: "goal",
-              placeholder: "Goal",
-              keyboardType: "ascii-capable",
-              defaultValue: currentExpense?.goal,
+              placeholder: "Select Goal",
+              items: goalsData.map((goal) => ({
+                label: goal.title,
+                value: goal.goalsId,
+              })),
+              label: "Goal",
+              dependentOn: "category",
+              dependentItems: {
+                goals: goalsData.map((goal) => ({
+                  label: goal.title,
+                  value: goal.goalsId,
+                })),
+              },
+              watch: watch,
             },
           ]}
           buttons={[

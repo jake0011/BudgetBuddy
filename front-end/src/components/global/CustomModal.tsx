@@ -145,23 +145,25 @@ const CustomModal: React.FC<CustomModalProps> = ({
                 key={index}
                 control={control}
                 name={select.name}
-                render={({ field: { onChange, value } }) => (
-                  <View className="w-full flex-col gap-2 justify-start">
-                    <CustomSelect
-                      value={value}
-                      onValueChange={onChange}
-                      placeholder={select.placeholder}
-                      items={items}
-                      label={select.label}
-                    />
-                    {/* Displaying error message if any */}
-                    {errors[select.name] && (
-                      <Text className="text-red-500">
-                        {errors[select.name]?.message?.toString()}
-                      </Text>
-                    )}
-                  </View>
-                )}
+                render={({ field: { onChange, value } }) => {
+                  return (
+                    <View className="w-full flex-col gap-2 justify-start">
+                      <CustomSelect
+                        value={value}
+                        onValueChange={onChange}
+                        placeholder={select.placeholder}
+                        items={items}
+                        label={select.label}
+                      />
+                      {/* Displaying error message if any */}
+                      {errors[select.name] && (
+                        <Text className="text-red-500">
+                          {errors[select.name]?.message?.toString()}
+                        </Text>
+                      )}
+                    </View>
+                  );
+                }}
               />
             );
           })}

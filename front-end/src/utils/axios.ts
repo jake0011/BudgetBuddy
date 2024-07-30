@@ -3,7 +3,8 @@ import { secureStore } from "./secureStore"; // Importing secureStore for secure
 import { useAuthStore } from "@/stores/auth"; // Importing custom hook for authentication store
 import Toast from "react-native-toast-message"; // Importing Toast for notifications
 
-const url = process.env.BACKEND_URL; // Get the backend URL from environment variables
+const url = process.env.BACKEND_URL;
+// Get the backend URL from environment variables
 
 axios.defaults.baseURL = url; // Set the base URL for axios
 axios.defaults.withCredentials = true; // Allow axios to send cookies with requests

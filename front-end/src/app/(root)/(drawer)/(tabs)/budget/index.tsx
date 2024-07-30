@@ -43,11 +43,28 @@ const predefinedColors = [
   "#00FFFF",
 ];
 
-const budgetSchema = z.object({
-  categoryType: z.string().min(1, "Category type is required"),
-  category: z.string().min(1, "Category is required"),
-  amount: z.number().min(0.01, "Amount must be greater than 0"),
-});
+const budgetSchema = z
+  .object({
+    categoryType: z.string().min(1, "Category type is required"),
+    category: z.string().min(1, "Category is required"),
+    amount: z.number().min(0.01, "Amount must be greater than 0"),
+    goal: z.number().optional(),
+  })
+  .refine(
+    (data) => {
+      if (
+        data.category === "goals" &&
+        (data.goal === undefined || data.goal === null)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Goal is required when category is 'goals'",
+      path: ["goal"],
+    }
+  );
 
 const Budget = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -135,7 +152,7 @@ const Budget = () => {
       <View>
         <Text className={`text-white text-lg font-bold`}>{item?.name}</Text>
       </View>
-      <Text className="text-white text-lg font-bold">${item?.amount}</Text>
+      <Text className="text-white text-lg font-bold">GHS {item?.amount}</Text>
     </View>
   );
 
@@ -328,7 +345,7 @@ const Budget = () => {
         >
           <Text className="text-white text-lg mb-2">Total Budget</Text>
           <Text className="text-white text-4xl font-bold">
-            ${totalBudgetAmount.toFixed(2)}
+            GHS {totalBudgetAmount.toFixed(2)}
           </Text>
         </View>
         <PieChart

@@ -35,7 +35,10 @@ const Dashboard = () => {
   // Use SWR to fetch data and handle loading and error states
   const { data, error, isLoading } = useSWR(
     `/summary/data/${tabDate.month}/${tabDate.year}`,
-    fetcher
+    fetcher,
+    {
+      refreshInterval: 1000,
+    }
   );
 
   // Effect to change the tip every 10 seconds

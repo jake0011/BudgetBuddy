@@ -62,7 +62,7 @@ const Overview = ({ data }) => (
     <View className="bg-[#1E2A3B] rounded-lg p-5 mb-5">
       <Text className="text-white font-bold text-lg mb-2">Total Balance</Text>
       <Text className="text-white text-4xl font-bold">
-        $
+        GHS{" "}
         {(
           data.income.reduce((acc, item) => acc + item.amount, 0) - // Calculate total income
           data.expenses.reduce((acc, item) => acc + item.amount, 0)
@@ -74,16 +74,15 @@ const Overview = ({ data }) => (
       <View className="bg-[#1E2A3B] rounded-lg p-5 flex-1 mx-1">
         <Text className="text-white font-bold text-lg mb-2">Income</Text>
         <Text className="text-green-500 text-2xl font-bold">
-          ${data.income.reduce((acc, item) => acc + item.amount, 0).toFixed(2)}{" "}
-          // Display total income
+          GHS{" "}
+          {data.income.reduce((acc, item) => acc + item.amount, 0).toFixed(2)}{" "}
         </Text>
       </View>
       <View className="bg-[#1E2A3B] rounded-lg p-5 flex-1 mx-1">
         <Text className="text-white font-bold text-lg mb-2">Expenses</Text>
         <Text className="text-red-500 text-2xl font-bold">
-          $
+          GHS{" "}
           {data.expenses.reduce((acc, item) => acc + item.amount, 0).toFixed(2)}{" "}
-          // Display total expenses
         </Text>
       </View>
     </View>
@@ -132,10 +131,10 @@ const Expenses = ({ data }) => {
               className="bg-[#1E2A3B] flex flex-row justify-between rounded-lg p-5 mb-5"
             >
               <Text className="text-white text-lg font-bold">
-                {expense.categoryName} // Display category name
+                {expense.categoryName}
               </Text>
               <Text className="text-gray-200 font-semibold">
-                GHS {expense.amount} // Display amount spent
+                GHS {expense.amount}
               </Text>
             </View>
           ))}
@@ -157,8 +156,7 @@ const Income = ({ data }) => (
     <View className="bg-[#1E2A3B]  rounded-lg p-5 mb-5">
       <Text className="text-white font-bold text-lg mb-2">Total Income</Text>
       <Text className="text-white text-4xl font-bold">
-        ${data.income.reduce((acc, item) => acc + item.amount, 0)} // Display
-        total income
+        GHS {data.income.reduce((acc, item) => acc + item.amount, 0)}
       </Text>
     </View>
     {data && data.income.length > 0 ? ( // Check if there is any income
@@ -195,10 +193,10 @@ const Income = ({ data }) => (
             className="bg-[#1E2A3B] flex flex-row justify-between rounded-lg p-5 mb-5"
           >
             <Text className="text-white text-lg font-bold">
-              {source.source} // Display source of income
+              {source.source}
             </Text>
             <Text className="text-gray-200 font-semibold">
-              GHS {source.amount} // Display amount earned
+              GHS {source.amount}
             </Text>
           </View>
         ))}
@@ -280,7 +278,9 @@ const Reports = () => {
   }, [user?.userId, drawerDate.month, drawerDate.year]);
 
   // Use SWR to fetch the data
-  const { data, error, isLoading } = useSWR(`/report/data`, fetcher);
+  const { data, error, isLoading } = useSWR(`/report/data`, fetcher, {
+    refreshInterval: 1000,
+  });
 
   // Define the scenes for the tabs
   const renderScene = SceneMap({
