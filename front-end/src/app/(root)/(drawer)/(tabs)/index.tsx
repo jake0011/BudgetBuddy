@@ -148,7 +148,7 @@ const Dashboard = () => {
                   />
                   {/* Display the percentage to goal */}
                   <Text className="text-[#3498db] text-base mt-1">
-                    {goal.percentageToGoal}%
+                    {goal.percentageToGoal.toFixed(1)}%
                   </Text>
                 </View>
               ))

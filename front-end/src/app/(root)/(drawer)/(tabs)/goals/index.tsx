@@ -187,7 +187,9 @@ const Goals = () => {
             style={{ marginTop: 10 }}
           />
           <View className="flex-row justify-between items-center mt-1">
-            <Text className="text-[#3498db] text-base">{progress * 100}%</Text>
+            <Text className="text-[#3498db] text-base">
+              {(progress * 100).toFixed(1)}%
+            </Text>
             <View className="flex-row gap-2">
               <TouchableOpacity onPress={() => handleEdit(item)}>
                 <Text className="text-blue-500">Edit</Text>
