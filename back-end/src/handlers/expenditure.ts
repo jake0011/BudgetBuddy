@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, and, or, ne, asc } from "drizzle-orm";
+import { eq, and, or, ne, asc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { expenditures, categories } from "../db/schema/expenditures";
@@ -39,6 +39,32 @@ const expenditureGetByYearAndMonth = z.object({
   monthOfTheYear: z.enum(DATEVALUES),
   type: z.enum(VALUES),
 });
+
+async function updatePercentageToGoal(userId: number, goalsId: number) {
+  const goal = await db.query.goals.findFirst({
+    where: and(eq(goals.userId, userId), eq(goals.goalsId, goalsId)),
+  });
+
+  if (goal) {
+    const totalExpenditureResult = await db.execute<{ total: number }>(sql`
+      SELECT SUM(${expenditures.amount}) as total
+      FROM ${expenditures}
+      WHERE ${expenditures.userId} = ${userId} AND ${expenditures.goalsId} = ${goalsId}
+    `);
+
+    const totalExpenditure = totalExpenditureResult.rows[0]?.total || 0;
+    const percentageToGoal = (totalExpenditure / goal.amount) * 100;
+
+    await db
+      .update(goals)
+      .set({
+        percentageToGoal: percentageToGoal,
+        isGoalReached: percentageToGoal >= 100,
+      })
+      .where(eq(goals.goalsId, goalsId));
+  }
+}
+
 //this was made post because there is a body being sent with the request
 expenditureAuth.post(
   "/month",
@@ -57,7 +83,7 @@ expenditureAuth.post(
           eq(expenditures.userId, userId),
           eq(expenditures.year, body.year),
           eq(expenditures.monthOfTheYear, body.monthOfTheYear),
-          eq(expenditures.type, body.type),
+          eq(expenditures.type, body.type)
         ),
       });
       if (expenditureRows) {
@@ -68,7 +94,7 @@ expenditureAuth.post(
     } catch (err) {
       return c.json({ message: "An error occured, try again", error: err });
     }
-  },
+  }
 );
 
 expenditure.get("/categories", async (c) => {
@@ -122,6 +148,7 @@ expenditureAuth.post(
           goalsId: goalId.goalsId,
           categoriesId: body.categoriesId,
         });
+        await updatePercentageToGoal(userId, goalId.goalsId); // Update percentageToGoal
       } else if (body.categoriesId === 7 && body.goalsId && !goalId) {
         return c.json({ error: "Goal specified does not exist for user" }, 404);
       } else {
@@ -142,7 +169,7 @@ expenditureAuth.post(
         error: err,
       });
     }
-  },
+  }
 );
 
 expenditureAuth.get("/expenses/all", async (c) => {
@@ -151,7 +178,7 @@ expenditureAuth.get("/expenses/all", async (c) => {
     const expenseRows = await db.query.expenditures.findMany({
       where: or(
         eq(expenditures.userId, userId),
-        eq(expenditures.type, "expenses"),
+        eq(expenditures.type, "expenses")
       ),
     });
 
@@ -172,7 +199,7 @@ expenditureAuth.get("/budget/all", async (c) => {
     const expenseRows = await db.query.expenditures.findMany({
       where: or(
         eq(expenditures.userId, userId),
-        eq(expenditures.type, "budget"),
+        eq(expenditures.type, "budget")
       ),
     });
 
@@ -265,10 +292,11 @@ expenditureAuth.put(
             and(
               eq(expenditures.userId, userId),
               eq(expenditures.type, body.type),
-              eq(expenditures.expendituresId, body.expendituresId),
-            ),
+              eq(expenditures.expendituresId, body.expendituresId)
+            )
           )
           .returning();
+        await updatePercentageToGoal(userId, goalId.goalsId); // Update percentageToGoal
       } else if (body.categoriesId === 7 && body.goalsId && !goalId) {
         return c.json({ error: "Goal specified does not exist for user" }, 404);
       } else {
@@ -285,8 +313,8 @@ expenditureAuth.put(
             and(
               eq(expenditures.userId, userId),
               eq(expenditures.type, body.type),
-              eq(expenditures.expendituresId, body.expendituresId),
-            ),
+              eq(expenditures.expendituresId, body.expendituresId)
+            )
           );
       }
 
@@ -294,7 +322,7 @@ expenditureAuth.put(
         where: and(
           eq(expenditures.userId, userId),
           eq(expenditures.type, body.type),
-          eq(expenditures.expendituresId, body.expendituresId),
+          eq(expenditures.expendituresId, body.expendituresId)
         ),
       });
 
@@ -304,7 +332,7 @@ expenditureAuth.put(
             message: `${body.type} updated successfully`,
             data: expenditureRow,
           },
-          201,
+          201
         );
       } else {
         return c.json({ error: "An error occured, check the type" }, 400);
@@ -312,7 +340,7 @@ expenditureAuth.put(
     } catch (err) {
       return c.json({ error: "An error occured, try again", message: err });
     }
-  },
+  }
 );
 
 interface deletedExpenditure {
@@ -353,16 +381,16 @@ expenditureAuth.delete(
           {
             message: `${expenditureRow[0].expendituresType} ${expenditureRow[0].expendituresId} deleted successfully`,
           },
-          201,
+          201
         );
       } catch (err: any) {
         return c.json(
           { error: "Expenditure does not exist", message: err },
-          404,
+          404
         );
       }
     }
-  },
+  }
 );
 
 expenditureAuth.get("/budget/recent", async (c) => {
@@ -371,7 +399,7 @@ expenditureAuth.get("/budget/recent", async (c) => {
     const expenditureRows = await db.query.expenditures.findMany({
       where: and(
         eq(expenditures.userId, userId),
-        eq(expenditures.type, "budget"),
+        eq(expenditures.type, "budget")
       ),
       limit: 15,
       orderBy: [asc(expenditures.createdAt)],
@@ -393,7 +421,7 @@ expenditureAuth.get("/expenses/recent", async (c) => {
     const expenditureRows = await db.query.expenditures.findMany({
       where: and(
         eq(expenditures.userId, userId),
-        eq(expenditures.type, "expenses"),
+        eq(expenditures.type, "expenses")
       ),
       limit: 15,
       orderBy: [asc(expenditures.createdAt)],
