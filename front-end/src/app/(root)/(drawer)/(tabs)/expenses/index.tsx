@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,6 @@ import { z } from "zod";
 import { Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
-import useSWR from "swr";
 import {
   getExpenditureCategories,
   getUserExpenses,
@@ -100,26 +99,37 @@ const Expenses = () => {
   const user = useAuthStore((state) => state.user);
   const tabDate = useDateStore((state) => state.tabDate);
 
+  // State variables for fetched data
+  const [data, setData] = useState({ categories: [], expenses: [], goals: [] });
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   // Function to fetch expenditure categories, user expenses, and goals
   const fetcher = useCallback(async () => {
-    const [categories, expenses, goals] = await Promise.all([
-      getExpenditureCategories(),
-      getUserExpenses(user?.userId, tabDate.month, tabDate.year),
-      getGoals(user?.userId),
-    ]);
-    return { categories, expenses, goals };
+    try {
+      const [categories, expenses, goals] = await Promise.all([
+        getExpenditureCategories(),
+        getUserExpenses(user?.userId, tabDate.month, tabDate.year),
+        getGoals(user?.userId),
+      ]);
+      setData({ categories, expenses, goals });
+      setError(null);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
   }, [user?.userId, tabDate.month, tabDate.year]);
 
-  // Use SWR to fetch data and handle loading and error states
-  const { data, error, isLoading, mutate } = useSWR(
-    `/expenditure/data`,
-    fetcher
-  );
+  // Use useEffect to fetch data on component mount and when dependencies change
+  useEffect(() => {
+    fetcher();
+  }, [fetcher]);
 
   // Extract categories, expenses, and goals data from the fetched data
-  const categoriesData = data?.categories || [];
-  const expensesData = data?.expenses || [];
-  const goalsData = data?.goals || [];
+  const categoriesData = data.categories;
+  const expensesData = data.expenses;
+  const goalsData = data.goals;
 
   // Function to handle modal dismissal
   const handleModalDismiss = () => {
@@ -196,7 +206,7 @@ const Expenses = () => {
           },
         });
       }
-      mutate();
+      fetcher();
     } catch (error) {
       Toast.show({
         type: "error",
@@ -244,7 +254,7 @@ const Expenses = () => {
       setLoading(false);
       setAlertVisible(false);
       setExpenseToDelete(null);
-      mutate();
+      fetcher();
     }
   };
 

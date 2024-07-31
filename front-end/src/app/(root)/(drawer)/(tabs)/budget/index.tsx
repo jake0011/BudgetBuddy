@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,6 @@ import { z } from "zod";
 import { Spinner } from "tamagui";
 import { Plus } from "@tamagui/lucide-icons";
 import { PieChart } from "react-native-chart-kit";
-import useSWR from "swr";
 import {
   getExpenditureCategories,
   getUserBudget,
@@ -69,6 +68,10 @@ const budgetSchema = z
 const Budget = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState({ categories: [], budget: [], goals: [] });
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const {
     control,
     handleSubmit,
@@ -84,26 +87,33 @@ const Budget = () => {
       goal: "",
     },
   });
+
   const user = useAuthStore((state) => state.user);
   const tabDate = useDateStore((state) => state.tabDate);
 
   const fetcher = useCallback(async () => {
-    const [categories, budget, goals] = await Promise.all([
-      getExpenditureCategories(),
-      getUserBudget(user?.userId, tabDate.month, tabDate.year),
-      getGoals(user?.userId),
-    ]);
-    return { categories, budget, goals };
+    try {
+      const [categories, budget, goals] = await Promise.all([
+        getExpenditureCategories(),
+        getUserBudget(user?.userId, tabDate.month, tabDate.year),
+        getGoals(user?.userId),
+      ]);
+      setData({ categories, budget, goals });
+      setError(null);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
   }, [user?.userId, tabDate.month, tabDate.year]);
 
-  const { data, error, isLoading, mutate } = useSWR(
-    `/expenditure/data`,
-    fetcher
-  );
+  useEffect(() => {
+    fetcher();
+  }, [fetcher]);
 
-  const categoriesData = data?.categories || [];
-  const budgetData = data?.budget || [];
-  const goalsData = data?.goals || [];
+  const categoriesData = data.categories;
+  const budgetData = data.budget;
+  const goalsData = data.goals;
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -129,7 +139,7 @@ const Budget = () => {
           textAlign: "center",
         },
       });
-      mutate();
+      fetcher();
     } catch (error) {
       Toast.show({
         type: "error",
@@ -210,6 +220,7 @@ const Budget = () => {
 
     return initialCategorizedBudget;
   }, [categoriesData, budgetData, goalsData]);
+
   const totalBudgetAmount = useMemo(() => {
     return (
       categorizedBudget.living.reduce(

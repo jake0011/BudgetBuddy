@@ -6,7 +6,7 @@ const swrConfig: SWRConfiguration = {
   revalidateIfStale: true,
   revalidateOnMount: true,
   revalidateOnReconnect: true,
-  refreshInterval: 1000,
+  // refreshInterval: 1000,
 };
 
 export default swrConfig; // Export the SWR configuration as default
