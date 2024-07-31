@@ -23,7 +23,7 @@
       [
         "expo-asset",
         {
-          "assets": "./assets/*"
+          "assets": ["./assets/*"]
         }
       ],
       "expo-font"
