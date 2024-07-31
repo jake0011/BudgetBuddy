@@ -30,7 +30,18 @@
     ],
     "name": "Budget Buddy",
     "slug": "budget-buddy",
-    "sdkVersion": "51.0.0"
+    "sdkVersion": "51.0.0",
+    "extra": {
+      "router": {
+        "origin": "https://n"
+      },
+      "eas": {
+        "projectId": "082bb5db-0f18-4ddf-a087-d7ca1d51baed"
+      }
+    },
+    "android": {
+      "package": "com.synxgh.budgetbuddy"
+    }
   },
   "name": "budget-buddy"
 }
