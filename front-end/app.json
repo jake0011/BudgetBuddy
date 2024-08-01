@@ -23,7 +23,16 @@
       [
         "expo-asset",
         {
-          "assets": ["./assets/*"]
+          "assets": [
+            "./assets/logo.png",
+            "./assets/splash.png",
+            "./assets/images/budgetManagement.png",
+            "./assets/images/expenseTracking.jpg",
+            "./assets/images/financialGoals.jpg",
+            "./assets/images/getStarted.png",
+            "./assets/images/onboarding-5.jpg",
+            "./assets/images/welcome.jpg"
+          ]
         }
       ],
       "expo-font"
